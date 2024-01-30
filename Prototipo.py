@@ -9,9 +9,13 @@ import psycopg2
 
 ##########################################################################################################################
 #Parametros de la base de datos
-    
+datahost="localhost"
+dataname="postgres"
+datauser="postgres"
+datapass="1234"
+dataport=5432
 
-conn=psycopg2.connect(host="localhost",dbname="postgres", user="postgres", password="1234",port=5432)
+conn=psycopg2.connect(host=datahost,dbname=dataname, user=datauser, password=datapass,port=dataport)
 
 cur=conn.cursor()
 operacion="""CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR (255),age INT, gender CHAR ) """
