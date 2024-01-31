@@ -1,0 +1,5 @@
+1. Que differentes accesos tienen que tener los distintos usuarios, en las dos bases de datos.
+2. Cada cuanto actualizamos los datos
+3. El data logger como lo podemos usuar, lo pasamos a csv o que?
+4. Se actualizan los datos automaticamente o lo puede hacer alguien más?
+5. Como Guardamos todos los datos en la base de datos
