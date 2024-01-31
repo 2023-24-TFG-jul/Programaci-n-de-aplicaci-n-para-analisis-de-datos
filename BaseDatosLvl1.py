@@ -1,7 +1,7 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.15
+#Versión:0.2
 #Descripción: Por ahora nada
 #########################################################################################################################
 #Definimos los imports
@@ -28,17 +28,17 @@ class BaseDatosLlv1:
         
     #Obtenemos los datos de una fecha a otra fecha
     ####################################################################################################################
-    def obtenerdat(self,ini,fin):
-        orden=""" """
+    def obtenerdat(self,ini,fin,base):
+        orden="""SELECT * FROM %s"""
         #Enviamos la operación a la base de datos
-        self.cur.execute(orden)
+        self.cur.execute(orden,base)
         self.conn.commit()
     ######################################################################################################################
 
     #Actualizamos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
     def actualizar(self):
-        orden=""" """
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner ( ) """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
