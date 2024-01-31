@@ -1,0 +1,5 @@
+\babel@toc {spanish}{}\relax 
+\babel@toc {spanish}{}\relax 
+\contentsline {chapter}{\'{I}ndice general}{\es@scroman {ii}}{section*.1}%
+\contentsline {chapter}{\'{I}ndice de figuras}{\es@scroman {iii}}{section*.2}%
+\contentsline {chapter}{\'{I}ndice de tablas}{\es@scroman {iv}}{section*.3}%
