@@ -3,3 +3,5 @@
 3. El data logger como lo podemos usuar, lo pasamos a csv o que?
 4. Se actualizan los datos automaticamente o lo puede hacer alguien más?
 5. Como Guardamos todos los datos en la base de datos
+6. Donde en la base de datos guardamos cada csv
+7. 
