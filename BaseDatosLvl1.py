@@ -1,8 +1,8 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.22
-#Descripción: Por ahora nada
+#Versión:0.221
+#Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
 import psycopg2
