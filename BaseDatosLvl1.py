@@ -1,7 +1,7 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.2
+#Versión:0.22
 #Descripción: Por ahora nada
 #########################################################################################################################
 #Definimos los imports
@@ -57,7 +57,13 @@ class BaseDatosLlv1:
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
-    #Definimos el Cierre de la conexión con la base de datos
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (gain FLOAT,shutter VARCHAR(255),azimuth FLOAT,blocked INTEGER,cloud_cover FLOAT,
+        cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust INTEGER,elevation FLOAT,image VARCHAR,mode INTEGER,temperature FLOAT,
+        thumbnail VARCHAR,time VARCHAR PRIMARY KEY) """
+        #Enviamos la operación a la base de datos
+        self.cur.execute(orden)
+        self.conn.commit()
+     #Definimos el Cierre de la conexión con la base de datos
     def stop(self):
         #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
         self.cur.close()
