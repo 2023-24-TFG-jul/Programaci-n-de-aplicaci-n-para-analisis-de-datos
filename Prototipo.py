@@ -47,6 +47,8 @@ operacion="""SELECT * FROM person """
 cur.execute(operacion)
 conn.commit()
 personas=cur.fetchall()
+old=[]
+young=[]
 male=[]
 female=[]
 for pep in personas:
@@ -54,8 +56,18 @@ for pep in personas:
         male.append(pep)
     else:
         female.append(pep)
+    if(pep[2]>18):
+        old.append(pep)
+    else:
+        young.append(pep)
+print("\nLos hombre en la base de datos son:\n")
 print(male)
+print("\nLas mujeres en la base de datos son:\n")
 print(female)
+print("\nLos mayores en la base de datos son:\n")
+print(old)
+print("\nLos menores en la base de datos son:\n")
+print(young)
 
 
 
