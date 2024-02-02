@@ -46,6 +46,17 @@ operacion="""SELECT * FROM person """
 #Enviamos la operación a la base de datos
 cur.execute(operacion)
 conn.commit()
+personas=cur.fetchall()
+male=[]
+female=[]
+for pep in personas:
+    if pep[3] =='M':
+        male.append(pep)
+    else:
+        female.append(pep)
+print(male)
+print(female)
+
 
 
 
