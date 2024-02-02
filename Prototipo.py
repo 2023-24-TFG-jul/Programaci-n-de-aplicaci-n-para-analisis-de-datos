@@ -28,15 +28,11 @@ operacion="""SELECT * FROM person """
 cur.execute(operacion)
 conn.commit()
 print(cur.fetchall())
-operacion="""INSERT INTO person (id,name,age,gender) Values (72345049,'Federico',23,'M') """
-#Enviamos la operación a la base de datos
-cur.execute(operacion)
-conn.commit()
 operacion="""SELECT * FROM person """
 #Enviamos la operación a la base de datos
 cur.execute(operacion)
 conn.commit()
-print(cur.fetchall())
+print(cur.fetchall()[0][1])
 
 
 
