@@ -23,6 +23,22 @@ operacion="""CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR 
 #Enviamos la operación a la base de datos
 cur.execute(operacion)
 conn.commit()
+operacion="""SELECT * FROM person """
+#Enviamos la operación a la base de datos
+cur.execute(operacion)
+conn.commit()
+print(cur.fetchall())
+operacion="""INSERT INTO person (id,name,age,gender) Values (72345049,'Federico',23,'M') """
+#Enviamos la operación a la base de datos
+cur.execute(operacion)
+conn.commit()
+operacion="""SELECT * FROM person """
+#Enviamos la operación a la base de datos
+cur.execute(operacion)
+conn.commit()
+print(cur.fetchall())
+
+
 
 #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
 cur.close()
