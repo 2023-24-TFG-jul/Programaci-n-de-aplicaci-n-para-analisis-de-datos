@@ -53,13 +53,13 @@ class BaseDatosLlv1:
         dat112 FLOAT,dat113 FLOAT,dat114 FLOAT,dat115 FLOAT,dat116 FLOAT,dat117 FLOAT,dat118 FLOAT,dat119 FLOAT,dat120 FLOAT,dat121 FLOAT,
         dat122 FLOAT,dat123 FLOAT,dat124 FLOAT,dat125 FLOAT,dat126 FLOAT,dat127 FLOAT,dat128 FLOAT,dat129 FLOAT,dat130 FLOAT,dat131 FLOAT,
         dat132 FLOAT,dat133 FLOAT,dat134 FLOAT,dat135 FLOAT,dat136 FLOAT,dat137 FLOAT,dat138 FLOAT,dat139 FLOAT,dat140 FLOAT,dat141 FLOAT,
-        dat142 FLOAT,dat143 FLOAT,dat144 FLOAT,dat145 FLOAT) """
+        dat142 FLOAT,dat143 FLOAT,dat144 FLOAT,dat145 FLOAT); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
         orden=""" CREATE TABLE IF NOT EXISTS skyscanner (gain FLOAT,shutter VARCHAR(255),azimuth FLOAT,blocked INTEGER,cloud_cover FLOAT,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust INTEGER,elevation FLOAT,image VARCHAR,mode INTEGER,temperature FLOAT,
-        thumbnail VARCHAR,time VARCHAR PRIMARY KEY) """
+        thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
