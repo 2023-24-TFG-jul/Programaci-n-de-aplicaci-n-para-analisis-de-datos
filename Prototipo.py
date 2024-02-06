@@ -2,7 +2,7 @@
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
 #Versión:0.003
-#Descripción: Por ahora nada
+#Descripción: Algo habra que
 #########################################################################################################################
 #Definimos los imports
 import psycopg2
