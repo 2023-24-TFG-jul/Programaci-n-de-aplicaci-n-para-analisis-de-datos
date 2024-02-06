@@ -1,3 +1,10 @@
+#Nombre:UI
+#Autor:Álvaro Villar Val
+#Fecha:27/02/24
+#Versión:0.001
+#Descripción: Interfaz de usuario para el programa
+#########################################################################################################################
+#Definimos los imports
 import tkinter as tk
 
 root=tk.Tk()
