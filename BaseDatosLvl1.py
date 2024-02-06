@@ -1,7 +1,7 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.221
+#Versión:0.23
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -60,6 +60,12 @@ class BaseDatosLlv1:
         orden=""" CREATE TABLE IF NOT EXISTS skyscanner (gain FLOAT,shutter VARCHAR(255),azimuth FLOAT,blocked INTEGER,cloud_cover FLOAT,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust INTEGER,elevation FLOAT,image VARCHAR,mode INTEGER,temperature FLOAT,
         thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
+        #Enviamos la operación a la base de datos
+        self.cur.execute(orden)
+        self.conn.commit()
+        orden=""" CREATE TABLE IF NOT EXISTS radio ("TIMESTAMP","RECORD","Year","Month","Dia","YearDay","Hour","Minute","BuPres_Avg","BuRH_Avg","BuTemp_Avg","BuRain_Tot","BuWS_Avg","BuWD_Avg","BuTDP_Avg","BuTWB_Avg","BuRaGVN_Avg","BuRaGVE_Avg","BuRaGVS_Avg","BuRaGVW_Avg","BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg","BuLxGVN_Avg","BuLxGVE_Avg","BuLxGVS_Avg","BuLxGVW_Avg","BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg","BuPaGVN_Avg","BuPaGVE_Avg","BuPaGVS_Avg","BuPaGVW_Avg","BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg","BuUvGVN_Avg","BuUvGVE_Avg","BuUvGVS_Avg","BuUvGVW_Avg","BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg","BuUvAGH_Avg","BuUvADH_Avg","BuUvAV_Avg","BuUvBGH_Avg","BuUvBDH_Avg","BuUvBV_Avg","BuUvEGH_Avg","BuUvEDH_Avg","BuUvEV_Avg","BuRaDVN_Avg","BuRaDVE_Avg","BuRaDVS_Avg","BuRaDVW_Avg","BuRaAlUp_Avg","BuRaAlDo_Avg","BuRaAlbe_Avg","BuPaR_Avg","BuLxR_Avg","BuIrGH_Avg"
+                "TS","RN","","","","","","","mbar","%","°C","mm","m/s","°","Deg C","Deg C","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","Lx","Lx","Lx","Lx","Lx","Lx","Lx","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","[]","","","W/m²"
+                    "","","Smp","Smp","Smp","Smp","Smp","Smp","Avg","Avg","Avg","Tot","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg"); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
