@@ -1,7 +1,7 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.35
+#Versión:0.37
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -86,7 +86,17 @@ class BaseDatosLvl1:
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
-     #Definimos el Cierre de la conexión con la base de datos
+    #Definimos la función que leerra el archivo csv
+    def leerCsv(self):
+        #lee el csv del skyscanner
+        medidas=pd.read_csv("Datos\Sky-scanner 2023_12\SS231201.csv",nrows=3, names=[0,1])
+        sky=pd.read_csv("Datos\Sky-scanner 2023_12\SS231201.csv",skiprows=8)
+        #lee el csv de la sky camera
+        cam=pd.read_csv("Datos\sky-camera\\10-Octubre-2023.csv")
+        #lee el datalogger
+        dtl=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+
+    #Definimos el Cierre de la conexión con la base de datos
     def stop(self):
         #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
         self.cur.close()
