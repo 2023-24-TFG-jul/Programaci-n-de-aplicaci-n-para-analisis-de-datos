@@ -8,6 +8,7 @@
 import psycopg2
 import pandas as pd
 from BaseDatosLvl1 import BaseDatosLvl1
+from psycopg2 import sql
 ##########################################################################################################################
 #Parametros de la base de datos
 datahost="localhost"
@@ -20,10 +21,13 @@ conn=psycopg2.connect(host=datahost,dbname=dataname, user=datauser, password=dat
 #Inicializamos el cursor con el que operaremos en la base de datos
 cur=conn.cursor()
 db1=BaseDatosLvl1()
-operacion="""DROP TABLE IF EXISTS person"""
+tablas=['skyscanner','skycamera','radio']
+for tab in tablas:
+    print(db1.obtenerdat(tab))
+#operacion="""DROP TABLE IF EXISTS person"""
 #Enviamos la operación a la base de datos
-cur.execute(operacion)
-conn.commit()
+#cur.execute(operacion)
+#conn.commit()
 # #Guardamos una operación en forma de string 
 # operacion="""CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR (255),age INT, gender CHAR ) """
 # #Enviamos la operación a la base de datos
