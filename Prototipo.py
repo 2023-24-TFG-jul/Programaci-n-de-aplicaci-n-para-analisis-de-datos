@@ -24,6 +24,9 @@ db1=BaseDatosLvl1()
 tablas=['skyscanner','skycamera','radio']
 for tab in tablas:
     print(db1.obtenerdat(tab))
+df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+print(df)
+db1.stop()
 #operacion="""DROP TABLE IF EXISTS person"""
 #Enviamos la operación a la base de datos
 #cur.execute(operacion)
