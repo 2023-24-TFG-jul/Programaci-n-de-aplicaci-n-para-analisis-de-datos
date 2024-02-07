@@ -36,11 +36,17 @@ class BaseDatosLvl1:
         self.cur.execute(query)
         self.conn.commit()
         return self.cur.fetchall()
+    #
+    # query = sql.SQL("select {field} from {table} where {pkey} = %s").format(
+    # field=sql.Identifier('my_name'),
+    # table=sql.Identifier('some_table'),
+    # pkey=sql.Identifier('id'))
     ######################################################################################################################
 
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
     def crear(self):
+        #Creación de las tablasp
         orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sideDateHour VARCHAR(255) PRIMARY KEY,dat1 decimal,dat2 decimal,
         dat3 decimal,dat4 decimal,dat5 decimal,dat6 decimal,dat7 decimal,dat8 decimal,dat9 decimal,dat10 decimal,dat11 decimal,dat12 decimal,
         dat13 decimal,dat14 decimal,dat15 decimal,dat16 decimal,dat17 decimal,dat18 decimal,dat19 decimal,dat20 decimal,dat21 decimal,
@@ -60,6 +66,7 @@ class BaseDatosLvl1:
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
+        #Creación de las tabla en caso de que no exista de la Skycamera
         orden=""" CREATE TABLE IF NOT EXISTS skycamera(gain decimal,shutter VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
         thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
@@ -67,6 +74,7 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
         #Recordar eliminar RECORD dato ineccesario
+        #Creación de las tablas en caso de que no exixta la radio
         orden=""" CREATE TABLE IF NOT EXISTS radio (TIMESTAMP VARCHAR(255),Year integer,Month integer,Dia integer,YearDay integer,Hour integer,Minute integer,
         BuPres_Avg decimal,BuRH_Avg decimal,BuTemp_Avg decimal,BuRain_Tot decimal,BuWS_Avg decimal,BuWD_Avg decimal,BuTDP_Avg decimal,BuTWB_Avg decimal,
         BuRaGVN_Avg decimal,BuRaGVE_Avg decimal,BuRaGVS_Avg decimal,BuRaGVW_Avg decimal,BuRaGH_Avg decimal,BuRaDH_Avg decimal,BuRaB_Avg decimal,BuLxGVN_Avg decimal,
