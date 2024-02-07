@@ -1,13 +1,13 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.3
+#Versión:0.35
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
 import psycopg2
 import pandas as pd
-
+from psycopg2 import sql
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -29,14 +29,16 @@ class BaseDatosLvl1:
         
     #Obtenemos los datos de una fecha a otra fecha
     ####################################################################################################################
-    def obtenerdat(self,ini,fin,base):
-        orden="""SELECT * FROM %s"""
+    def obtenerdat(self,base):
         #Enviamos la operación a la base de datos
-        self.cur.execute(orden,base)
+        query = sql.SQL("select * from {table}").format(
+        table=sql.Identifier(base))
+        self.cur.execute(query)
         self.conn.commit()
+        return self.cur.fetchall()
     ######################################################################################################################
 
-    #Actualizamos la base de datos con los ultimos datos que hayamos obtenido
+    #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
     def crear(self):
         orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sideDateHour VARCHAR(255) PRIMARY KEY,dat1 decimal,dat2 decimal,
