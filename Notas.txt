@@ -1,4 +1,4 @@
 Primary keys para los datos y la base de datos de primer nivel
 -Datalogger: TIMESTAMP
 -Skyscanner: side + date + horaini + horafin + date
--Skycamera: time+nombrearchivo
+-Skycamera: time
