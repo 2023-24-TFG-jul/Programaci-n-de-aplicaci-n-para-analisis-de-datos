@@ -9,7 +9,7 @@ import psycopg2
 import pandas as pd
 
 #Inicializamos la Clase de creación de base de datos
-class BaseDatosLlv1:
+class BaseDatosLvl1:
 
     #Definimos el constructor de la base de datos que hara la conexion con la base de datos
     ####################################################################################################################
@@ -24,6 +24,7 @@ class BaseDatosLlv1:
         self.conn=psycopg2.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
         #Inicializamos el cursor con el que operaremos en la base de datos
         self.cur=self.conn.cursor()
+        self.crear()
     ########################################################################################################################
         
     #Obtenemos los datos de una fecha a otra fecha
@@ -37,35 +38,41 @@ class BaseDatosLlv1:
 
     #Actualizamos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
-    def actualizar(self):
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sideDateHour VARCHAR(255) PRIMARY KEY,dat1 FLOAT,dat2 FLOAT,
-        dat3 FLOAT,dat4 FLOAT,dat5 FLOAT,dat6 FLOAT,dat7 FLOAT,dat8 FLOAT,dat9 FLOAT,dat10 FLOAT,dat11 FLOAT,dat12 FLOAT,
-        dat13 FLOAT,dat14 FLOAT,dat15 FLOAT,dat16 FLOAT,dat17 FLOAT,dat18 FLOAT,dat19 FLOAT,dat20 FLOAT,dat21 FLOAT,
-        dat22 FLOAT,dat23 FLOAT,dat24 FLOAT,dat25 FLOAT,dat26 FLOAT,dat27 FLOAT,dat28 FLOAT,dat29 FLOAT,dat30 FLOAT,dat31 FLOAT,
-        dat32 FLOAT,dat33 FLOAT,dat34 FLOAT,dat35 FLOAT,dat36 FLOAT,dat37 FLOAT,dat38 FLOAT,dat39 FLOAT,dat40 FLOAT,dat41 FLOAT,
-        dat42 FLOAT,dat43 FLOAT,dat44 FLOAT,dat45 FLOAT,dat46 FLOAT,dat47 FLOAT,dat48 FLOAT,dat49 FLOAT,dat50 FLOAT,dat51 FLOAT,
-        dat52 FLOAT,dat53 FLOAT,dat54 FLOAT,dat55 FLOAT,dat56 FLOAT,dat57 FLOAT,dat58 FLOAT,dat59 FLOAT,dat60 FLOAT,dat61 FLOAT,
-        dat62 FLOAT,dat63 FLOAT,dat64 FLOAT,dat65 FLOAT,dat66 FLOAT,dat67 FLOAT,dat68 FLOAT,dat69 FLOAT,dat70 FLOAT,dat71 FLOAT,
-        dat72 FLOAT,dat73 FLOAT,dat74 FLOAT,dat75 FLOAT,dat76 FLOAT,dat77 FLOAT,dat78 FLOAT,dat79 FLOAT,dat8 FLOAT,dat81 FLOAT,
-        dat82 FLOAT,dat83 FLOAT,dat84 FLOAT,dat85 FLOAT,dat86 FLOAT,dat87 FLOAT,dat88 FLOAT,dat89 FLOAT,dat90 FLOAT,dat91 FLOAT,
-        dat92 FLOAT,dat93 FLOAT,dat94 FLOAT,dat95 FLOAT,dat96 FLOAT,dat97 FLOAT,dat98 FLOAT,dat99 FLOAT,dat100 FLOAT,dat101 FLOAT,
-        dat102 FLOAT,dat103 FLOAT,dat104 FLOAT,dat105 FLOAT,dat106 FLOAT,dat107 FLOAT,dat108 FLOAT,dat109 FLOAT,dat110 FLOAT,dat111 FLOAT,
-        dat112 FLOAT,dat113 FLOAT,dat114 FLOAT,dat115 FLOAT,dat116 FLOAT,dat117 FLOAT,dat118 FLOAT,dat119 FLOAT,dat120 FLOAT,dat121 FLOAT,
-        dat122 FLOAT,dat123 FLOAT,dat124 FLOAT,dat125 FLOAT,dat126 FLOAT,dat127 FLOAT,dat128 FLOAT,dat129 FLOAT,dat130 FLOAT,dat131 FLOAT,
-        dat132 FLOAT,dat133 FLOAT,dat134 FLOAT,dat135 FLOAT,dat136 FLOAT,dat137 FLOAT,dat138 FLOAT,dat139 FLOAT,dat140 FLOAT,dat141 FLOAT,
-        dat142 FLOAT,dat143 FLOAT,dat144 FLOAT,dat145 FLOAT); """
+    def crear(self):
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sideDateHour VARCHAR(255) PRIMARY KEY,dat1 decimal,dat2 decimal,
+        dat3 decimal,dat4 decimal,dat5 decimal,dat6 decimal,dat7 decimal,dat8 decimal,dat9 decimal,dat10 decimal,dat11 decimal,dat12 decimal,
+        dat13 decimal,dat14 decimal,dat15 decimal,dat16 decimal,dat17 decimal,dat18 decimal,dat19 decimal,dat20 decimal,dat21 decimal,
+        dat22 decimal,dat23 decimal,dat24 decimal,dat25 decimal,dat26 decimal,dat27 decimal,dat28 decimal,dat29 decimal,dat30 decimal,dat31 decimal,
+        dat32 decimal,dat33 decimal,dat34 decimal,dat35 decimal,dat36 decimal,dat37 decimal,dat38 decimal,dat39 decimal,dat40 decimal,dat41 decimal,
+        dat42 decimal,dat43 decimal,dat44 decimal,dat45 decimal,dat46 decimal,dat47 decimal,dat48 decimal,dat49 decimal,dat50 decimal,dat51 decimal,
+        dat52 decimal,dat53 decimal,dat54 decimal,dat55 decimal,dat56 decimal,dat57 decimal,dat58 decimal,dat59 decimal,dat60 decimal,dat61 decimal,
+        dat62 decimal,dat63 decimal,dat64 decimal,dat65 decimal,dat66 decimal,dat67 decimal,dat68 decimal,dat69 decimal,dat70 decimal,dat71 decimal,
+        dat72 decimal,dat73 decimal,dat74 decimal,dat75 decimal,dat76 decimal,dat77 decimal,dat78 decimal,dat79 decimal,dat80 decimal,dat81 decimal,
+        dat82 decimal,dat83 decimal,dat84 decimal,dat85 decimal,dat86 decimal,dat87 decimal,dat88 decimal,dat89 decimal,dat90 decimal,dat91 decimal,
+        dat92 decimal,dat93 decimal,dat94 decimal,dat95 decimal,dat96 decimal,dat97 decimal,dat98 decimal,dat99 decimal,dat100 decimal,dat101 decimal,
+        dat102 decimal,dat103 decimal,dat104 decimal,dat105 decimal,dat106 decimal,dat107 decimal,dat108 decimal,dat109 decimal,dat110 decimal,dat111 decimal,
+        dat112 decimal,dat113 decimal,dat114 decimal,dat115 decimal,dat116 decimal,dat117 decimal,dat118 decimal,dat119 decimal,dat120 decimal,dat121 decimal,
+        dat122 decimal,dat123 decimal,dat124 decimal,dat125 decimal,dat126 decimal,dat127 decimal,dat128 decimal,dat129 decimal,dat130 decimal,dat131 decimal,
+        dat132 decimal,dat133 decimal,dat134 decimal,dat135 decimal,dat136 decimal,dat137 decimal,dat138 decimal,dat139 decimal,dat140 decimal,dat141 decimal,
+        dat142 decimal,dat143 decimal,dat144 decimal,dat145 decimal); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (gain FLOAT,shutter VARCHAR(255),azimuth FLOAT,blocked INTEGER,cloud_cover FLOAT,
-        cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust INTEGER,elevation FLOAT,image VARCHAR,mode INTEGER,temperature FLOAT,
+        orden=""" CREATE TABLE IF NOT EXISTS skycamera(gain decimal,shutter VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
+        cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
         thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
-        orden=""" CREATE TABLE IF NOT EXISTS radio ("TIMESTAMP","RECORD","Year","Month","Dia","YearDay","Hour","Minute","BuPres_Avg","BuRH_Avg","BuTemp_Avg","BuRain_Tot","BuWS_Avg","BuWD_Avg","BuTDP_Avg","BuTWB_Avg","BuRaGVN_Avg","BuRaGVE_Avg","BuRaGVS_Avg","BuRaGVW_Avg","BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg","BuLxGVN_Avg","BuLxGVE_Avg","BuLxGVS_Avg","BuLxGVW_Avg","BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg","BuPaGVN_Avg","BuPaGVE_Avg","BuPaGVS_Avg","BuPaGVW_Avg","BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg","BuUvGVN_Avg","BuUvGVE_Avg","BuUvGVS_Avg","BuUvGVW_Avg","BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg","BuUvAGH_Avg","BuUvADH_Avg","BuUvAV_Avg","BuUvBGH_Avg","BuUvBDH_Avg","BuUvBV_Avg","BuUvEGH_Avg","BuUvEDH_Avg","BuUvEV_Avg","BuRaDVN_Avg","BuRaDVE_Avg","BuRaDVS_Avg","BuRaDVW_Avg","BuRaAlUp_Avg","BuRaAlDo_Avg","BuRaAlbe_Avg","BuPaR_Avg","BuLxR_Avg","BuIrGH_Avg"
-                "TS","RN","","","","","","","mbar","%","°C","mm","m/s","°","Deg C","Deg C","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","Lx","Lx","Lx","Lx","Lx","Lx","Lx","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","µmol/m²s","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","W/m²","[]","","","W/m²"
-                    "","","Smp","Smp","Smp","Smp","Smp","Smp","Avg","Avg","Avg","Tot","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg","Avg"); """
+        #Recordar eliminar RECORD dato ineccesario
+        orden=""" CREATE TABLE IF NOT EXISTS radio (TIMESTAMP VARCHAR(255),Year integer,Month integer,Dia integer,YearDay integer,Hour integer,Minute integer,
+        BuPres_Avg decimal,BuRH_Avg decimal,BuTemp_Avg decimal,BuRain_Tot decimal,BuWS_Avg decimal,BuWD_Avg decimal,BuTDP_Avg decimal,BuTWB_Avg decimal,
+        BuRaGVN_Avg decimal,BuRaGVE_Avg decimal,BuRaGVS_Avg decimal,BuRaGVW_Avg decimal,BuRaGH_Avg decimal,BuRaDH_Avg decimal,BuRaB_Avg decimal,BuLxGVN_Avg decimal,
+        BuLxGVE_Avg decimal,BuLxGVS_Avg decimal,BuLxGVW_Avg decimal,BuLxGH_Avg decimal,BuLxDH_Avg decimal,BuLxB_Avg decimal,BuPaGVN_Avg decimal,BuPaGVE_Avg decimal,
+        BuPaGVS_Avg decimal,BuPaGVW_Avg decimal,BuPaGH_Avg decimal,BuPaDH_Avg decimal,BuPaB_Avg decimal,BuUvGVN_Avg decimal,BuUvGVE_Avg decimal, BuUvGVS_Avg decimal,
+        BuUvGVW_Avg decimal,BuUvGH_Avg decimal,BuUvDH_Avg decimal,BuUvB_Avg decimal,BuUvAGH_Avg decimal,BuUvADH_Avg decimal,BuUvAV_Avg decimal,BuUvBGH_Avg decimal,
+        BuUvBDH_Avg decimal,BuUvBV_Avg decimal,BuUvEGH_Avg decimal,BuUvEDH_Avg decimal,BuUvEV_Avg decimal,BuRaDVN_Avg decimal,BuRaDVE_Avg decimal,BuRaDVS_Avg decimal,
+        BuRaDVW_Avg decimal,BuRaAlUp_Avg decimal,BuRaAlDo_Avg decimal,BuRaAlbe_Avg decimal,BuPaR_Avg decimal,BuLxR_Avg decimal,BuIrGH_Avg decimal)"""
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
