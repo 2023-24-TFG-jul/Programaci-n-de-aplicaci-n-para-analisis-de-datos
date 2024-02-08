@@ -27,14 +27,9 @@ conn_string = 'postgresql://postgres:1234@localhost/postgres'
 db = create_engine(conn_string) 
 conn = db.connect() 
 
-
-# our dataframe 
-data = {'Name': ['Tom', 'dick', 'harry'], 
-		'Age': [22, 21, 24]} 
-
 # Create DataFrame 
 db1=BaseDatosLvl1()
-df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+df=pd.read_csv("Datos\datalogger\CR3000_K_NOVIEMBRE_2023.dat",skiprows=[0,2,3])
 df.drop("RECORD",inplace=True,axis=1)
 df.to_sql('radio', con=conn, if_exists='append', 
 		index=False) 
