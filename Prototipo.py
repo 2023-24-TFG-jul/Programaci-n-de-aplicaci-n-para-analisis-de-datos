@@ -25,12 +25,14 @@ tablas=['skyscanner','skycamera','radio']
 for tab in tablas:
     print(db1.obtenerdat(tab))
 df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
-print(df)
+df.to_sql("radio",con=conn,if_exists="append")
+df2=pd.read_sql_query("""SELECT * FROM radio;""")
+print(df2)
 db1.stop()
-#operacion="""DROP TABLE IF EXISTS person"""
-#Enviamos la operación a la base de datos
-#cur.execute(operacion)
-#conn.commit()
+# operacion="""DROP TABLE IF EXISTS person"""
+# #Enviamos la operación a la base de datos
+# cur.execute(operacion)
+# conn.commit()
 # #Guardamos una operación en forma de string 
 # operacion="""CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR (255),age INT, gender CHAR ) """
 # #Enviamos la operación a la base de datos

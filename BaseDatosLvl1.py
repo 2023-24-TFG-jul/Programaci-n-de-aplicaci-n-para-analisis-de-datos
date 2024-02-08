@@ -86,7 +86,7 @@ class BaseDatosLvl1:
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
-    #Definimos la función que leerra el archivo csv
+    #Definimos la función que leerra el archivo csv 
     def leerCsv(self):
         #lee el csv del skyscanner
         medidas=pd.read_csv("Datos\Sky-scanner 2023_12\SS231201.csv",nrows=3, names=[0,1])
@@ -95,6 +95,7 @@ class BaseDatosLvl1:
         cam=pd.read_csv("Datos\sky-camera\\10-Octubre-2023.csv")
         #lee el datalogger
         dtl=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+        return medidas,sky,cam,dtl
 
     #Definimos el Cierre de la conexión con la base de datos
     def stop(self):
