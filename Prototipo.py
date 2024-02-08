@@ -33,15 +33,17 @@ data = {'Name': ['Tom', 'dick', 'harry'],
 		'Age': [22, 21, 24]} 
 
 # Create DataFrame 
-df = pd.DataFrame(data) 
-df.to_sql('data', con=conn, if_exists='replace', 
+db1=BaseDatosLvl1()
+df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+df.drop("RECORD",inplace=True,axis=1)
+df.to_sql('radio', con=conn, if_exists='append', 
 		index=False) 
 conn = psycopg2.connect(conn_string 
 						) 
 conn.autocommit = True
 cursor = conn.cursor() 
 
-sql1 = '''select * from data;'''
+sql1 = '''select * from radio;'''
 cursor.execute(sql1) 
 for i in cursor.fetchall(): 
 	print(i) 
@@ -58,7 +60,7 @@ conn.close()
 # tablas=['skyscanner','skycamera','radio']
 # for tab in tablas:
 #     print(db1.obtenerdat(tab))
-# df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+ 
 # df.to_sql("radio",con=conn,if_exists="append")
 # df2=pd.read_sql_query("""SELECT * FROM radio;""")
 # print(df2)
