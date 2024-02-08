@@ -1,7 +1,7 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.37
+#Versión:0.38
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -75,14 +75,14 @@ class BaseDatosLvl1:
         self.conn.commit()
         #Recordar eliminar RECORD dato ineccesario
         #Creación de las tablas en caso de que no exixta la radio
-        orden=""" CREATE TABLE IF NOT EXISTS radio (TIMESTAMP VARCHAR(255),Year integer,Month integer,Dia integer,YearDay integer,Hour integer,Minute integer,
-        BuPres_Avg decimal,BuRH_Avg decimal,BuTemp_Avg decimal,BuRain_Tot decimal,BuWS_Avg decimal,BuWD_Avg decimal,BuTDP_Avg decimal,BuTWB_Avg decimal,
-        BuRaGVN_Avg decimal,BuRaGVE_Avg decimal,BuRaGVS_Avg decimal,BuRaGVW_Avg decimal,BuRaGH_Avg decimal,BuRaDH_Avg decimal,BuRaB_Avg decimal,BuLxGVN_Avg decimal,
-        BuLxGVE_Avg decimal,BuLxGVS_Avg decimal,BuLxGVW_Avg decimal,BuLxGH_Avg decimal,BuLxDH_Avg decimal,BuLxB_Avg decimal,BuPaGVN_Avg decimal,BuPaGVE_Avg decimal,
-        BuPaGVS_Avg decimal,BuPaGVW_Avg decimal,BuPaGH_Avg decimal,BuPaDH_Avg decimal,BuPaB_Avg decimal,BuUvGVN_Avg decimal,BuUvGVE_Avg decimal, BuUvGVS_Avg decimal,
-        BuUvGVW_Avg decimal,BuUvGH_Avg decimal,BuUvDH_Avg decimal,BuUvB_Avg decimal,BuUvAGH_Avg decimal,BuUvADH_Avg decimal,BuUvAV_Avg decimal,BuUvBGH_Avg decimal,
-        BuUvBDH_Avg decimal,BuUvBV_Avg decimal,BuUvEGH_Avg decimal,BuUvEDH_Avg decimal,BuUvEV_Avg decimal,BuRaDVN_Avg decimal,BuRaDVE_Avg decimal,BuRaDVS_Avg decimal,
-        BuRaDVW_Avg decimal,BuRaAlUp_Avg decimal,BuRaAlDo_Avg decimal,BuRaAlbe_Avg decimal,BuPaR_Avg decimal,BuLxR_Avg decimal,BuIrGH_Avg decimal)"""
+        orden=""" CREATE TABLE IF NOT EXISTS radio ("TIMESTAMP" VARCHAR PRIMARY KEY,"Year" integer,"Month" integer,"Dia" integer,"YearDay" integer,"Hour" integer,"Minute" integer,
+        "BuPres_Avg" decimal,"BuRH_Avg" decimal,"BuTemp_Avg" decimal,"BuRain_Tot" decimal,"BuWS_Avg" decimal,"BuWD_Avg" decimal,"BuTDP_Avg" decimal,"BuTWB_Avg" decimal,
+        "BuRaGVN_Avg" decimal,"BuRaGVE_Avg" decimal,"BuRaGVS_Avg" decimal,"BuRaGVW_Avg" decimal,"BuRaGH_Avg" decimal,"BuRaDH_Avg" decimal,"BuRaB_Avg" decimal,"BuLxGVN_Avg" decimal,
+        "BuLxGVE_Avg" decimal,"BuLxGVS_Avg" decimal,"BuLxGVW_Avg" decimal,"BuLxGH_Avg" decimal,"BuLxDH_Avg" decimal,"BuLxB_Avg" decimal,"BuPaGVN_Avg" decimal,"BuPaGVE_Avg" decimal,
+        "BuPaGVS_Avg" decimal,"BuPaGVW_Avg" decimal,"BuPaGH_Avg" decimal,"BuPaDH_Avg" decimal,"BuPaB_Avg" decimal,"BuUvGVN_Avg" decimal,"BuUvGVE_Avg" decimal, "BuUvGVS_Avg" decimal,
+        "BuUvGVW_Avg" decimal,"BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,"BuUvBGH_Avg" decimal,
+        "BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,"BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,"BuRaDVS_Avg" decimal,
+        "BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,"BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal)"""
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
