@@ -9,6 +9,7 @@ import psycopg2
 import pandas as pd
 from BaseDatosLvl1 import BaseDatosLvl1
 from psycopg2 import sql
+from sqlalchemy import create_engine
 ##########################################################################################################################
 #Parametros de la base de datos
 datahost="localhost"
@@ -16,19 +17,52 @@ dataname="postgres"
 datauser="postgres"
 datapass="1234"
 dataport=5432
+import psycopg2 
+import pandas as pd 
+from sqlalchemy import create_engine 
+
+
+conn_string = 'postgresql://postgres:1234@localhost/postgres'
+
+db = create_engine(conn_string) 
+conn = db.connect() 
+
+
+# our dataframe 
+data = {'Name': ['Tom', 'dick', 'harry'], 
+		'Age': [22, 21, 24]} 
+
+# Create DataFrame 
+df = pd.DataFrame(data) 
+df.to_sql('data', con=conn, if_exists='replace', 
+		index=False) 
+conn = psycopg2.connect(conn_string 
+						) 
+conn.autocommit = True
+cursor = conn.cursor() 
+
+sql1 = '''select * from data;'''
+cursor.execute(sql1) 
+for i in cursor.fetchall(): 
+	print(i) 
+
+# conn.commit() 
+conn.close() 
+
+ 
 #Establecemos la conexion con la base de datos
-conn=psycopg2.connect(host=datahost,dbname=dataname, user=datauser, password=datapass,port=dataport)
-#Inicializamos el cursor con el que operaremos en la base de datos
-cur=conn.cursor()
-db1=BaseDatosLvl1()
-tablas=['skyscanner','skycamera','radio']
-for tab in tablas:
-    print(db1.obtenerdat(tab))
-df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
-df.to_sql("radio",con=conn,if_exists="append")
-df2=pd.read_sql_query("""SELECT * FROM radio;""")
-print(df2)
-db1.stop()
+# conn=psycopg2.connect(host=datahost,dbname=dataname, user=datauser, password=datapass,port=dataport)
+# #Inicializamos el cursor con el que operaremos en la base de datos
+# cur=conn.cursor()
+# db1=BaseDatosLvl1()
+# tablas=['skyscanner','skycamera','radio']
+# for tab in tablas:
+#     print(db1.obtenerdat(tab))
+# df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+# df.to_sql("radio",con=conn,if_exists="append")
+# df2=pd.read_sql_query("""SELECT * FROM radio;""")
+# print(df2)
+# db1.stop()
 # operacion="""DROP TABLE IF EXISTS person"""
 # #Enviamos la operación a la base de datos
 # cur.execute(operacion)
@@ -84,5 +118,5 @@ db1.stop()
 
 
 #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
-cur.close()
+#cur.close()
 conn.close()
