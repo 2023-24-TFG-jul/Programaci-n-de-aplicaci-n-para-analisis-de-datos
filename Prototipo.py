@@ -2,11 +2,13 @@
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
 #Versión:0.003
-#Descripción: Por ahora nada
+#Descripción: Algo habra que
 #########################################################################################################################
 #Definimos los imports
 import psycopg2
 import pandas as pd
+from BaseDatosLvl1 import BaseDatosLvl1
+from psycopg2 import sql
 ##########################################################################################################################
 #Parametros de la base de datos
 datahost="localhost"
@@ -18,56 +20,63 @@ dataport=5432
 conn=psycopg2.connect(host=datahost,dbname=dataname, user=datauser, password=datapass,port=dataport)
 #Inicializamos el cursor con el que operaremos en la base de datos
 cur=conn.cursor()
-operacion="""DROP TABLE IF EXISTS person"""
+db1=BaseDatosLvl1()
+tablas=['skyscanner','skycamera','radio']
+for tab in tablas:
+    print(db1.obtenerdat(tab))
+df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
+print(df)
+db1.stop()
+#operacion="""DROP TABLE IF EXISTS person"""
 #Enviamos la operación a la base de datos
-cur.execute(operacion)
-conn.commit()
-#Guardamos una operación en forma de string 
-operacion="""CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR (255),age INT, gender CHAR ) """
-#Enviamos la operación a la base de datos
-cur.execute(operacion)
-conn.commit()
-operacion="""SELECT * FROM person """
-#Enviamos la operación a la base de datos
-cur.execute(operacion)
-conn.commit()
-print(cur.fetchall())
-name=['Hugo','Martín','Lucas','Mateo','Leo' ,'Daniel','Alejandro','Pablo','Manuel','Álvaro','Adrián','David','Mario','Enzo','Diego' ]
-for i in range(15):
-    operacion="""INSERT INTO person (id,name,age,gender) Values (%s,%s,%s,%s) """
-    gender='M'
-    if ((i%2)!= 0):
-        gender='F'
-    value_insert=(i, name[i],i*5,gender)
-    #Enviamos la operación a la base de datos
-    cur.execute(operacion,value_insert)
-    conn.commit()
-operacion="""SELECT * FROM person """
-#Enviamos la operación a la base de datos
-cur.execute(operacion)
-conn.commit()
-personas=cur.fetchall()
-old=[]
-young=[]
-male=[]
-female=[]
-for pep in personas:
-    if pep[3] =='M':
-        male.append(pep)
-    else:
-        female.append(pep)
-    if(pep[2]>18):
-        old.append(pep)
-    else:
-        young.append(pep)
-print("\nLos hombre en la base de datos son:\n")
-print(male)
-print("\nLas mujeres en la base de datos son:\n")
-print(female)
-print("\nLos mayores en la base de datos son:\n")
-print(old)
-print("\nLos menores en la base de datos son:\n")
-print(young)
+#cur.execute(operacion)
+#conn.commit()
+# #Guardamos una operación en forma de string 
+# operacion="""CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR (255),age INT, gender CHAR ) """
+# #Enviamos la operación a la base de datos
+# cur.execute(operacion)
+# conn.commit()
+# operacion="""SELECT * FROM person """
+# #Enviamos la operación a la base de datos
+# cur.execute(operacion)
+# conn.commit()
+# print(cur.fetchall())
+# name=['Hugo','Martín','Lucas','Mateo','Leo' ,'Daniel','Alejandro','Pablo','Manuel','Álvaro','Adrián','David','Mario','Enzo','Diego' ]
+# for i in range(15):
+#     operacion="""INSERT INTO person (id,name,age,gender) Values (%s,%s,%s,%s) """
+#     gender='M'
+#     if ((i%2)!= 0):
+#         gender='F'
+#     value_insert=(i, name[i],i*5,gender)
+#     #Enviamos la operación a la base de datos
+#     cur.execute(operacion,value_insert)
+#     conn.commit()
+# operacion="""SELECT * FROM person """
+# #Enviamos la operación a la base de datos
+# cur.execute(operacion)
+# conn.commit()
+# personas=cur.fetchall()
+# old=[]
+# young=[]
+# male=[]
+# female=[]
+# for pep in personas:
+#     if pep[3] =='M':
+#         male.append(pep)
+#     else:
+#         female.append(pep)
+#     if(pep[2]>18):
+#         old.append(pep)
+#     else:
+#         young.append(pep)
+# print("\nLos hombre en la base de datos son:\n")
+# print(male)
+# print("\nLas mujeres en la base de datos son:\n")
+# print(female)
+# print("\nLos mayores en la base de datos son:\n")
+# print(old)
+# print("\nLos menores en la base de datos son:\n")
+# print(young)
 
 
 

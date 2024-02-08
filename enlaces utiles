@@ -10,4 +10,12 @@ https://www.youtube.com/watch?v=zw4s3Ey8ayo
 https://platzi.com/tutoriales/100-postgresql-2017/1522-importar-y-exportar-csv-en-postgres/
 6.Postgres en python:
 https://pynative.com/python-postgresql-tutorial/
+7.Guardar imagenes en postgres:
+https://cloudinary.com/blog/guest_post/handling-image-uploads-with-postgres-in-redwoodjs#:~:text=Storing%20Images%20as%20BLOBs%20in,it%20directly%20in%20the%20database.
+8.Conversion de .dat a .csv:
+https://blog.finxter.com/how-to-convert-dat-to-csv-file-in-python/#:~:text=You%20can%20convert%20a%20.,the%20DataFrame%20to%20the%20file.
+9.Documentación libreria Psycopg2:
+https://www.psycopg.org/docs/
+10.Documentación libreria pandas:
+https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html
 
