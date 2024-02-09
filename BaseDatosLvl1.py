@@ -1,13 +1,14 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.38
+#Versión:0.4
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
 import psycopg2
 import pandas as pd
 from psycopg2 import sql
+from sqlalchemy import create_engine 
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -24,6 +25,10 @@ class BaseDatosLvl1:
         self.conn=psycopg2.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
         #Inicializamos el cursor con el que operaremos en la base de datos
         self.cur=self.conn.cursor()
+
+        conn_string = 'postgresql://{}:{}@{}/{}'.format(self.datauser,self.datapass,self.datahost,self.dataname)
+        self.db = create_engine(conn_string) 
+        self.conndb = self.db.connect() 
         self.crear()
     ########################################################################################################################
         
@@ -86,16 +91,19 @@ class BaseDatosLvl1:
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
-    #Definimos la función que leerra el archivo csv 
-    def leerCsv(self):
-        #lee el csv del skyscanner
-        medidas=pd.read_csv("Datos\Sky-scanner 2023_12\SS231201.csv",nrows=3, names=[0,1])
-        sky=pd.read_csv("Datos\Sky-scanner 2023_12\SS231201.csv",skiprows=8)
-        #lee el csv de la sky camera
-        cam=pd.read_csv("Datos\sky-camera\\10-Octubre-2023.csv")
+    #Definimos la función que Injectara los archivos
+    def injectarCsvRadio(self, route):
         #lee el datalogger
-        dtl=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
-        return medidas,sky,cam,dtl
+        df=pd.read_csv(route,skiprows=[0,2,3])
+        df.drop("RECORD",inplace=True,axis=1)
+        df.to_sql('radio', con=self.conndb, if_exists='append',index=False) 
+
+    def injectarCsvRadio(self, route):
+        #lee el datalogger
+        df=pd.read_csv(route,skiprows=[0,2,3])
+        df.drop("RECORD",inplace=True,axis=1)
+        df.to_sql('radio', con=self.conndb, if_exists='append',index=False) 
+        
 
     #Definimos el Cierre de la conexión con la base de datos
     def stop(self):
