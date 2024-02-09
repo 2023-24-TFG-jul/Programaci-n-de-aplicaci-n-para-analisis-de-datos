@@ -12,20 +12,51 @@ from psycopg2 import sql
 from sqlalchemy import create_engine
 ##########################################################################################################################
 #Parametros de la base de datos
-datahost="localhost"
-dataname="postgres"
-datauser="postgres"
-datapass="1234"
-dataport=5432
-import psycopg2 
-import pandas as pd 
-from sqlalchemy import create_engine 
+db1=BaseDatosLvl1()
+db1.injectarCsvSkycamera("Datos\sky-camera\\10-Octubre-2023.csv")
+
+db1.stop()
+# datahost="localhost"
+# dataname="postgres"
+# datauser="postgres"
+# datapass="1234"
+# dataport=5432
+
+# datahost="localhost"
+# dataname="postgres"
+# datauser="postgres"
+# datapass="1234"
+# dataport=5432
+# conn_string = f'postgresql://{datauser}:{datapass}@{datahost}:{dataport}/{dataname}'
+
+
+# engine = create_engine(conn_string)
+
+
+# # our dataframe 
+# data = {'Name': ['Tom', 'dick', 'harry'], 
+# 		'Age': [22, 21, 24]} 
+
+# # Create DataFrame 
+# df = pd.DataFrame(data) 
+# df.to_sql('data', con=engine, if_exists='replace',index=False) 
+# conn = psycopg2.connect(conn_string ) 
+# conn.autocommit = True
+# cursor = conn.cursor() 
+
+# sql1 = '''select * from data;'''
+# cursor.execute(sql1) 
+# for i in cursor.fetchall(): 
+# 	print(i) 
+
+# # conn.commit() 
+# conn.close() 
 
 # Create DataFrame 
-db1=BaseDatosLvl1()
-db1.injectarCsvRadio("Datos\datalogger\CR3000_K_NOVIEMBRE_2023.dat")
 
-
+#db1.injectarCsvRadio("Datos\datalogger\CR3000_K_NOVIEMBRE_2023.dat")
+#db1.injectarCsvSkycamera("Datos\sky-camera\\10-Octubre-2023.csv")
+#db1.stop()
 # conn.commit() 
 
 
