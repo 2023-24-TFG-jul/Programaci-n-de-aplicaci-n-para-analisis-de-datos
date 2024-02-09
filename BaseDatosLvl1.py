@@ -1,7 +1,7 @@
 #Nombre:BaseDatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.4
+#Versión:0.41
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -26,9 +26,8 @@ class BaseDatosLvl1:
         #Inicializamos el cursor con el que operaremos en la base de datos
         self.cur=self.conn.cursor()
 
-        conn_string = 'postgresql://{}:{}@{}/{}'.format(self.datauser,self.datapass,self.datahost,self.dataname)
-        self.db = create_engine(conn_string) 
-        self.conndb = self.db.connect() 
+        conn_string = f'postgresql://{self.datauser}:{self.datapass}@{self.datahost}:{self.dataport}/{self.dataname}'
+        self.engine = create_engine(conn_string) 
         self.crear()
     ########################################################################################################################
         
@@ -72,7 +71,7 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de las tabla en caso de que no exista de la Skycamera
-        orden=""" CREATE TABLE IF NOT EXISTS skycamera(gain decimal,shutter VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
+        orden=""" CREATE TABLE IF NOT EXISTS skycamera("GAIN" VARCHAR,"SHUTTER" VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
         thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
         #Enviamos la operación a la base de datos
@@ -96,13 +95,19 @@ class BaseDatosLvl1:
         #lee el datalogger
         df=pd.read_csv(route,skiprows=[0,2,3])
         df.drop("RECORD",inplace=True,axis=1)
-        df.to_sql('radio', con=self.conndb, if_exists='append',index=False) 
+        df.to_sql('radio', con=self.engine, if_exists='append',index=False) 
 
-    def injectarCsvRadio(self, route):
+    def injectarCsvSkyScanner(self, route):
         #lee el datalogger
-        df=pd.read_csv(route,skiprows=[0,2,3])
+        df=pd.read_csv(route,skiprows=8)
         df.drop("RECORD",inplace=True,axis=1)
-        df.to_sql('radio', con=self.conndb, if_exists='append',index=False) 
+        
+        df.to_sql('radio', con=self.engine, if_exists='append',index=False)
+
+    def injectarCsvSkycamera(self, route):
+        #lee el datalogger
+        df=pd.read_csv(route)
+        df.to_sql('skycamera', con=self.engine, if_exists='append',index=False) 
         
 
     #Definimos el Cierre de la conexión con la base de datos
