@@ -21,30 +21,13 @@ import psycopg2
 import pandas as pd 
 from sqlalchemy import create_engine 
 
-
-conn_string = 'postgresql://postgres:1234@localhost/postgres'
-
-db = create_engine(conn_string) 
-conn = db.connect() 
-
 # Create DataFrame 
 db1=BaseDatosLvl1()
-df=pd.read_csv("Datos\datalogger\CR3000_K_NOVIEMBRE_2023.dat",skiprows=[0,2,3])
-df.drop("RECORD",inplace=True,axis=1)
-df.to_sql('radio', con=conn, if_exists='append', 
-		index=False) 
-conn = psycopg2.connect(conn_string 
-						) 
-conn.autocommit = True
-cursor = conn.cursor() 
+db1.injectarCsvRadio("Datos\datalogger\CR3000_K_NOVIEMBRE_2023.dat")
 
-sql1 = '''select * from radio;'''
-cursor.execute(sql1) 
-for i in cursor.fetchall(): 
-	print(i) 
 
 # conn.commit() 
-conn.close() 
+
 
  
 #Establecemos la conexion con la base de datos
@@ -116,4 +99,3 @@ conn.close()
 
 #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
 #cur.close()
-conn.close()
