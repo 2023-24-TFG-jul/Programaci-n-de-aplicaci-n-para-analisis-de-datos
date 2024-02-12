@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 ##########################################################################################################################
 #Parametros de la base de datos
 db1=BaseDatosLvl1()
-db1.injectarCsvSkycamera("Datos\sky-camera\\10-Octubre-2023.csv")
+db1.injectarCsvSkyScanner("Datos\Sky-scanner 2023_12\SS231201.csv")
 
 db1.stop()
 # datahost="localhost"

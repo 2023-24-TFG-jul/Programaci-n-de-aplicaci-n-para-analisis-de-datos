@@ -1,7 +1,7 @@
-#Nombre:BaseDatosLvl1
+#Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.41
+#Versión:0.42
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -10,9 +10,9 @@ import pandas as pd
 from psycopg2 import sql
 from sqlalchemy import create_engine 
 #Inicializamos la Clase de creación de base de datos
-class BaseDatosLvl1:
+class BasedatosLvl1:
 
-    #Definimos el constructor de la base de datos que hara la conexion con la base de datos
+    #Definimos el constructor de la base de datos que hara la conexion con la base de sectos
     ####################################################################################################################
     def __init__(self):
         #Parametros de la base de datos
@@ -51,22 +51,22 @@ class BaseDatosLvl1:
     ##########################################################################################################################   
     def crear(self):
         #Creación de las tablasp
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sideDateHour VARCHAR(255) PRIMARY KEY,dat1 decimal,dat2 decimal,
-        dat3 decimal,dat4 decimal,dat5 decimal,dat6 decimal,dat7 decimal,dat8 decimal,dat9 decimal,dat10 decimal,dat11 decimal,dat12 decimal,
-        dat13 decimal,dat14 decimal,dat15 decimal,dat16 decimal,dat17 decimal,dat18 decimal,dat19 decimal,dat20 decimal,dat21 decimal,
-        dat22 decimal,dat23 decimal,dat24 decimal,dat25 decimal,dat26 decimal,dat27 decimal,dat28 decimal,dat29 decimal,dat30 decimal,dat31 decimal,
-        dat32 decimal,dat33 decimal,dat34 decimal,dat35 decimal,dat36 decimal,dat37 decimal,dat38 decimal,dat39 decimal,dat40 decimal,dat41 decimal,
-        dat42 decimal,dat43 decimal,dat44 decimal,dat45 decimal,dat46 decimal,dat47 decimal,dat48 decimal,dat49 decimal,dat50 decimal,dat51 decimal,
-        dat52 decimal,dat53 decimal,dat54 decimal,dat55 decimal,dat56 decimal,dat57 decimal,dat58 decimal,dat59 decimal,dat60 decimal,dat61 decimal,
-        dat62 decimal,dat63 decimal,dat64 decimal,dat65 decimal,dat66 decimal,dat67 decimal,dat68 decimal,dat69 decimal,dat70 decimal,dat71 decimal,
-        dat72 decimal,dat73 decimal,dat74 decimal,dat75 decimal,dat76 decimal,dat77 decimal,dat78 decimal,dat79 decimal,dat80 decimal,dat81 decimal,
-        dat82 decimal,dat83 decimal,dat84 decimal,dat85 decimal,dat86 decimal,dat87 decimal,dat88 decimal,dat89 decimal,dat90 decimal,dat91 decimal,
-        dat92 decimal,dat93 decimal,dat94 decimal,dat95 decimal,dat96 decimal,dat97 decimal,dat98 decimal,dat99 decimal,dat100 decimal,dat101 decimal,
-        dat102 decimal,dat103 decimal,dat104 decimal,dat105 decimal,dat106 decimal,dat107 decimal,dat108 decimal,dat109 decimal,dat110 decimal,dat111 decimal,
-        dat112 decimal,dat113 decimal,dat114 decimal,dat115 decimal,dat116 decimal,dat117 decimal,dat118 decimal,dat119 decimal,dat120 decimal,dat121 decimal,
-        dat122 decimal,dat123 decimal,dat124 decimal,dat125 decimal,dat126 decimal,dat127 decimal,dat128 decimal,dat129 decimal,dat130 decimal,dat131 decimal,
-        dat132 decimal,dat133 decimal,dat134 decimal,dat135 decimal,dat136 decimal,dat137 decimal,dat138 decimal,dat139 decimal,dat140 decimal,dat141 decimal,
-        dat142 decimal,dat143 decimal,dat144 decimal,dat145 decimal); """
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidesecteHour VARCHAR(255) PRIMARY KEY,sect1 decimal,sect2 decimal,
+        sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
+        sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
+        sect22 decimal,sect23 decimal,sect24 decimal,sect25 decimal,sect26 decimal,sect27 decimal,sect28 decimal,sect29 decimal,sect30 decimal,sect31 decimal,
+        sect32 decimal,sect33 decimal,sect34 decimal,sect35 decimal,sect36 decimal,sect37 decimal,sect38 decimal,sect39 decimal,sect40 decimal,sect41 decimal,
+        sect42 decimal,sect43 decimal,sect44 decimal,sect45 decimal,sect46 decimal,sect47 decimal,sect48 decimal,sect49 decimal,sect50 decimal,sect51 decimal,
+        sect52 decimal,sect53 decimal,sect54 decimal,sect55 decimal,sect56 decimal,sect57 decimal,sect58 decimal,sect59 decimal,sect60 decimal,sect61 decimal,
+        sect62 decimal,sect63 decimal,sect64 decimal,sect65 decimal,sect66 decimal,sect67 decimal,sect68 decimal,sect69 decimal,sect70 decimal,sect71 decimal,
+        sect72 decimal,sect73 decimal,sect74 decimal,sect75 decimal,sect76 decimal,sect77 decimal,sect78 decimal,sect79 decimal,sect80 decimal,sect81 decimal,
+        sect82 decimal,sect83 decimal,sect84 decimal,sect85 decimal,sect86 decimal,sect87 decimal,sect88 decimal,sect89 decimal,sect90 decimal,sect91 decimal,
+        sect92 decimal,sect93 decimal,sect94 decimal,sect95 decimal,sect96 decimal,sect97 decimal,sect98 decimal,sect99 decimal,sect100 decimal,sect101 decimal,
+        sect102 decimal,sect103 decimal,sect104 decimal,sect105 decimal,sect106 decimal,sect107 decimal,sect108 decimal,sect109 decimal,sect110 decimal,sect111 decimal,
+        sect112 decimal,sect113 decimal,sect114 decimal,sect115 decimal,sect116 decimal,sect117 decimal,sect118 decimal,sect119 decimal,sect120 decimal,sect121 decimal,
+        sect122 decimal,sect123 decimal,sect124 decimal,sect125 decimal,sect126 decimal,sect127 decimal,sect128 decimal,sect129 decimal,sect130 decimal,sect131 decimal,
+        sect132 decimal,sect133 decimal,sect134 decimal,sect135 decimal,sect136 decimal,sect137 decimal,sect138 decimal,sect139 decimal,sect140 decimal,sect141 decimal,
+        sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, azimut decimal, elevacion decimal); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -87,30 +87,57 @@ class BaseDatosLvl1:
         "BuUvGVW_Avg" decimal,"BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,"BuUvBGH_Avg" decimal,
         "BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,"BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,"BuRaDVS_Avg" decimal,
         "BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,"BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal)"""
-        #Enviamos la operación a la base de datos
+        #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
-    #Definimos la función que Injectara los archivos
+    ########################################################################################################################################################################################
+           
+    #Definimos la función que Injectara los datos de la estación meteologica radiologica
+    ###############################################################################################################################################################################################
     def injectarCsvRadio(self, route):
         #lee el datalogger
         df=pd.read_csv(route,skiprows=[0,2,3])
         df.drop("RECORD",inplace=True,axis=1)
         df.to_sql('radio', con=self.engine, if_exists='append',index=False) 
-
+    ################################################################################################################################################################################################
+    
+    #Definimos la función que injectara los datos del Skyscanner
+    ##################################################################################################################################################################################################
     def injectarCsvSkyScanner(self, route):
-        #lee el datalogger
+        #lee el csv del skyscanner
         df=pd.read_csv(route,skiprows=8)
-        df.drop("RECORD",inplace=True,axis=1)
-        
-        df.to_sql('radio', con=self.engine, if_exists='append',index=False)
+        names=["sidedateHour","sect1" ,"sect2" ,
+        "sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10","sect11","sect12",
+        "sect13","sect14","sect15","sect16","sect17","sect18","sect19","sect20" ,"sect21",
+        "sect22" ,"sect23" ,"sect24" ,"sect25" ,"sect26" ,"sect27" ,"sect28" ,"sect29" ,"sect30" ,"sect31" ,
+        "sect32" ,"sect33" ,"sect34" ,"sect35" ,"sect36" ,"sect37" ,"sect38" ,"sect39" ,"sect40" ,"sect41" ,
+        "sect42" ,"sect43" ,"sect44" ,"sect45" ,"sect46" ,"sect47" ,"sect48" ,"sect49" ,"sect50" ,"sect51" ,
+        "sect52" ,"sect53" ,"sect54" ,"sect55" ,"sect56" ,"sect57" ,"sect58" ,"sect59" ,"sect60" ,"sect61" ,
+        "sect62" ,"sect63" ,"sect64" ,"sect65" ,"sect66" ,"sect67" ,"sect68" ,"sect69" ,"sect70" ,"sect71" ,
+        "sect72" ,"sect73" ,"sect74" ,"sect75" ,"sect76" ,"sect77" ,"sect78" ,"sect79" ,"sect80" ,"sect81" ,
+        "sect82" ,"sect83" ,"sect84" ,"sect85" ,"sect86" ,"sect87" ,"sect88" ,"sect89" ,"sect90" ,"sect91" ,
+        "sect92" ,"sect93" ,"sect94" ,"sect95" ,"sect96" ,"sect97" ,"sect98" ,"sect99" ,"sect100" ,"sect101" ,
+        "sect102" ,"sect103" ,"sect104" ,"sect105" ,"sect106" ,"sect107" ,"sect108" ,"sect109" ,"sect110" ,"sect111" ,
+        "sect112" ,"sect113" ,"sect114" ,"sect115" ,"sect116" ,"sect117" ,"sect118" ,"sect119" ,"sect120" ,"sect121" ,
+        "sect122" ,"sect123" ,"sect124" ,"sect125" ,"sect126" ,"sect127" ,"sect128" ,"sect129" ,"sect130" ,"sect131" ,
+        "sect132" ,"sect133" ,"sect134" ,"sect135" ,"sect136" ,"sect137" ,"sect138" ,"sect139" ,"sect140" ,"sect141" ,
+        "sect142" ,"sect143" ,"sect144" ,"sect145","azimut","elevacion" ]
+        df.columns=names
+        print(df)
+        #df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+    ####################################################################################################################################################################################################
 
+    #Definimos la injección de los datos de la skycamera
+    #####################################################################################################################################################################################################
     def injectarCsvSkycamera(self, route):
-        #lee el datalogger
+        #lee el csv de la skycamera
         df=pd.read_csv(route)
+    
         df.to_sql('skycamera', con=self.engine, if_exists='append',index=False) 
-        
+    #####################################################################################################################################################################################################    
 
     #Definimos el Cierre de la conexión con la base de datos
+    #####################################################################################################################################################################################################
     def stop(self):
         #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
         self.cur.close()
