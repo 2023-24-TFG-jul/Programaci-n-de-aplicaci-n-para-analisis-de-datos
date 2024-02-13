@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.51
+#Versión:0.6
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -10,6 +10,8 @@ import pandas as pd
 from psycopg2 import sql
 from sqlalchemy import create_engine 
 import sqlalchemy
+import os
+import numpy as np
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -17,6 +19,9 @@ class BaseDatosLvl1:
     ####################################################################################################################
     def __init__(self):
         #Parametros de la base de datos
+        self.dirradio="Datos\datalogger"
+        self.dircamera="Datos\sky-camera"
+        self.dirscanner="Datos\Sky-scanner 2023_12"
         self.datahost="localhost"
         self.dataname="postgres"
         self.datauser="postgres"
@@ -131,11 +136,13 @@ class BaseDatosLvl1:
         df.columns=names
         df['sidedatehour']=df['sidedatehour']+","+fechatip+","+df['hour']+","+df['date']
         df['date']=fechatip
+        df=df.replace('  ',np.nan)
+        
         try:
             df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
-            #Hacer a futuro que se muestren atraves de la UI que son datos repetidos
+             #Hacer a futuro que se muestren atraves de la UI que son datos repetidos
         except sqlalchemy.exc.IntegrityError:
-            print("Esos datos ya estan introducidos en el skyscanner")
+             print("Esos datos ya estan introducidos en el skyscanner")
     ####################################################################################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
@@ -149,6 +156,20 @@ class BaseDatosLvl1:
         except sqlalchemy.exc.IntegrityError:
             print("Esos datos ya estan introducidos en la Skycamera")
     #####################################################################################################################################################################################################    
+    
+    #Definimos una función que recoja los datos directamente de las carpetas en las que estan
+    ######################################################################################################################################################################################################
+    def actualizardatos(self):
+        radio=os.listdir(self.dirradio)
+        camera=os.listdir(self.dircamera)
+        scanner=os.listdir(self.dirscanner)
+        for datos in radio:
+            self.injectarCsvRadio(self.dirradio+"\\"+datos)
+        for datos in camera:
+            self.injectarCsvSkycamera(self.dircamera+"\\"+datos)
+        for datos in scanner:
+            self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos)
+    ##################################################################################################################################################################################################### 
 
     #Definimos el Cierre de la conexión con la base de datos
     #####################################################################################################################################################################################################
