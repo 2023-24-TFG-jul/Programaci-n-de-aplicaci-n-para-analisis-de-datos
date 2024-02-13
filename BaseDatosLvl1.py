@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.46
+#Versión:0.5
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -9,6 +9,7 @@ import psycopg2
 import pandas as pd
 from psycopg2 import sql
 from sqlalchemy import create_engine 
+import sqlalchemy
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -98,7 +99,10 @@ class BaseDatosLvl1:
         #lee el datalogger
         df=pd.read_csv(route,skiprows=[0,2,3])
         df.drop("RECORD",inplace=True,axis=1)
-        df.to_sql('radio', con=self.engine, if_exists='append',index=False) 
+        try:
+            df.to_sql('radio', con=self.engine, if_exists='append',index=False)
+        except sqlalchemy.exc.IntegrityError:
+            print("Esos datos ya estan introducidos en radio")
     ################################################################################################################################################################################################
     
     #Definimos la función que injectara los datos del Skyscanner
@@ -126,8 +130,10 @@ class BaseDatosLvl1:
         df.columns=names
         df['sidedatehour']=df['sidedatehour']+","+fechatip+","+df['hour']+","+df['date']
         df['date']=fechatip
-        print(df)
-        df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+        try:
+            df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+        except sqlalchemy.exc.IntegrityError:
+            print("Esos datos ya estan introducidos en el skyscanner")
     ####################################################################################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
@@ -135,8 +141,10 @@ class BaseDatosLvl1:
     def injectarCsvSkycamera(self, route):
         #lee el csv de la skycamera
         df=pd.read_csv(route)
-    
-        df.to_sql('skycamera', con=self.engine, if_exists='append',index=False) 
+        try:
+            df.to_sql('skycamera', con=self.engine, if_exists='append',index=False) 
+        except sqlalchemy.exc.IntegrityError:
+            print("Esos datos ya estan introducidos en la Skycamera")
     #####################################################################################################################################################################################################    
 
     #Definimos el Cierre de la conexión con la base de datos
