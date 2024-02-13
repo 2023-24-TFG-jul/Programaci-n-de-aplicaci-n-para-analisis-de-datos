@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.45
+#Versión:0.46
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -51,7 +51,7 @@ class BaseDatosLvl1:
     ##########################################################################################################################   
     def crear(self):
         #Creación de las tablasp
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidesectehour VARCHAR(255) PRIMARY KEY,date integer, hour decimal,sect1 decimal,sect2 decimal,
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidedatehour VARCHAR(255) PRIMARY KEY, hour time,date integer,sect1 decimal,sect2 decimal,
         sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
         sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
         sect22 decimal,sect23 decimal,sect24 decimal,sect25 decimal,sect26 decimal,sect27 decimal,sect28 decimal,sect29 decimal,sect30 decimal,sect31 decimal,
@@ -108,7 +108,7 @@ class BaseDatosLvl1:
         df=pd.read_csv(route,skiprows=8)
         fecha=pd.read_csv(route,nrows=3, names=[0,1])
         fechatip=fecha[1][2][2]+fecha[1][2][3]+fecha[1][2][5]+fecha[1][2][6]+fecha[1][2][8]+fecha[1][2][9]
-        names=["sidedatehour","hora","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
+        names=["sidedatehour","hour","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
         "sect11","sect12","sect13","sect14","sect15","sect16","sect17","sect18","sect19","sect20" ,"sect21",
         "sect22" ,"sect23" ,"sect24" ,"sect25" ,"sect26" ,"sect27" ,"sect28" ,"sect29" ,"sect30" ,"sect31" ,
         "sect32" ,"sect33" ,"sect34" ,"sect35" ,"sect36" ,"sect37" ,"sect38" ,"sect39" ,"sect40" ,"sect41" ,
@@ -124,10 +124,10 @@ class BaseDatosLvl1:
         "sect132" ,"sect133" ,"sect134" ,"sect135" ,"sect136" ,"sect137" ,"sect138" ,"sect139" ,"sect140" ,"sect141" ,
         "sect142" ,"sect143" ,"sect144" ,"sect145","azimut","elevacion"]
         df.columns=names
-        df['sidedatehour']=df['sidedatehour']+","+fechatip+","+df['date']+","+df['hour']
+        df['sidedatehour']=df['sidedatehour']+","+fechatip+","+df['hour']+","+df['date']
         df['date']=fechatip
         print(df)
-        #df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+        df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
     ####################################################################################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
