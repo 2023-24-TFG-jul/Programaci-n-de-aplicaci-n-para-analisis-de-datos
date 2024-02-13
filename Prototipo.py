@@ -9,28 +9,75 @@ import psycopg2
 import pandas as pd
 from BaseDatosLvl1 import BaseDatosLvl1
 from psycopg2 import sql
+from sqlalchemy import create_engine
 ##########################################################################################################################
 #Parametros de la base de datos
-datahost="localhost"
-dataname="postgres"
-datauser="postgres"
-datapass="1234"
-dataport=5432
-#Establecemos la conexion con la base de datos
-conn=psycopg2.connect(host=datahost,dbname=dataname, user=datauser, password=datapass,port=dataport)
-#Inicializamos el cursor con el que operaremos en la base de datos
-cur=conn.cursor()
 db1=BaseDatosLvl1()
-tablas=['skyscanner','skycamera','radio']
-for tab in tablas:
-    print(db1.obtenerdat(tab))
-df=pd.read_csv("Datos\datalogger\CR3000_J_OCTUBRE_2023.dat",skiprows=[0,2,3])
-print(df)
+db1.injectarCsvSkyScanner("Datos\Sky-scanner 2023_12\SS231201.csv")
+
 db1.stop()
-#operacion="""DROP TABLE IF EXISTS person"""
-#Enviamos la operación a la base de datos
-#cur.execute(operacion)
-#conn.commit()
+# datahost="localhost"
+# dataname="postgres"
+# datauser="postgres"
+# datapass="1234"
+# dataport=5432
+
+# datahost="localhost"
+# dataname="postgres"
+# datauser="postgres"
+# datapass="1234"
+# dataport=5432
+# conn_string = f'postgresql://{datauser}:{datapass}@{datahost}:{dataport}/{dataname}'
+
+
+# engine = create_engine(conn_string)
+
+
+# # our dataframe 
+# data = {'Name': ['Tom', 'dick', 'harry'], 
+# 		'Age': [22, 21, 24]} 
+
+# # Create DataFrame 
+# df = pd.DataFrame(data) 
+# df.to_sql('data', con=engine, if_exists='replace',index=False) 
+# conn = psycopg2.connect(conn_string ) 
+# conn.autocommit = True
+# cursor = conn.cursor() 
+
+# sql1 = '''select * from data;'''
+# cursor.execute(sql1) 
+# for i in cursor.fetchall(): 
+# 	print(i) 
+
+# # conn.commit() 
+# conn.close() 
+
+# Create DataFrame 
+
+#db1.injectarCsvRadio("Datos\datalogger\CR3000_K_NOVIEMBRE_2023.dat")
+#db1.injectarCsvSkycamera("Datos\sky-camera\\10-Octubre-2023.csv")
+#db1.stop()
+# conn.commit() 
+
+
+ 
+#Establecemos la conexion con la base de datos
+# conn=psycopg2.connect(host=datahost,dbname=dataname, user=datauser, password=datapass,port=dataport)
+# #Inicializamos el cursor con el que operaremos en la base de datos
+# cur=conn.cursor()
+# db1=BaseDatosLvl1()
+# tablas=['skyscanner','skycamera','radio']
+# for tab in tablas:
+#     print(db1.obtenerdat(tab))
+ 
+# df.to_sql("radio",con=conn,if_exists="append")
+# df2=pd.read_sql_query("""SELECT * FROM radio;""")
+# print(df2)
+# db1.stop()
+# operacion="""DROP TABLE IF EXISTS person"""
+# #Enviamos la operación a la base de datos
+# cur.execute(operacion)
+# conn.commit()
 # #Guardamos una operación en forma de string 
 # operacion="""CREATE TABLE IF NOT EXISTS person (id INT PRIMARY KEY,name VARCHAR (255),age INT, gender CHAR ) """
 # #Enviamos la operación a la base de datos
@@ -82,5 +129,4 @@ db1.stop()
 
 
 #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
-cur.close()
-conn.close()
+#cur.close()

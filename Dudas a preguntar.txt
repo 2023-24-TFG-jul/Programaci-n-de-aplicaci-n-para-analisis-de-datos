@@ -4,4 +4,5 @@
 4. Se actualizan los datos automaticamente o lo puede hacer alguien más?
 5. Como Guardamos todos los datos en la base de datos
 6. Donde en la base de datos guardamos cada csv
-7. 
+Nuevas preguntas
+7. En la Skycamera el GAIN tiene mas de un solo valor en el array?

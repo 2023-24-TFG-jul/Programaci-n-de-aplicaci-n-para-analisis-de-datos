@@ -18,4 +18,11 @@ https://blog.finxter.com/how-to-convert-dat-to-csv-file-in-python/#:~:text=You%2
 https://www.psycopg.org/docs/
 10.Documentación libreria pandas:
 https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html
+11.Pandas a postgres:
+https://www.geeksforgeeks.org/how-to-insert-a-pandas-dataframe-to-an-existing-postgresql-table/
+12.Documentación Postgres SQL:
+https://www.postgresql.org/docs/16/index.html
+13.Documentación sqlalchemy:
+https://docs.sqlalchemy.org/en/20/
+
 
