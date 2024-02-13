@@ -1,44 +1,57 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.42
+#Versión:0.66
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
-import psycopg2
-import pandas as pd
-from psycopg2 import sql
-from sqlalchemy import create_engine 
+import psycopg2 #Import para la conexión la base de datos
+import pandas as pd #Import para gestion de datos
+from psycopg2 import sql #Import para conectar con la base de datos y poder pasar datos en bulk
+from sqlalchemy import create_engine #Import para pasar los datos en bulk
+import sqlalchemy #import para pasar los datos en bulk
+import os #import para leer los archivos en un directorio especificado
+import numpy as np #Import para operar con los datos de pandas
+from psycopg2 import Binary #Import para pasar las imagenes a la base de datos
+from io import BytesIO #Imports para pasar la imagen a binario
+from PIL import Image
+
 #Inicializamos la Clase de creación de base de datos
-class BasedatosLvl1:
+class BaseDatosLvl1:
 
     #Definimos el constructor de la base de datos que hara la conexion con la base de sectos
     ####################################################################################################################
     def __init__(self):
         #Parametros de la base de datos
-        self.datahost="localhost"
-        self.dataname="postgres"
-        self.datauser="postgres"
-        self.datapass="1234"
-        self.dataport=5432
-        #Establecemos la conexion con la base de datos
+        self.dirradio="Datos\datalogger" #path donde se meteran los archivos que se quieran meter en la base de datos radio
+        self.dircamera="Datos\sky-camera"#path donde se meteran los archivos que se quieran meter en la base de datos skycamera
+        self.dirscanner="Datos\Sky-scanner 2023_12"#path donde se meteran los archivos que se quieran meter en la base de datos skyscanner
+        self.datahost="localhost" #Host de la base de datos
+        self.dataname="postgres"  #Nombre de la base de datos
+        self.datauser="postgres"  #Nombre del usuario
+        self.datapass="1234"      #Contraseña de la base de datos
+        self.dataport=5432        #Puerto al que se conecta la base de datos
+        #Establecemos la conexion con la base de datos atraves psycog2
         self.conn=psycopg2.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
         #Inicializamos el cursor con el que operaremos en la base de datos
-        self.cur=self.conn.cursor()
-
+        self.cur=self.conn.cursor() 
+        #inicializamdos la conexopn que usara sqlAlchemy para operar en la base de datos
         conn_string = f'postgresql://{self.datauser}:{self.datapass}@{self.datahost}:{self.dataport}/{self.dataname}'
         self.engine = create_engine(conn_string) 
+        #llamamos a la función crear la cual creara las tablas que no esten creadas en la base de datos
         self.crear()
     ########################################################################################################################
         
-    #Obtenemos los datos de una fecha a otra fecha
+    #Obtenemos los datos de una tabla especifica que se pasa por base
+        #TODO que se puedan de manera general acceder a datos de una fecha a otra
     ####################################################################################################################
     def obtenerdat(self,base):
+        #Con este comando podemos acceder a la tabla que queramos
+        query = sql.SQL("select * from {table}").format(table=sql.Identifier(base))
         #Enviamos la operación a la base de datos
-        query = sql.SQL("select * from {table}").format(
-        table=sql.Identifier(base))
         self.cur.execute(query)
         self.conn.commit()
+        #Devolvemos los datos que se encuentran en esa tabla
         return self.cur.fetchall()
     #
     # query = sql.SQL("select {field} from {table} where {pkey} = %s").format(
@@ -50,8 +63,9 @@ class BasedatosLvl1:
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
     def crear(self):
-        #Creación de las tablasp
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidesecteHour VARCHAR(255) PRIMARY KEY,sect1 decimal,sect2 decimal,
+        #Creación de la tabla en caso de que no exista del skyscaner, 
+        #Sidedatehour tiene un formato de side,date(al estilo añomesdía),horaini,horafin
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidedatehour VARCHAR(255) PRIMARY KEY, hour time,date integer,sect1 decimal,sect2 decimal,
         sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
         sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
         sect22 decimal,sect23 decimal,sect24 decimal,sect25 decimal,sect26 decimal,sect27 decimal,sect28 decimal,sect29 decimal,sect30 decimal,sect31 decimal,
@@ -71,14 +85,15 @@ class BasedatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de las tabla en caso de que no exista de la Skycamera
+        #La primary key de esta tabla es time que se dividi en: año-mes-día hora
         orden=""" CREATE TABLE IF NOT EXISTS skycamera("GAIN" VARCHAR,"SHUTTER" VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
         thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
-        #Recordar eliminar RECORD dato ineccesario
         #Creación de las tablas en caso de que no exixta la radio
+        #La primary key es timestamp la cual se divide en:año-mes-día hora
         orden=""" CREATE TABLE IF NOT EXISTS radio ("TIMESTAMP" VARCHAR PRIMARY KEY,"Year" integer,"Month" integer,"Dia" integer,"YearDay" integer,"Hour" integer,"Minute" integer,
         "BuPres_Avg" decimal,"BuRH_Avg" decimal,"BuTemp_Avg" decimal,"BuRain_Tot" decimal,"BuWS_Avg" decimal,"BuWD_Avg" decimal,"BuTDP_Avg" decimal,"BuTWB_Avg" decimal,
         "BuRaGVN_Avg" decimal,"BuRaGVE_Avg" decimal,"BuRaGVS_Avg" decimal,"BuRaGVW_Avg" decimal,"BuRaGH_Avg" decimal,"BuRaDH_Avg" decimal,"BuRaB_Avg" decimal,"BuLxGVN_Avg" decimal,
@@ -90,25 +105,49 @@ class BasedatosLvl1:
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
+        #Creación de la base de datos de las imagenes
+        orden=""" CREATE TABLE IF NOT EXISTS images (id SERIAL PRIMARY KEY,image_data bytea);"""
+        #Enviamos la operación a la base de dactos
+        self.cur.execute(orden)
+        self.conn.commit()
     ########################################################################################################################################################################################
-           
+
+    #Definimo la función para injectar las imagenes en la base de datos
+    ##############################################################################################################################################################################################
+    def injectarimg(self,route):
+        #abrimos la imagen en la ruta que recibimos
+        with open(route, 'rb') as f:
+            image_data = f.read()
+        #insertamos la imagen en formato binario para que se pueda guardar
+        self.cur.execute("INSERT INTO images (image_data) VALUES (%s)", (Binary(image_data),)) 
+        self.conn.commit()   
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
     def injectarCsvRadio(self, route):
-        #lee el datalogger
+        #lee el datalogger saltandose las filas que no nos interesan, como el titulo(0), las unidades(2), las avrg(3)
         df=pd.read_csv(route,skiprows=[0,2,3])
+        #eliminamos la columna record ya que no nos interesa
         df.drop("RECORD",inplace=True,axis=1)
-        df.to_sql('radio', con=self.engine, if_exists='append',index=False) 
+        #Transpasamos los datos en df a la base de datos reciviendo la excepción en caso de que se metan datos repetidos
+        try:
+            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+            df.to_sql('radio', con=self.engine, if_exists='append',index=False)
+        except sqlalchemy.exc.IntegrityError:
+            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
+            print("Esos datos ya estan introducidos en radio")
     ################################################################################################################################################################################################
     
     #Definimos la función que injectara los datos del Skyscanner
     ##################################################################################################################################################################################################
     def injectarCsvSkyScanner(self, route):
         #lee el csv del skyscanner
-        df=pd.read_csv(route,skiprows=8)
-        names=["sidedateHour","sect1" ,"sect2" ,
-        "sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10","sect11","sect12",
-        "sect13","sect14","sect15","sect16","sect17","sect18","sect19","sect20" ,"sect21",
+        df=pd.read_csv(route,skiprows=8)#Leemos el csv saltandonos las 8 primeras lineas ya que no son lineas de dato si no información del csv
+        fecha=pd.read_csv(route,nrows=3, names=[0,1]) #recomes las primeras filas para hallar la fecha de las mediciones
+        #Hacemos el tipado de la fechas (añomesdía) y lo hacemos cogiendo solo los caracteres que nos interesan en la fecha que nos da el csv
+        fechatip=fecha[1][2][2]+fecha[1][2][3]+fecha[1][2][5]+fecha[1][2][6]+fecha[1][2][8]+fecha[1][2][9] 
+        #tambien hay que cmabiarle los nombres a las columnas para que coincidan con los de la base de datos y sean más manejables
+        names=["sidedatehour","hour","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
+        "sect11","sect12","sect13","sect14","sect15","sect16","sect17","sect18","sect19","sect20" ,"sect21",
         "sect22" ,"sect23" ,"sect24" ,"sect25" ,"sect26" ,"sect27" ,"sect28" ,"sect29" ,"sect30" ,"sect31" ,
         "sect32" ,"sect33" ,"sect34" ,"sect35" ,"sect36" ,"sect37" ,"sect38" ,"sect39" ,"sect40" ,"sect41" ,
         "sect42" ,"sect43" ,"sect44" ,"sect45" ,"sect46" ,"sect47" ,"sect48" ,"sect49" ,"sect50" ,"sect51" ,
@@ -121,20 +160,54 @@ class BasedatosLvl1:
         "sect112" ,"sect113" ,"sect114" ,"sect115" ,"sect116" ,"sect117" ,"sect118" ,"sect119" ,"sect120" ,"sect121" ,
         "sect122" ,"sect123" ,"sect124" ,"sect125" ,"sect126" ,"sect127" ,"sect128" ,"sect129" ,"sect130" ,"sect131" ,
         "sect132" ,"sect133" ,"sect134" ,"sect135" ,"sect136" ,"sect137" ,"sect138" ,"sect139" ,"sect140" ,"sect141" ,
-        "sect142" ,"sect143" ,"sect144" ,"sect145","azimut","elevacion" ]
+        "sect142" ,"sect143" ,"sect144" ,"sect145","azimut","elevacion"]
+        #Cambiamos los nombre que hemos guardado antes en una lista
         df.columns=names
-        print(df)
-        #df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+        #Cambiamos la columna sidedatehour para que sea lo que su nombre indica y no solo el lado
+        df['sidedatehour']=df['sidedatehour']+","+fechatip+","+df['hour']+","+df['date']
+        #Modificamos la columna date para que contenga la fecha de las mediciones
+        df['date']=fechatip
+        #Como en este csv hay espacios en blancos donde debria haber nulos, sustituimos estos espacios por nulos
+        df=df.replace('  ',np.nan)
+        #Cazamos la excepción en caso de que se metan datos repetidos
+        try:
+            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+            df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+        except sqlalchemy.exc.IntegrityError:
+            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
+             print("Esos datos ya estan introducidos en el skyscanner")
     ####################################################################################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
     #####################################################################################################################################################################################################
     def injectarCsvSkycamera(self, route):
-        #lee el csv de la skycamera
+        #lee el csv de la skycamera y no hace falta modificar nada ya que de por si ya es compatible con la base de datos
         df=pd.read_csv(route)
-    
-        df.to_sql('skycamera', con=self.engine, if_exists='append',index=False) 
+        #Cazamos la excepción en caso de que se metan datos repetidos
+        try:
+            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+            df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
+        except sqlalchemy.exc.IntegrityError:
+            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
+            print("Esos datos ya estan introducidos en la Skycamera")
     #####################################################################################################################################################################################################    
+    
+    #Definimos una función que recoja los datos directamente de las carpetas en las que estan
+    ######################################################################################################################################################################################################
+    def actualizardatos(self):
+        #Tomamos todos los archivos en el directorio de radio y guardamos sus nombre en una lista
+        radio=os.listdir(self.dirradio)
+        #Tomamos todos los archivos en el directorio de camera y guardamos sus nombre en una lista
+        camera=os.listdir(self.dircamera)
+        #Tomamos todos los archivos en el directorio de canner y guardamos sus nombre en una lista
+        scanner=os.listdir(self.dirscanner)
+        for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
+            self.injectarCsvRadio(self.dirradio+"\\"+datos)#introducimos los datos a la tabla de radio
+        for datos in camera:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
+            self.injectarCsvSkycamera(self.dircamera+"\\"+datos)#introducimos los datos a la tabla de camera
+        for datos in scanner:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
+            self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos)#introducimos los datos a la tabla de scanner
+    ##################################################################################################################################################################################################### 
 
     #Definimos el Cierre de la conexión con la base de datos
     #####################################################################################################################################################################################################
