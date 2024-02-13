@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.6
+#Versión:0.65
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -12,6 +12,10 @@ from sqlalchemy import create_engine
 import sqlalchemy
 import os
 import numpy as np
+from psycopg2 import Binary
+from io import BytesIO
+from PIL import Image
+
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -96,8 +100,20 @@ class BaseDatosLvl1:
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
+        #Creación de la base de datos de las imagenes
+        orden=""" CREATE TABLE IF NOT EXISTS images (id SERIAL PRIMARY KEY,image_data bytea);"""
+        #Enviamos la operación a la base de dactos
+        self.cur.execute(orden)
+        self.conn.commit()
     ########################################################################################################################################################################################
-           
+
+    #Definimo la función para injectar las imagenes en la base de datos
+    ##############################################################################################################################################################################################
+    def injectarimg(self,route):
+        with open(route, 'rb') as f:
+            image_data = f.read()
+        self.cur.execute("INSERT INTO images (image_data) VALUES (%s)", (Binary(image_data),)) 
+        self.conn.commit()   
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
     def injectarCsvRadio(self, route):
