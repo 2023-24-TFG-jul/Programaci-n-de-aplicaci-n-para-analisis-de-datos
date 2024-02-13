@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.5
+#Versión:0.51
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -102,6 +102,7 @@ class BaseDatosLvl1:
         try:
             df.to_sql('radio', con=self.engine, if_exists='append',index=False)
         except sqlalchemy.exc.IntegrityError:
+            #Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en radio")
     ################################################################################################################################################################################################
     
@@ -132,6 +133,7 @@ class BaseDatosLvl1:
         df['date']=fechatip
         try:
             df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+            #Hacer a futuro que se muestren atraves de la UI que son datos repetidos
         except sqlalchemy.exc.IntegrityError:
             print("Esos datos ya estan introducidos en el skyscanner")
     ####################################################################################################################################################################################################
@@ -142,7 +144,8 @@ class BaseDatosLvl1:
         #lee el csv de la skycamera
         df=pd.read_csv(route)
         try:
-            df.to_sql('skycamera', con=self.engine, if_exists='append',index=False) 
+            df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
+            #Hacer a futuro que se muestren atraves de la UI que son datos repetidos 
         except sqlalchemy.exc.IntegrityError:
             print("Esos datos ya estan introducidos en la Skycamera")
     #####################################################################################################################################################################################################    
