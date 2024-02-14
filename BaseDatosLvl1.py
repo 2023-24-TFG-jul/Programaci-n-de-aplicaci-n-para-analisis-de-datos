@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.71
+#Versión:0.711
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -54,11 +54,6 @@ class BaseDatosLvl1:
         df=pd.DataFrame(data)
         #Devolvemos los datos que se encuentran en esa tabla
         return df
-    #
-    # query = sql.SQL("select {field} from {table} where {pkey} = %s").format(
-    # field=sql.Identifier('my_name'),
-    # table=sql.Identifier('some_table'),
-    # pkey=sql.Identifier('id'))
     ######################################################################################################################
 
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
