@@ -6,3 +6,5 @@
 6. Donde en la base de datos guardamos cada csv
 Nuevas preguntas
 7. En la Skycamera el GAIN tiene mas de un solo valor en el array?
+8. las consultas como se querran hacer excatamente
+9.Necesito imagenes y saber como funciona el estilo de archivos de las imagenes

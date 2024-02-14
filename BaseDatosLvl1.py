@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.66
+#Versión:0.711
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -42,22 +42,18 @@ class BaseDatosLvl1:
         self.crear()
     ########################################################################################################################
         
-    #Obtenemos los datos de una tabla especifica que se pasa por base
-        #TODO que se puedan de manera general acceder a datos de una fecha a otra
+    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y con la condicion de cond
     ####################################################################################################################
-    def obtenerdat(self,base):
-        #Con este comando podemos acceder a la tabla que queramos
-        query = sql.SQL("select * from {table}").format(table=sql.Identifier(base))
-        #Enviamos la operación a la base de datos
-        self.cur.execute(query)
-        self.conn.commit()
+    def obtenerdat(self,selec,base,cond):
+        if cond!=None: #en caso de que conde no sea vacia 
+            query="SELECT {cols} FROM {table} WHERE{condic}".format(cols=selec,table=base,condic=cond)
+        else: #En caso de que no haya una condicion se toma todo
+            query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
+        #Recogemos los datos en un data frame
+        data = pd.read_sql_query(query,self.engine)
+        df=pd.DataFrame(data)
         #Devolvemos los datos que se encuentran en esa tabla
-        return self.cur.fetchall()
-    #
-    # query = sql.SQL("select {field} from {table} where {pkey} = %s").format(
-    # field=sql.Identifier('my_name'),
-    # table=sql.Identifier('some_table'),
-    # pkey=sql.Identifier('id'))
+        return df
     ######################################################################################################################
 
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
