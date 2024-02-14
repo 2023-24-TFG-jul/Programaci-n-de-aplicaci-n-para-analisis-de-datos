@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.7
+#Versión:0.71
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -42,16 +42,15 @@ class BaseDatosLvl1:
         self.crear()
     ########################################################################################################################
         
-    #Obtenemos los datos de una tabla especifica que se pasa por base
-        #TODO que se puedan de manera general acceder a datos de una fecha a otra
+    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y con la condicion de cond
     ####################################################################################################################
     def obtenerdat(self,selec,base,cond):
-        #Con este comando podemos acceder a la tabla que queramos y columnas que queramos
-        if cond!=None:
-            condicional="WHERE {}".format(cond)
-        query="select {cols} from {table} {condic}".format(cols=selec,table=base,condic=condicional)
+        if cond!=None: #en caso de que conde no sea vacia 
+            query="SELECT {cols} FROM {table} WHERE{condic}".format(cols=selec,table=base,condic=cond)
+        else: #En caso de que no haya una condicion se toma todo
+            query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
+        #Recogemos los datos en un data frame
         data = pd.read_sql_query(query,self.engine)
-        #Enviamos la operación a la base de datos
         df=pd.DataFrame(data)
         #Devolvemos los datos que se encuentran en esa tabla
         return df
