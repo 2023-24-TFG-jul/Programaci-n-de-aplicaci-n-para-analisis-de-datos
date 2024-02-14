@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 ##########################################################################################################################
 #Parametros de la base de datos
 db1=BaseDatosLvl1()
-db1.injectarimg("Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg")
-
+datos=db1.obtenerdat("*","radio",""" "Dia" > 20""")
+print(datos)
 db1.stop()
 
