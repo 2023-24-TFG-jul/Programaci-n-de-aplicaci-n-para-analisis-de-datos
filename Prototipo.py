@@ -9,11 +9,10 @@ import psycopg2
 import pandas as pd
 from BaseDatosLvl1 import BaseDatosLvl1
 from psycopg2 import sql
-from sqlalchemy import create_engine
 ##########################################################################################################################
 #Parametros de la base de datos
 db1=BaseDatosLvl1()
-datos=db1.obtenerdat("*","radio",None)
+datos=db1.obtenerdat("*","skyscanner",None)
 print(datos)
 db1.stop()
 
