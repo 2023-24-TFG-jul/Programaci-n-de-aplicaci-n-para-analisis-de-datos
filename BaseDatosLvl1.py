@@ -5,7 +5,7 @@
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
-import psycopg2 #Import para la conexión la base de datos
+import psycopg #Import para la conexión la base de datos
 import pandas as pd #Import para gestion de datos
 from psycopg2 import sql #Import para conectar con la base de datos y poder pasar datos en bulk
 from sqlalchemy import create_engine #Import para pasar los datos en bulk
@@ -15,7 +15,7 @@ import numpy as np #Import para operar con los datos de pandas
 from psycopg2 import Binary #Import para pasar las imagenes a la base de datos
 from io import BytesIO #Imports para pasar la imagen a binario
 from PIL import Image
-
+from sqlalchemy.sql import text# convertir strings en text o sql
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -32,7 +32,7 @@ class BaseDatosLvl1:
         self.datapass="1234"      #Contraseña de la base de datos
         self.dataport=5432        #Puerto al que se conecta la base de datos
         #Establecemos la conexion con la base de datos atraves psycog2
-        self.conn=psycopg2.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
+        self.conn=psycopg.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
         #Inicializamos el cursor con el que operaremos en la base de datos
         self.cur=self.conn.cursor() 
         #inicializamdos la conexopn que usara sqlAlchemy para operar en la base de datos
@@ -50,8 +50,9 @@ class BaseDatosLvl1:
         else: #En caso de que no haya una condicion se toma todo
             query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
         #Recogemos los datos en un data frame
-        data = pd.read_sql_query(query,self.engine)
-        df=pd.DataFrame(data)
+        with self.engine.connect() as db_conn:
+            data = pd.read_sql(sql=text(query),con=db_conn)
+            df=pd.DataFrame(data)
         #Devolvemos los datos que se encuentran en esa tabla
         return df
     ######################################################################################################################
