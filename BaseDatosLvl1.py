@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.7.7
+#Versión:0.8
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -42,11 +42,16 @@ class BaseDatosLvl1:
         self.crear()
     ########################################################################################################################
         
-    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y con la condicion de cond
+    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ####################################################################################################################
-    def obtenerdat(self,selec,base,cond):
-        if cond!=None: #en caso de que conde no sea vacia 
-            query="SELECT {cols} FROM {table} WHERE{condic}".format(cols=selec,table=base,condic=cond)
+    def obtenerdat(self,selec,base,cond1,cond2):
+        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+        cond1=cond1.replace('-', '')
+        cond2=cond2.replace('-', '')
+
+        if cond1!=None and cond1!=None: #en caso de que conde no sea vacia 
+            query="SELECT {cols} FROM {table} WHERE date BETWEEN {condic1} AND {condic2} ".format(cols=selec,table=base,condic1=cond1,condic2=cond2)
         else: #En caso de que no haya una condicion se toma todo
             query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
         #Recogemos los datos en un data frame
