@@ -1,11 +1,11 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.711
+#Versión:0.8.1
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
-import psycopg2 #Import para la conexión la base de datos
+import psycopg #Import para la conexión la base de datos
 import pandas as pd #Import para gestion de datos
 from psycopg2 import sql #Import para conectar con la base de datos y poder pasar datos en bulk
 from sqlalchemy import create_engine #Import para pasar los datos en bulk
@@ -15,7 +15,7 @@ import numpy as np #Import para operar con los datos de pandas
 from psycopg2 import Binary #Import para pasar las imagenes a la base de datos
 from io import BytesIO #Imports para pasar la imagen a binario
 from PIL import Image
-
+from sqlalchemy.sql import text# convertir strings en text o sql
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -32,7 +32,7 @@ class BaseDatosLvl1:
         self.datapass="1234"      #Contraseña de la base de datos
         self.dataport=5432        #Puerto al que se conecta la base de datos
         #Establecemos la conexion con la base de datos atraves psycog2
-        self.conn=psycopg2.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
+        self.conn=psycopg.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
         #Inicializamos el cursor con el que operaremos en la base de datos
         self.cur=self.conn.cursor() 
         #inicializamdos la conexopn que usara sqlAlchemy para operar en la base de datos
@@ -42,16 +42,22 @@ class BaseDatosLvl1:
         self.crear()
     ########################################################################################################################
         
-    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y con la condicion de cond
+    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ####################################################################################################################
-    def obtenerdat(self,selec,base,cond):
-        if cond!=None: #en caso de que conde no sea vacia 
-            query="SELECT {cols} FROM {table} WHERE{condic}".format(cols=selec,table=base,condic=cond)
+    def obtenerdat(self,selec,base,cond1,cond2):
+        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+        cond1=cond1.replace('-', '')
+        cond2=cond2.replace('-', '')
+
+        if cond1!=None and cond1!=None: #en caso de que conde no sea vacia 
+            query="SELECT {cols} FROM {table} WHERE date BETWEEN {condic1} AND {condic2} ".format(cols=selec,table=base,condic1=cond1,condic2=cond2)
         else: #En caso de que no haya una condicion se toma todo
             query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
         #Recogemos los datos en un data frame
-        data = pd.read_sql_query(query,self.engine)
-        df=pd.DataFrame(data)
+        with self.engine.connect() as db_conn:
+            data = pd.read_sql(sql=text(query),con=db_conn)
+            df=pd.DataFrame(data)
         #Devolvemos los datos que se encuentran en esa tabla
         return df
     ######################################################################################################################
@@ -60,7 +66,7 @@ class BaseDatosLvl1:
     ##########################################################################################################################   
     def crear(self):
         #Creación de la tabla en caso de que no exista del skyscaner, 
-        #Sidedatehour tiene un formato de side,date(al estilo añomesdía),horaini,horafin
+        #Sidedatehour tiene un formato de side,date(al estilo año-mes-día),horaini,horafin
         orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidedatehour VARCHAR(255) PRIMARY KEY, hour time,date integer,sect1 decimal,sect2 decimal,
         sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
         sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
@@ -81,10 +87,10 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de las tabla en caso de que no exista de la Skycamera
-        #La primary key de esta tabla es time que se dividi en: año-mes-día hora
+        #La primary key de esta tabla es time que se divide en: año-mes-día hora
         orden=""" CREATE TABLE IF NOT EXISTS skycamera("GAIN" VARCHAR,"SHUTTER" VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
-        thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
+        thumbnail VARCHAR,time VARCHAR PRIMARY KEY,date integer); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -97,12 +103,12 @@ class BaseDatosLvl1:
         "BuPaGVS_Avg" decimal,"BuPaGVW_Avg" decimal,"BuPaGH_Avg" decimal,"BuPaDH_Avg" decimal,"BuPaB_Avg" decimal,"BuUvGVN_Avg" decimal,"BuUvGVE_Avg" decimal, "BuUvGVS_Avg" decimal,
         "BuUvGVW_Avg" decimal,"BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,"BuUvBGH_Avg" decimal,
         "BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,"BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,"BuRaDVS_Avg" decimal,
-        "BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,"BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal)"""
+        "BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,"BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,date integer)"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de la base de datos de las imagenes
-        orden=""" CREATE TABLE IF NOT EXISTS images (id SERIAL PRIMARY KEY,image_data bytea);"""
+        orden=""" CREATE TABLE IF NOT EXISTS images (timestamp VARCHARinteger PRIMARY KEY,date ,image1_data bytea,image2_data bytea);"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
@@ -124,6 +130,10 @@ class BaseDatosLvl1:
         df=pd.read_csv(route,skiprows=[0,2,3])
         #eliminamos la columna record ya que no nos interesa
         df.drop("RECORD",inplace=True,axis=1)
+        #establecemos una nueva columna llamada date para tener una manera facil y estandarizada de acceso a los datos
+        #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
+        df['date']=df['TIMESTAMP'].str.slice(2,10)
+        df['date']= df['date'].str.replace('-', '')
         #Transpasamos los datos en df a la base de datos reciviendo la excepción en caso de que se metan datos repetidos
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
@@ -179,6 +189,10 @@ class BaseDatosLvl1:
     def injectarCsvSkycamera(self, route):
         #lee el csv de la skycamera y no hace falta modificar nada ya que de por si ya es compatible con la base de datos
         df=pd.read_csv(route)
+        #establecemos una nueva columna llamada date para tener una manera facil y estandarizada de acceso a los datos
+        #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
+        df['date']=df['time'].str.slice(2,10)
+        df['date']= df['date'].str.replace('-', '')
         #Cazamos la excepción en caso de que se metan datos repetidos
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
