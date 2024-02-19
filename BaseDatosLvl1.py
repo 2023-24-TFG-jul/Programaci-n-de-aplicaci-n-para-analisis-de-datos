@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.7.6
+#Versión:0.7.7
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -125,7 +125,10 @@ class BaseDatosLvl1:
         df=pd.read_csv(route,skiprows=[0,2,3])
         #eliminamos la columna record ya que no nos interesa
         df.drop("RECORD",inplace=True,axis=1)
-        
+        #establecemos una nueva columna llamada date para tener una manera facil y estandarizada de acceso a los datos
+        #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
+        df['date']=df['TIMESTAMP'].str.slice(2,10)
+        df['date']= df['date'].str.replace('-', '')
         #Transpasamos los datos en df a la base de datos reciviendo la excepción en caso de que se metan datos repetidos
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
