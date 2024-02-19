@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8
+#Versión:0.8.1
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -108,7 +108,7 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de la base de datos de las imagenes
-        orden=""" CREATE TABLE IF NOT EXISTS images (id SERIAL PRIMARY KEY,image_data bytea);"""
+        orden=""" CREATE TABLE IF NOT EXISTS images (timestamp VARCHARinteger PRIMARY KEY,date ,image1_data bytea,image2_data bytea);"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
