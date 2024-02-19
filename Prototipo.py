@@ -12,7 +12,12 @@ from psycopg2 import sql
 ##########################################################################################################################
 #Parametros de la base de datos
 db1=BaseDatosLvl1()
-datos=db1.obtenerdat("*","skyscanner",None)
-print(datos)
+db1.actualizardatos()
+datos1=db1.obtenerdat("*","radio",None)
+datos2=db1.obtenerdat("*","skyscanner",None)
+datos3=db1.obtenerdat("*","skycamera",None)
+print(datos1)
+print(datos2)
+print(datos3)
 db1.stop()
 
