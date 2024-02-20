@@ -12,12 +12,15 @@ from psycopg2 import sql
 ##########################################################################################################################
 #Parametros de la base de datos
 db1=BaseDatosLvl1()
-db1.actualizardatos()
-datos1=db1.obtenerdat("*","radio","23-10-01","23-10-01")
-datos2=db1.obtenerdat("*","skyscanner","23-12-01","23-12-02")
-datos3=db1.obtenerdat("*","skycamera","23-10-01","23-10-02")
-print(datos1)
-print(datos2)
-print(datos3)
+db1.injectarimg("Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg","Datos\Fotos\\1.jpg")
+print(db1.obtenerdat("*","images",None,None))
+db1.obtenerImg(240220)
+# db1.actualizardatos()
+# datos1=db1.obtenerdat("*","radio","23-10-01","23-10-01")
+# datos2=db1.obtenerdat("*","skyscanner","23-12-01","23-12-02")
+# datos3=db1.obtenerdat("*","skycamera","23-10-01","23-10-02")
+# print(datos1)
+# print(datos2)
+# print(datos3)
 db1.stop()
 

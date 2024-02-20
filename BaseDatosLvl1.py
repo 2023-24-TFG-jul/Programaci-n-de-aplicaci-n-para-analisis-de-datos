@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.1
+#Versión:0.8.7
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -12,7 +12,7 @@ from sqlalchemy import create_engine #Import para pasar los datos en bulk
 import sqlalchemy #import para pasar los datos en bulk
 import os #import para leer los archivos en un directorio especificado
 import numpy as np #Import para operar con los datos de pandas
-from psycopg2 import Binary #Import para pasar las imagenes a la base de datos
+import psycopg2 #Import para pasar las imagenes a la base de datos
 from io import BytesIO #Imports para pasar la imagen a binario
 from PIL import Image
 from sqlalchemy.sql import text# convertir strings en text o sql
@@ -47,10 +47,11 @@ class BaseDatosLvl1:
     ####################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
-        cond1=cond1.replace('-', '')
-        cond2=cond2.replace('-', '')
+        
 
         if cond1!=None and cond1!=None: #en caso de que conde no sea vacia 
+            cond1=cond1.replace('-', '')
+            cond2=cond2.replace('-', '')
             query="SELECT {cols} FROM {table} WHERE date BETWEEN {condic1} AND {condic2} ".format(cols=selec,table=base,condic1=cond1,condic2=cond2)
         else: #En caso de que no haya una condicion se toma todo
             query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
@@ -62,6 +63,21 @@ class BaseDatosLvl1:
         return df
     ######################################################################################################################
 
+    #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
+    #########################################################################################################################
+    def obtenerImg(self,date):
+        query="SELECT {cols} FROM {table} WHERE date={fecha}".format(cols="*",table="images",fecha=date)
+        self.cur.execute(query)
+        self.conn.commit()
+        record=self.cur.fetchall()
+        for row in record:
+            image1=row[2]
+            image2=row[3]
+            with open("Fotos resulta\\foto1.jpg", 'wb') as file:
+                file.write(image1)
+            with open("Fotos resulta\\foto2.jpg", 'wb') as file:
+                file.write(image2)
+    
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
     def crear(self):
@@ -108,7 +124,7 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de la base de datos de las imagenes
-        orden=""" CREATE TABLE IF NOT EXISTS images (timestamp VARCHARinteger PRIMARY KEY,date ,image1_data bytea,image2_data bytea);"""
+        orden=""" CREATE TABLE IF NOT EXISTS images (timestamp VARCHAR PRIMARY KEY,date integer,image1_data bytea,image2_data bytea);"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
@@ -116,12 +132,15 @@ class BaseDatosLvl1:
 
     #Definimo la función para injectar las imagenes en la base de datos
     ##############################################################################################################################################################################################
-    def injectarimg(self,route):
+    def injectarimg(self,route1,route2):
         #abrimos la imagen en la ruta que recibimos
-        with open(route, 'rb') as f:
-            image_data = f.read()
+        with open(route1, 'rb') as f:
+            image1_data = f.read()
+        with open(route2, 'rb') as f:
+            image2_data = f.read()
         #insertamos la imagen en formato binario para que se pueda guardar
-        self.cur.execute("INSERT INTO images (image_data) VALUES (%s)", (Binary(image_data),)) 
+        orden="""INSERT INTO images (timestamp,date,image1_data,image2_data) VALUES ('prueba1',240220,{img1},{img2})""".format(img1=psycopg2.Binary(image1_data),img2=psycopg2.Binary(image2_data))
+        self.cur.execute(orden) 
         self.conn.commit()   
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
