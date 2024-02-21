@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.8
+#Versión:0.8.9
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -65,17 +65,18 @@ class BaseDatosLvl1:
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
     #########################################################################################################################
     def obtenerImg(self,date):
-        query="SELECT {cols} FROM {table} WHERE date={fecha}".format(cols="*",table="images",fecha=date)
+        query="SELECT image1_data,image2_data FROM {table} WHERE date={fecha}".format(cols="*",table="images",fecha=date)
         self.cur.execute(query)
         self.conn.commit()
         record=self.cur.fetchall()
-        for row in record:
-            image1=row[2]
-            image2=row[3]
-            with open("Fotos resulta\\foto1.jpg", 'wb') as file:
-                file.write(image1)
-            with open("Fotos resulta\\foto2.jpg", 'wb') as file:
-                file.write(image2)
+        print (record)
+        cont=0
+        for i in record:
+            for j in i:
+                cont=cont+1
+                file=open("Fotos resulta\\foto{}.jpg".format(cont), 'wb')
+                file.write(j)
+        
     
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
@@ -131,14 +132,14 @@ class BaseDatosLvl1:
 
     #Definimo la función para injectar las imagenes en la base de datos
     ##############################################################################################################################################################################################
-    def injectarimg(self,route1,route2):
+    def injectarimg(self,nombre,route1,route2):
         #abrimos la imagen en la ruta que recibimos
         with open(route1, 'rb') as f:
             image1_data = f.read()
         with open(route2, 'rb') as f:
             image2_data = f.read()
         #insertamos la imagen en formato binario para que se pueda guardar
-        orden="""INSERT INTO images (timestamp,date,image1_data,image2_data) VALUES ('prueba1',240220,{img1},{img2})""".format(img1=psycopg2.Binary(image1_data),img2=psycopg2.Binary(image2_data))
+        orden="""INSERT INTO images (timestamp,date,image1_data,image2_data) VALUES ({nom},240220,{img1},{img2})""".format(nom=nombre,img1=psycopg2.Binary(image1_data),img2=psycopg2.Binary(image2_data))
         self.cur.execute(orden) 
         self.conn.commit()   
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
