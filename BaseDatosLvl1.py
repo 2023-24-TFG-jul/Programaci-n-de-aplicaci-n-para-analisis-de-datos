@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.9
+#Versión:0.8.10
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -25,6 +25,7 @@ class BaseDatosLvl1:
         self.dirradio="Datos\datalogger" #path donde se meteran los archivos que se quieran meter en la base de datos radio
         self.dircamera="Datos\sky-camera"#path donde se meteran los archivos que se quieran meter en la base de datos skycamera
         self.dirscanner="Datos\Sky-scanner 2023_12"#path donde se meteran los archivos que se quieran meter en la base de datos skyscanner
+        self.dirimg="Datos\Fotos"#path en el que se meteran las imagenes que se quiera introducir en la base de datos
         self.datahost="localhost" #Host de la base de datos
         self.dataname="postgres"  #Nombre de la base de datos
         self.datauser="postgres"  #Nombre del usuario
@@ -64,18 +65,22 @@ class BaseDatosLvl1:
 
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
     #########################################################################################################################
-    def obtenerImg(self,date):
-        query="SELECT image1_data,image2_data FROM {table} WHERE date={fecha}".format(cols="*",table="images",fecha=date)
+    def obtenerImg(self,date1,date2):
+        #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
+        query="SELECT image1_data,image2_data FROM images WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
+        #Ejecutamos la consulta 
         self.cur.execute(query)
         self.conn.commit()
+        #guardamos las filas que estaban guardadas en el cursor
         record=self.cur.fetchall()
-        print (record)
+        #Creamos un contador para que cuente la cantidad de imagenes que guardamos
         cont=0
-        for i in record:
-            for j in i:
-                cont=cont+1
-                file=open("Fotos resulta\\foto{}.jpg".format(cont), 'wb')
-                file.write(j)
+        
+        for i in record:#recorremos la lista de tuplas
+            for j in i:#recorremos la tupla de imagenes
+                cont=cont+1#Aumentamos el contador de imagenes
+                file=open("Fotos resulta\\foto{},{},{}.jpg".format(cont,date1,date2), 'wb') #Creamos un archivo para guardar la imagen
+                file.write(j) #guardamos los datos de la imagen
         
     
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
@@ -132,16 +137,25 @@ class BaseDatosLvl1:
 
     #Definimo la función para injectar las imagenes en la base de datos
     ##############################################################################################################################################################################################
-    def injectarimg(self,nombre,route1,route2):
+    def injectarimg(self,nombre,fecha,route1,route2):
         #abrimos la imagen en la ruta que recibimos
         with open(route1, 'rb') as f:
             image1_data = f.read()
+        #abrimos la segunda imagen de la ruta que recibimos
         with open(route2, 'rb') as f:
             image2_data = f.read()
         #insertamos la imagen en formato binario para que se pueda guardar
-        orden="""INSERT INTO images (timestamp,date,image1_data,image2_data) VALUES ({nom},240220,{img1},{img2})""".format(nom=nombre,img1=psycopg2.Binary(image1_data),img2=psycopg2.Binary(image2_data))
+        orden="""INSERT INTO images (timestamp,date,image1_data,image2_data) VALUES ({nom},{date},{img1},{img2})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data),img2=psycopg2.Binary(image2_data))
         self.cur.execute(orden) 
-        self.conn.commit()   
+        self.conn.commit()  
+    #################################################################################################################################################################################################
+    
+    #Definimos una función que actualice la base de datos de las imagenes
+    ##################################################################################################################################################################################################
+    def actimg(self):
+        img=os.listdir(self.dirimg)
+        for i in img:
+            self.injectarimg("""{}""".format(i),240222,self.dirimg+i,self.dirimg+i)
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
     def injectarCsvRadio(self, route):

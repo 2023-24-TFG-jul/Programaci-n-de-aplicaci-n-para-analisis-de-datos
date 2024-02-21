@@ -16,7 +16,7 @@ db1=BaseDatosLvl1()
 #db1.injectarimg(""" 'prueba2' ""","Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg","Datos\Fotos\\1.jpg")
 # print(db1.obtenerdat("*","images",None,None))
 # db1.obtenerImg(240220)
-db1.obtenerImg(240220)
+db1.obtenerImg(240220,240220)
 # datahost="localhost" #Host de la base de datos
 # dataname="postgres"  #Nombre de la base de datos
 # datauser="postgres"  #Nombre del usuario
