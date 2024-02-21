@@ -1,18 +1,17 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.7
+#Versión:0.8.8
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
-import psycopg #Import para la conexión la base de datos
+import psycopg2 #Import para la conexión la base de datos
 import pandas as pd #Import para gestion de datos
 from psycopg2 import sql #Import para conectar con la base de datos y poder pasar datos en bulk
 from sqlalchemy import create_engine #Import para pasar los datos en bulk
 import sqlalchemy #import para pasar los datos en bulk
 import os #import para leer los archivos en un directorio especificado
 import numpy as np #Import para operar con los datos de pandas
-import psycopg2 #Import para pasar las imagenes a la base de datos
 from io import BytesIO #Imports para pasar la imagen a binario
 from PIL import Image
 from sqlalchemy.sql import text# convertir strings en text o sql
@@ -32,7 +31,7 @@ class BaseDatosLvl1:
         self.datapass="1234"      #Contraseña de la base de datos
         self.dataport=5432        #Puerto al que se conecta la base de datos
         #Establecemos la conexion con la base de datos atraves psycog2
-        self.conn=psycopg.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
+        self.conn=psycopg2.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
         #Inicializamos el cursor con el que operaremos en la base de datos
         self.cur=self.conn.cursor() 
         #inicializamdos la conexopn que usara sqlAlchemy para operar en la base de datos
