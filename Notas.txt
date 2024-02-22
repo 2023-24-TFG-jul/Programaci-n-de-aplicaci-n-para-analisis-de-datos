@@ -2,3 +2,12 @@ Primary keys para los datos y la base de datos de primer nivel
 -Datalogger: TIMESTAMP
 -Skyscanner: side + date + horaini + horafin
 -Skycamera: time
+-Cosas para el latex:
+    -Hablar del grupo swift 
+    -la problematica
+    -por que necesitan este trabajo
+    -proyecto del grupo
+    -Imagenes del equipo y demas.
+    -Aspectos relevantes del proyecto, expecificaciones de los sensores.
+    -Introducción desde arriba, desde lo que hace el equpo swift, 2-3 paginas.
+Aspectos relevantes ir haciendolo

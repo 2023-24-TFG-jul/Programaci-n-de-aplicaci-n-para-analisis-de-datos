@@ -1,16 +1,13 @@
-#Nombre: Prototipo
+#Nombre: Muestra Funcionamiento.py
 #Autor:Álvaro Villar Val
-#Fecha:25/01/24
-#Versión:0.003
-#Descripción: Algo habra que
+#Fecha:22/02/24
+#Versión:0.1.3
+#Descripción: Programa para enseñar como funciona la base de datos 1
 #########################################################################################################################
 #Definimos los imports
-import psycopg2
-import pandas as pd
 from BaseDatosLvl1 import BaseDatosLvl1
-from psycopg2 import sql
-##########################################################################################################################
-#Parametros de la base de datos
+########################################################################################################################
+
 db1=BaseDatosLvl1()
 db1.injectarimg(""" 'prueba1' """,240222,"Datos\Fotos\\1.jpg","Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg")
 db1.injectarimg(""" 'prueba2' """,240222,"Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg","Datos\Fotos\\1.jpg")

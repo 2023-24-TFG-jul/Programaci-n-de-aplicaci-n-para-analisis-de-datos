@@ -79,7 +79,7 @@ class BaseDatosLvl1:
         for i in record:#recorremos la lista de tuplas
             for j in i:#recorremos la tupla de imagenes
                 cont=cont+1#Aumentamos el contador de imagenes
-                file=open("Fotos resulta\\foto{},{},{}.jpg".format(cont,date1,date2), 'wb') #Creamos un archivo para guardar la imagen
+                file=open("FotosResulta\\foto{},{},{}.jpg".format(cont,date1,date2), 'wb') #Creamos un archivo para guardar la imagen
                 file.write(j) #guardamos los datos de la imagen
         
     
