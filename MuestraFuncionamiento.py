@@ -9,8 +9,8 @@ from BaseDatosLvl1 import BaseDatosLvl1
 ########################################################################################################################
 
 db1=BaseDatosLvl1()
-db1.injectarimg(""" 'prueba1' """,240222,"Datos\Fotos\\1.jpg","Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg")
-db1.injectarimg(""" 'prueba2' """,240222,"Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg","Datos\Fotos\\1.jpg")
+#db1.injectarimg(""" 'prueba1' """,240222,"Datos\Fotos\\1.jpg","Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg")
+#db1.injectarimg(""" 'prueba2' """,240222,"Datos\Fotos\\201D_CAM1_20231005_085100_02.jpg","Datos\Fotos\\1.jpg")
 db1.obtenerImg(240222,240222)
 db1.actualizardatos()
 datos1=db1.obtenerdat("*","radio","23-10-01","23-10-01")

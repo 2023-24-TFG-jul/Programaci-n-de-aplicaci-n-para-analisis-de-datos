@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.10
+#Versión:0.8.11
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -65,7 +65,7 @@ class BaseDatosLvl1:
 
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
     #########################################################################################################################
-    def obtenerImg(self,date1,date2):
+    def obtenerImg(self,date1,date2):#hacer por horas
         #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
         query="SELECT image1_data,image2_data FROM images WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
         #Ejecutamos la consulta 
@@ -88,7 +88,7 @@ class BaseDatosLvl1:
     def crear(self):
         #Creación de la tabla en caso de que no exista del skyscaner, 
         #Sidedatehour tiene un formato de side,date(al estilo año-mes-día),horaini,horafin
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidedatehour VARCHAR(255) PRIMARY KEY, hour time,date integer,sect1 decimal,sect2 decimal,
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (side VARCHAR, hour time,date integer,sect1 decimal,sect2 decimal,
         sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
         sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
         sect22 decimal,sect23 decimal,sect24 decimal,sect25 decimal,sect26 decimal,sect27 decimal,sect28 decimal,sect29 decimal,sect30 decimal,sect31 decimal,
@@ -103,7 +103,7 @@ class BaseDatosLvl1:
         sect112 decimal,sect113 decimal,sect114 decimal,sect115 decimal,sect116 decimal,sect117 decimal,sect118 decimal,sect119 decimal,sect120 decimal,sect121 decimal,
         sect122 decimal,sect123 decimal,sect124 decimal,sect125 decimal,sect126 decimal,sect127 decimal,sect128 decimal,sect129 decimal,sect130 decimal,sect131 decimal,
         sect132 decimal,sect133 decimal,sect134 decimal,sect135 decimal,sect136 decimal,sect137 decimal,sect138 decimal,sect139 decimal,sect140 decimal,sect141 decimal,
-        sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, azimut decimal, elevacion decimal); """
+        sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, azimut decimal, elevacion decimal,sidedatehour VARCHAR (255) PRIMARY KEY); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -185,7 +185,7 @@ class BaseDatosLvl1:
         #Hacemos el tipado de la fechas (añomesdía) y lo hacemos cogiendo solo los caracteres que nos interesan en la fecha que nos da el csv
         fechatip=fecha[1][2][2]+fecha[1][2][3]+fecha[1][2][5]+fecha[1][2][6]+fecha[1][2][8]+fecha[1][2][9] 
         #tambien hay que cmabiarle los nombres a las columnas para que coincidan con los de la base de datos y sean más manejables
-        names=["sidedatehour","hour","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
+        names=["side","hour","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
         "sect11","sect12","sect13","sect14","sect15","sect16","sect17","sect18","sect19","sect20" ,"sect21",
         "sect22" ,"sect23" ,"sect24" ,"sect25" ,"sect26" ,"sect27" ,"sect28" ,"sect29" ,"sect30" ,"sect31" ,
         "sect32" ,"sect33" ,"sect34" ,"sect35" ,"sect36" ,"sect37" ,"sect38" ,"sect39" ,"sect40" ,"sect41" ,
@@ -203,7 +203,7 @@ class BaseDatosLvl1:
         #Cambiamos los nombre que hemos guardado antes en una lista
         df.columns=names
         #Cambiamos la columna sidedatehour para que sea lo que su nombre indica y no solo el lado
-        df['sidedatehour']=df['sidedatehour']+","+fechatip+","+df['hour']+","+df['date']
+        df['sidedatehour']=df['side']+","+fechatip+","+df['hour']+","+df['date']
         #Modificamos la columna date para que contenga la fecha de las mediciones
         df['date']=fechatip
         #Como en este csv hay espacios en blancos donde debria haber nulos, sustituimos estos espacios por nulos
