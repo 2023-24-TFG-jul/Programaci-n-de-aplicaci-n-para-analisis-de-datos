@@ -1,18 +1,17 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.1
+#Versión:0.9.2
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
-import psycopg #Import para la conexión la base de datos
+import psycopg2 #Import para la conexión la base de datos
 import pandas as pd #Import para gestion de datos
 from psycopg2 import sql #Import para conectar con la base de datos y poder pasar datos en bulk
 from sqlalchemy import create_engine #Import para pasar los datos en bulk
 import sqlalchemy #import para pasar los datos en bulk
 import os #import para leer los archivos en un directorio especificado
 import numpy as np #Import para operar con los datos de pandas
-from psycopg2 import Binary #Import para pasar las imagenes a la base de datos
 from io import BytesIO #Imports para pasar la imagen a binario
 from PIL import Image
 from sqlalchemy.sql import text# convertir strings en text o sql
@@ -26,13 +25,15 @@ class BaseDatosLvl1:
         self.dirradio="Datos\datalogger" #path donde se meteran los archivos que se quieran meter en la base de datos radio
         self.dircamera="Datos\sky-camera"#path donde se meteran los archivos que se quieran meter en la base de datos skycamera
         self.dirscanner="Datos\Sky-scanner 2023_12"#path donde se meteran los archivos que se quieran meter en la base de datos skyscanner
+        self.dirimgCam1="Datos\Fotos\CAM1\imagenes"#path en el que se meteran las imagenes de la camara1 que se quiera introducir en la base de datos
+        self.dirimgCam2="Datos\Fotos\CAM2\imagenes"#path en el que se meteran las imagenes de la camara2 que se quieran introducir en la base de datos
         self.datahost="localhost" #Host de la base de datos
         self.dataname="postgres"  #Nombre de la base de datos
         self.datauser="postgres"  #Nombre del usuario
         self.datapass="1234"      #Contraseña de la base de datos
         self.dataport=5432        #Puerto al que se conecta la base de datos
         #Establecemos la conexion con la base de datos atraves psycog2
-        self.conn=psycopg.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
+        self.conn=psycopg2.connect(host=self.datahost,dbname=self.dataname, user=self.datauser, password=self.datapass,port=self.dataport)
         #Inicializamos el cursor con el que operaremos en la base de datos
         self.cur=self.conn.cursor() 
         #inicializamdos la conexopn que usara sqlAlchemy para operar en la base de datos
@@ -46,11 +47,12 @@ class BaseDatosLvl1:
     #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ####################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
-        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
-        cond1=cond1.replace('-', '')
-        cond2=cond2.replace('-', '')
 
+        
         if cond1!=None and cond1!=None: #en caso de que conde no sea vacia 
+            #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+            cond1=cond1.replace('-', '')
+            cond2=cond2.replace('-', '')
             query="SELECT {cols} FROM {table} WHERE date BETWEEN {condic1} AND {condic2} ".format(cols=selec,table=base,condic1=cond1,condic2=cond2)
         else: #En caso de que no haya una condicion se toma todo
             query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
@@ -62,12 +64,32 @@ class BaseDatosLvl1:
         return df
     ######################################################################################################################
 
+    #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
+    #########################################################################################################################
+    def obtenerImg(self,date1,date2):
+        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+        date1=date1.replace('-', '')
+        date2=date2.replace('-', '')
+        #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
+        query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
+        #Ejecutamos la consulta 
+        self.cur.execute(query)
+        self.conn.commit()
+        #guardamos las filas que estaban guardadas en el cursor
+        record=self.cur.fetchall()
+        #Creamos un contador para que cuente la cantidad de imagenes que guardamos
+        for i in record:#recorremos la tupla de imagenes
+                file=open("FotosResulta\\{}".format(i[0],date1,date2), 'wb') #Creamos un archivo para guardar la imagen
+                file.write(i[1]) #guardamos los datos de la imagen
+    ############################################################################################################################    
+    
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
     def crear(self):
         #Creación de la tabla en caso de que no exista del skyscaner, 
         #Sidedatehour tiene un formato de side,date(al estilo año-mes-día),horaini,horafin
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (sidedatehour VARCHAR(255) PRIMARY KEY, hour time,date integer,sect1 decimal,sect2 decimal,
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (side VARCHAR, hour time,date integer,sect1 decimal,sect2 decimal,
         sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
         sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
         sect22 decimal,sect23 decimal,sect24 decimal,sect25 decimal,sect26 decimal,sect27 decimal,sect28 decimal,sect29 decimal,sect30 decimal,sect31 decimal,
@@ -82,7 +104,7 @@ class BaseDatosLvl1:
         sect112 decimal,sect113 decimal,sect114 decimal,sect115 decimal,sect116 decimal,sect117 decimal,sect118 decimal,sect119 decimal,sect120 decimal,sect121 decimal,
         sect122 decimal,sect123 decimal,sect124 decimal,sect125 decimal,sect126 decimal,sect127 decimal,sect128 decimal,sect129 decimal,sect130 decimal,sect131 decimal,
         sect132 decimal,sect133 decimal,sect134 decimal,sect135 decimal,sect136 decimal,sect137 decimal,sect138 decimal,sect139 decimal,sect140 decimal,sect141 decimal,
-        sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, azimut decimal, elevacion decimal); """
+        sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, azimut decimal, elevacion decimal,sidedatehour VARCHAR (255) PRIMARY KEY); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -108,7 +130,7 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de la base de datos de las imagenes
-        orden=""" CREATE TABLE IF NOT EXISTS images (timestamp VARCHARinteger PRIMARY KEY,date ,image1_data bytea,image2_data bytea);"""
+        orden=""" CREATE TABLE IF NOT EXISTS imagescam1 (name VARCHAR PRIMARY KEY,date integer,image1_data bytea);"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
@@ -116,13 +138,38 @@ class BaseDatosLvl1:
 
     #Definimo la función para injectar las imagenes en la base de datos
     ##############################################################################################################################################################################################
-    def injectarimg(self,route):
+    def injectarimg(self,nombre,fecha,route1):
         #abrimos la imagen en la ruta que recibimos
-        with open(route, 'rb') as f:
-            image_data = f.read()
-        #insertamos la imagen en formato binario para que se pueda guardar
-        self.cur.execute("INSERT INTO images (image_data) VALUES (%s)", (Binary(image_data),)) 
-        self.conn.commit()   
+        with open(route1, 'rb') as f:
+            image1_data = f.read()
+        #abrimos la segunda imagen de la ruta que recibimos
+        #insertamos la imagen en formato binario para que se pueda guardar con el nombre que tiene originalmente y la fecha en la que estaba guardada
+        orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data))
+       
+        try: 
+            self.cur.execute(orden) 
+        except psycopg2.errors.UniqueViolation:
+            print("Esa imagen ya esta introducida en la base de datos, de la cam1")
+        self.conn.commit()  
+    #################################################################################################################################################################################################
+    
+    #Definimos una función que actualice la base de datos de las imagenes
+    ##################################################################################################################################################################################################
+    def actuimgCam1(self):
+        #Hacemos uso de todos estos for para ser capaces de recorrer todo el arbol de ficheros donde se guardan las imagenes
+        for fold1 in os.listdir(self.dirimgCam1):#Años
+            for fold2 in os.listdir(self.dirimgCam1+"\\"+fold1):#Meses
+                for fold3 in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2):#Días
+                    for fold4 in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3):#Horas
+                        for file in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3+"\\"+fold4):#Imagenes
+                            #Formamos la dirección en la que estamos juntando el nombre de todas las carpetas por las que hemos pasado
+                            dirección=self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3+"\\"+fold4+"\\"+file
+                            #Formamos tambien la fecha con ellas
+                            date=fold1[2]+fold1[3]+fold2+fold3+fold4
+                            #Injectamos la imagen en la base de datos con los datos que hemos obtenido
+                            self.injectarimg(""" '{}' """.format(file),date,dirección)
+    #####################################################################################################################################################################################################3333
+
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
     def injectarCsvRadio(self, route):
@@ -152,7 +199,7 @@ class BaseDatosLvl1:
         #Hacemos el tipado de la fechas (añomesdía) y lo hacemos cogiendo solo los caracteres que nos interesan en la fecha que nos da el csv
         fechatip=fecha[1][2][2]+fecha[1][2][3]+fecha[1][2][5]+fecha[1][2][6]+fecha[1][2][8]+fecha[1][2][9] 
         #tambien hay que cmabiarle los nombres a las columnas para que coincidan con los de la base de datos y sean más manejables
-        names=["sidedatehour","hour","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
+        names=["side","hour","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
         "sect11","sect12","sect13","sect14","sect15","sect16","sect17","sect18","sect19","sect20" ,"sect21",
         "sect22" ,"sect23" ,"sect24" ,"sect25" ,"sect26" ,"sect27" ,"sect28" ,"sect29" ,"sect30" ,"sect31" ,
         "sect32" ,"sect33" ,"sect34" ,"sect35" ,"sect36" ,"sect37" ,"sect38" ,"sect39" ,"sect40" ,"sect41" ,
@@ -170,7 +217,7 @@ class BaseDatosLvl1:
         #Cambiamos los nombre que hemos guardado antes en una lista
         df.columns=names
         #Cambiamos la columna sidedatehour para que sea lo que su nombre indica y no solo el lado
-        df['sidedatehour']=df['sidedatehour']+","+fechatip+","+df['hour']+","+df['date']
+        df['sidedatehour']=df['side']+","+fechatip+","+df['hour']+","+df['date']
         #Modificamos la columna date para que contenga la fecha de las mediciones
         df['date']=fechatip
         #Como en este csv hay espacios en blancos donde debria haber nulos, sustituimos estos espacios por nulos
