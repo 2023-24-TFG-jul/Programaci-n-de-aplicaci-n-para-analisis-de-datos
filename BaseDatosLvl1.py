@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.13
+#Versión:0.9.0
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -68,19 +68,16 @@ class BaseDatosLvl1:
     #########################################################################################################################
     def obtenerImg(self,date1,date2):#hacer por horas
         #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
-        query="SELECT image1_data FROM imagescam1 WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
+        query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
         #Ejecutamos la consulta 
         self.cur.execute(query)
         self.conn.commit()
         #guardamos las filas que estaban guardadas en el cursor
         record=self.cur.fetchall()
         #Creamos un contador para que cuente la cantidad de imagenes que guardamos
-        cont=0
-        
-        for i in record[0]:#recorremos la tupla de imagenes
-                cont=cont+1#Aumentamos el contador de imagenes
-                file=open("FotosResulta\\foto{},{},{}.jpg".format(cont,date1,date2), 'wb') #Creamos un archivo para guardar la imagen
-                file.write(i) #guardamos los datos de la imagen
+        for i in record:#recorremos la tupla de imagenes
+                file=open("FotosResulta\\{}".format(i[0],date1,date2), 'wb') #Creamos un archivo para guardar la imagen
+                file.write(i[1]) #guardamos los datos de la imagen
         
     
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
