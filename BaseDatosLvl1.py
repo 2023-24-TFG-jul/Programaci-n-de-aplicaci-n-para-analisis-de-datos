@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.8.12
+#Versión:0.8.13
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -158,11 +158,7 @@ class BaseDatosLvl1:
                         for file in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3+"\\"+fold4):
                             dirección=self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3+"\\"+fold4+"\\"+file
                             date=fold1[2]+fold1[3]+fold2+fold3+fold4
-                            file.str.replace('_','')
-                            print(dirección)
-                            print(date)
-                            print(file)
-                            self.injectarimg("""{}""".format(file),date,dirección)
+                            self.injectarimg(""" '{}' """.format(file),date,dirección)
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
     def injectarCsvRadio(self, route):
