@@ -10,7 +10,7 @@ from BaseDatosLvl1 import BaseDatosLvl1
 
 db1=BaseDatosLvl1()
 db1.actuimgCam1()
-db1.obtenerImg(24011708,24012004)
+db1.obtenerImg("24-01-17-08","24-01-20-04")
 db1.actualizardatos()
 datos1=db1.obtenerdat("*","radio","23-10-01","23-10-01")
 datos2=db1.obtenerdat("*","skyscanner","23-12-01","23-12-02")

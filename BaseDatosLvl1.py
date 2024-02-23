@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.9.1
+#Versión:0.9.2
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -65,6 +65,7 @@ class BaseDatosLvl1:
     ######################################################################################################################
 
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     #########################################################################################################################
     def obtenerImg(self,date1,date2):
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
@@ -144,7 +145,11 @@ class BaseDatosLvl1:
         #abrimos la segunda imagen de la ruta que recibimos
         #insertamos la imagen en formato binario para que se pueda guardar con el nombre que tiene originalmente y la fecha en la que estaba guardada
         orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data))
-        self.cur.execute(orden) 
+       
+        try: 
+            self.cur.execute(orden) 
+        except psycopg2.errors.UniqueViolation:
+            print("Esa imagen ya esta introducida en la base de datos, de la cam1")
         self.conn.commit()  
     #################################################################################################################################################################################################
     
