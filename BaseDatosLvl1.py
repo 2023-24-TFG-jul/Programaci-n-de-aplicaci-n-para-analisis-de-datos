@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.9.2
+#Versión:0.10.0
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -64,8 +64,18 @@ class BaseDatosLvl1:
         return df
     ######################################################################################################################
 
-    #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
+    #Descargamos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
     #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
+    ######################################################################################################################
+    def descDat(self,selec,base,cond1,cond2):
+        #Obtenemos el dataframe de los datos que queremos
+        df=self.obtenerdat(selec,base,cond1,cond2)
+        #Guardamos en la dirección que queramos guardar los archivos en formato tabla,fechainicio,fechafinal
+        df.to_csv("DatosResulta\\{},{},{}.csv".format(base,cond1,cond2), index=False)
+    #######################################################################################################################
+        
+    #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre)-hora(en dos cifras y en 24h) y en string
     #########################################################################################################################
     def obtenerImg(self,date1,date2):
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
