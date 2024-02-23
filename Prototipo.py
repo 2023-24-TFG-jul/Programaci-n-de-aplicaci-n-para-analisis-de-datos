@@ -13,6 +13,6 @@ from psycopg2 import sql
 #Parametros de la base de datos
 db1=BaseDatosLvl1()
 #db1.actuimgCam1()
-db1.obtenerImg(24011708,24012004)
+db1.descDat("*","radio","23-10-01","23-10-01")
 db1.stop()
 
