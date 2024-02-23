@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.9.0
+#Versión:0.9.1
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -47,10 +47,10 @@ class BaseDatosLvl1:
     #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ####################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
-        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
-        
 
+        
         if cond1!=None and cond1!=None: #en caso de que conde no sea vacia 
+            #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
             cond1=cond1.replace('-', '')
             cond2=cond2.replace('-', '')
             query="SELECT {cols} FROM {table} WHERE date BETWEEN {condic1} AND {condic2} ".format(cols=selec,table=base,condic1=cond1,condic2=cond2)
@@ -66,7 +66,10 @@ class BaseDatosLvl1:
 
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
     #########################################################################################################################
-    def obtenerImg(self,date1,date2):#hacer por horas
+    def obtenerImg(self,date1,date2):
+        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+        date1=date1.replace('-', '')
+        date2=date2.replace('-', '')
         #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
         query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
         #Ejecutamos la consulta 
@@ -78,7 +81,7 @@ class BaseDatosLvl1:
         for i in record:#recorremos la tupla de imagenes
                 file=open("FotosResulta\\{}".format(i[0],date1,date2), 'wb') #Creamos un archivo para guardar la imagen
                 file.write(i[1]) #guardamos los datos de la imagen
-        
+    ############################################################################################################################    
     
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
@@ -139,7 +142,7 @@ class BaseDatosLvl1:
         with open(route1, 'rb') as f:
             image1_data = f.read()
         #abrimos la segunda imagen de la ruta que recibimos
-        #insertamos la imagen en formato binario para que se pueda guardar
+        #insertamos la imagen en formato binario para que se pueda guardar con el nombre que tiene originalmente y la fecha en la que estaba guardada
         orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data))
         self.cur.execute(orden) 
         self.conn.commit()  
@@ -148,14 +151,20 @@ class BaseDatosLvl1:
     #Definimos una función que actualice la base de datos de las imagenes
     ##################################################################################################################################################################################################
     def actuimgCam1(self):
-        for fold1 in os.listdir(self.dirimgCam1):
-            for fold2 in os.listdir(self.dirimgCam1+"\\"+fold1):
-                for fold3 in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2):
-                    for fold4 in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3):
-                        for file in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3+"\\"+fold4):
+        #Hacemos uso de todos estos for para ser capaces de recorrer todo el arbol de ficheros donde se guardan las imagenes
+        for fold1 in os.listdir(self.dirimgCam1):#Años
+            for fold2 in os.listdir(self.dirimgCam1+"\\"+fold1):#Meses
+                for fold3 in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2):#Días
+                    for fold4 in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3):#Horas
+                        for file in os.listdir(self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3+"\\"+fold4):#Imagenes
+                            #Formamos la dirección en la que estamos juntando el nombre de todas las carpetas por las que hemos pasado
                             dirección=self.dirimgCam1+"\\"+fold1+"\\"+fold2+"\\"+fold3+"\\"+fold4+"\\"+file
+                            #Formamos tambien la fecha con ellas
                             date=fold1[2]+fold1[3]+fold2+fold3+fold4
+                            #Injectamos la imagen en la base de datos con los datos que hemos obtenido
                             self.injectarimg(""" '{}' """.format(file),date,dirección)
+    #####################################################################################################################################################################################################3333
+
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
     def injectarCsvRadio(self, route):
