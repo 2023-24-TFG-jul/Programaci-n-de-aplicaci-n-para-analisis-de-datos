@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.2.1
+#Versión:0.2.2
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -97,7 +97,19 @@ class BaseDatosLvl2:
 
     #Definimos una funcón que actualice los datos de de la skycamera desde la base de datos 1
     ##########################################################################################################################################################################################################
-    
+    def actualizarCammera(self,route):
+        df=pd.read_csv(route)
+        #establecemos una nueva columna llamada date para tener una manera facil y estandarizada de acceso a los datos
+        #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
+        df['date']=df['time'].str.slice(2,10)
+        df['date']= df['date'].str.replace('-', '')
+        df.dropna(subset=['image'], inplace=True)
+        try:
+            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+            df.to_sql('skycameraproc', con=self.engine, if_exists='append',index=False)
+        except sqlalchemy.exc.IntegrityError:
+            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
+            print("Esos datos ya estan introducidos en la Skycamera")
     ##########################################################################################################################################################################################################
         
     #Definimos una función para que de momento nos devuelva datos
