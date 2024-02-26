@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.2.2
+#Versión:0.2.3
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -85,7 +85,7 @@ class BaseDatosLvl2:
     #Definimos la operación que añadira los nuevos datos procesados a la base de datos
     #################################################################################################################################################################################################
     def actualizarRadio(self,data):
-        data['']
+        data['fallo']='0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
 
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
