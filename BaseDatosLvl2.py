@@ -65,7 +65,7 @@ class BaseDatosLvl2:
         #La primary key de esta tabla es time que se dividi en: año-mes-día hora
         orden=""" CREATE TABLE IF NOT EXISTS skycameraproc("GAIN" VARCHAR,"SHUTTER" VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
-        thumbnail VARCHAR,time VARCHAR PRIMARY KEY); """
+        thumbnail VARCHAR,time VARCHAR PRIMARY KEY,date integer); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -78,7 +78,7 @@ class BaseDatosLvl2:
         "BuPaGVS_Avg" decimal,"BuPaGVW_Avg" decimal,"BuPaGH_Avg" decimal,"BuPaDH_Avg" decimal,"BuPaB_Avg" decimal,"BuUvGVN_Avg" decimal,"BuUvGVE_Avg" decimal, "BuUvGVS_Avg" decimal,
         "BuUvGVW_Avg" decimal,"BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,"BuUvBGH_Avg" decimal,
         "BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,"BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,"BuRaDVS_Avg" decimal,
-        "BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,"BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,fallo varchar(250))"""
+        "BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,"BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,date integer,fallo varchar(250))"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
@@ -87,16 +87,25 @@ class BaseDatosLvl2:
     #Definimos una función que sustitye a la función de la bd1 de actualización de datos
     ################################################################################################################################################################################################
     def actualizardatos(self,):
-         self.db1.actualizardatos()
+        radio,camera,scanner=self.db1.actualizardatos()
+        for dat in radio:
+            if not dat.empty:
+                self.actualizarRadio(dat)
+        for dat in camera:
+            if not dat.empty:    
+                self.actualizarCammera(dat)
+        for dat in scanner:
+            if not dat.empty:
+                self.actualizarScanner(dat)
     #################################################################################################################################################################################################
     
     #Definimos la operación que añadira los nuevos datos procesados a la base de datos
     #################################################################################################################################################################################################
-    def actualizarRadio(self,data):
-        data['fallo']='0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
+    def actualizarRadio(self,df):
+        df['fallo']='0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
-            data.to_sql('radioproc', con=self.engine, if_exists='append',index=False)
+            df.to_sql('radioproc', con=self.engine, if_exists='append',index=False)
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en radioproc")
@@ -105,7 +114,6 @@ class BaseDatosLvl2:
     #Definimos una funcón que actualice los datos de de la skycamera desde la base de datos 1
     ##########################################################################################################################################################################################################
     def actualizarCammera(self,df):
-    
         df.dropna(subset=['image'], inplace=True)
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
@@ -115,7 +123,9 @@ class BaseDatosLvl2:
             print("Esos datos ya estan introducidos en la skycameraproc")
     ##########################################################################################################################################################################################################
     def actualizarScanner(self,df):
+       
         df.dropna(subset=['side'], inplace=True)
+        
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
             df.to_sql('skyscannerproc', con=self.engine, if_exists='append',index=False)
@@ -124,8 +134,8 @@ class BaseDatosLvl2:
             print("Esos datos ya estan introducidos en la skyscannerproc")
     #Definimos una función para que de momento nos devuelva datos
      #########################################################################################################################################################################################################
-    def obtenerdat(self,selec,base,cond):
-        return self.db1.obtenerdat(selec,base,cond)
+    def obtenerdat(self,selec,base,cond1,cond2):
+        return self.db1.obtenerdat(selec,base,cond1,cond2)
      #########################################################################################################################################################################################################
     
     #Definimos la operación de cierre de conexiones para evitar errores en las conexiones futuras
@@ -133,4 +143,6 @@ class BaseDatosLvl2:
     ##########################################################################################################################################################################################################
     def stop(self):
         #Cerramos las conexiones del primer nivel de la base de datos
+        self.cur.close()
+        self.conn.close() 
         self.db1.stop()
