@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.2.4
+#Versión:0.3.1
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -84,16 +84,20 @@ class BaseDatosLvl2:
         self.conn.commit()
     ################################################################################################################################################################################################
     
-    #Definimos una función que sustitye a la función de la bd1 de actualización de datos
+    #Definimos una función qe actualice los datos de la base de datos y los procese al mismo tiempo
     ################################################################################################################################################################################################
-    def actualizardatos(self,):
-        radio,camera,scanner=self.db1.actualizardatos()
+    def actualizardatos(self):
+        #Recibimos de la función de de actialización de datos los datos que se hayan introducidos en el primer nivel de la base de datos
+        radio,camera,scanner=self.db1.actualizardatos() 
+        #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in radio:
             if not dat.empty:
                 self.actualizarRadio(dat)
+        #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in camera:
             if not dat.empty:    
                 self.actualizarCammera(dat)
+        #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in scanner:
             if not dat.empty:
                 self.actualizarScanner(dat)
@@ -111,7 +115,7 @@ class BaseDatosLvl2:
             print("Esos datos ya estan introducidos en radioproc")
     #########################################################################################################################################################################################################
 
-    #Definimos una funcón que actualice los datos de de la skycamera desde la base de datos 1
+    #Definimos una funcón que actualice los datos de de la skycamera que se han introducido en la base de datos
     ##########################################################################################################################################################################################################
     def actualizarCammera(self,df):
         df.dropna(subset=['image'], inplace=True)
@@ -122,6 +126,9 @@ class BaseDatosLvl2:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en la skycameraproc")
     ##########################################################################################################################################################################################################
+    
+    #Definimos una función que introduzca los datos limpiados del skyscanner
+    ###########################################################################################################################################################################################################
     def actualizarScanner(self,df):
        
         df.dropna(subset=['side'], inplace=True)
@@ -132,6 +139,8 @@ class BaseDatosLvl2:
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en la skyscannerproc")
+    ##########################################################################################################################################################################################################
+
     #Definimos una función para que de momento nos devuelva datos
      #########################################################################################################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
