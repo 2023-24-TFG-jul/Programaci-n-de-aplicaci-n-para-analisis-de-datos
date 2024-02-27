@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.10.0
+#Versión:0.10.2
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -155,7 +155,6 @@ class BaseDatosLvl1:
         #abrimos la segunda imagen de la ruta que recibimos
         #insertamos la imagen en formato binario para que se pueda guardar con el nombre que tiene originalmente y la fecha en la que estaba guardada
         orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data))
-       
         try: 
             self.cur.execute(orden) 
         except psycopg2.errors.UniqueViolation:
@@ -191,13 +190,18 @@ class BaseDatosLvl1:
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
         df['date']=df['TIMESTAMP'].str.slice(2,10)
         df['date']= df['date'].str.replace('-', '')
+        
         #Transpasamos los datos en df a la base de datos reciviendo la excepción en caso de que se metan datos repetidos
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
             df.to_sql('radio', con=self.engine, if_exists='append',index=False)
+            
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en radio")
+            df=pd.DataFrame({'A' : []})
+        return df
+
     ################################################################################################################################################################################################
     
     #Definimos la función que injectara los datos del Skyscanner
@@ -232,6 +236,7 @@ class BaseDatosLvl1:
         df['date']=fechatip
         #Como en este csv hay espacios en blancos donde debria haber nulos, sustituimos estos espacios por nulos
         df=df.replace('  ',np.nan)
+
         #Cazamos la excepción en caso de que se metan datos repetidos
         try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
@@ -239,6 +244,8 @@ class BaseDatosLvl1:
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
              print("Esos datos ya estan introducidos en el skyscanner")
+             df=pd.DataFrame({'A' : []})
+        return df
     ####################################################################################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
@@ -257,6 +264,8 @@ class BaseDatosLvl1:
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en la Skycamera")
+            df=pd.DataFrame({'A' : []})
+        return df
     #####################################################################################################################################################################################################    
     
     #Definimos una función que recoja los datos directamente de las carpetas en las que estan
@@ -268,12 +277,16 @@ class BaseDatosLvl1:
         camera=os.listdir(self.dircamera)
         #Tomamos todos los archivos en el directorio de canner y guardamos sus nombre en una lista
         scanner=os.listdir(self.dirscanner)
+        radiodat=[]
+        cameradat=[]
+        scannerdat=[]
         for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
-            self.injectarCsvRadio(self.dirradio+"\\"+datos)#introducimos los datos a la tabla de radio
+            radiodat.append(self.injectarCsvRadio(self.dirradio+"\\"+datos))#introducimos los datos a la tabla de radio
         for datos in camera:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
-            self.injectarCsvSkycamera(self.dircamera+"\\"+datos)#introducimos los datos a la tabla de camera
+            cameradat.append(self.injectarCsvSkycamera(self.dircamera+"\\"+datos))#introducimos los datos a la tabla de camera
         for datos in scanner:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
-            self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos)#introducimos los datos a la tabla de scanner
+            scannerdat.append(self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos))#introducimos los datos a la tabla de scanner
+        return radiodat,cameradat,scannerdat#Devolvemos los datos que hemos intoducido para que se procesen a su vez
     ##################################################################################################################################################################################################### 
 
     #Definimos el Cierre de la conexión con la base de datos

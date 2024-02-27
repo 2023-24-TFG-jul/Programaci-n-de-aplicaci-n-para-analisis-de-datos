@@ -14,9 +14,10 @@ from sqlalchemy import create_engine
 ##########################################################################################################################
 #Parametros de la base de datos
 db2=BaseDatosLvl2()
-data=db2.obtenerdat("*","radio",None)
-db2.actualizarRadio(data)
-datos=db2.obtenerdat("*","radioproc",None)
+db2.actualizardatos()
+data=db2.obtenerdat("*","skycameraproc","23-10-01","23-10-02")
+datos=db2.obtenerdat("*","radioproc","23-10-01","23-10-01")
 print(datos)
+print(data)
 db2.stop()
 
