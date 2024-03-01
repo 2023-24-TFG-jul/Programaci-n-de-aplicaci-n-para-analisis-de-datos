@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.10.2
+#Versión:0.10.3
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -158,7 +158,7 @@ class BaseDatosLvl1:
         try: 
             self.cur.execute(orden) 
         except psycopg2.errors.UniqueViolation:
-            print("Esa imagen ya esta introducida en la base de datos, de la cam1")
+            raise TypeError("imgerr")
         self.conn.commit()  
     #################################################################################################################################################################################################
     
@@ -198,7 +198,7 @@ class BaseDatosLvl1:
             
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-            print("Esos datos ya estan introducidos en radio")
+            raise TypeError("radioerr")
             df=pd.DataFrame({'A' : []})
         return df
 
@@ -243,7 +243,7 @@ class BaseDatosLvl1:
             df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-             print("Esos datos ya estan introducidos en el skyscanner")
+             raise TypeError("skyscanerr")
              df=pd.DataFrame({'A' : []})
         return df
     ####################################################################################################################################################################################################
@@ -263,7 +263,7 @@ class BaseDatosLvl1:
             df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-            print("Esos datos ya estan introducidos en la Skycamera")
+            raise TypeError("skycamerr")
             df=pd.DataFrame({'A' : []})
         return df
     #####################################################################################################################################################################################################    

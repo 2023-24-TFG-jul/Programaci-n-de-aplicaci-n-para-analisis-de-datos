@@ -94,6 +94,7 @@ class BaseDatosLvl2:
     ################################################################################################################################################################################################
     def actualizardatos(self):
         #Recibimos de la función de de actialización de datos los datos que se hayan introducidos en el primer nivel de la base de datos
+        
         radio,camera,scanner=self.db1.actualizardatos() 
         #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in radio:
