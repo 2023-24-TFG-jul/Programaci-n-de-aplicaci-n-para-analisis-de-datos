@@ -29,10 +29,41 @@ class UI:
         
     
     def actualizardatos(self):
-        self.bd2.actualizardatos()
+        radioerr=0
+        skycamerr=0
+        skyscanerr=0
+        try:
+           self.bd2.actualizardatos()
+        except "radioerr":
+            radioerr=radioerr+1
+        except "skycamerr":
+            skycamerr=skycamerr+1
+        except "skyscanerr":
+            skyscanerr=skyscanerr+1
+        mesradio=""
+        messkyscan=""
+        messkycam=""
+        if (radioerr !=0):
+            mesradio="Has intentado introducir {} archivos repetidos en radio\n".format(radioerr)
+        if (skycamerr!=0):
+            messkycam="Has intentado introducir {} archivos repetidos en skycam\n".format(skycamerr)
+        if(skyscanerr!=0):
+            messkyscan="Has intentado introducir {} archivos repetidos en skyscanner\n".format(skyscanerr)
+        mensaje=mesradio+messkycam+messkyscan
+        if(mensaje!=""):
+            messagebox.showinfo(title="Datos repetidos",message=mensaje)
+            
 
     def actualizarimagenes(self):
-        self.bd2.actualizarImg()
+        cont=0
+        try:
+            self.bd2.actualizarImg()
+        except "imgerr":
+            cont=cont+1
+        if(cont!=0):
+            messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
+
+
         # if self.check_state.get()==0:
         #     print(self.textbox.get('1.0',tk.END))
         # else:
