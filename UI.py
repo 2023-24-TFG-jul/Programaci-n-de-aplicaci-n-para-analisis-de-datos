@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.0.5
+#Versión:0.1.0
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -16,8 +16,10 @@ class UI:
     ######################################################################################################################################################################################
     def __init__(self):
         self.root=tk.Tk() #Creamos la pantalla de la aplicación
-        self.label=tk.Label(self.root,text="Actualizaciones",font=('Arial',18))# Creamos un titulo para llamar a la aplicación
-        self.label.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+        self.labelAct=tk.Label(self.root,text="Actualizaciones",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
+        self.labelAct.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+
+        
 
         self.check_state=tk.IntVar() #Creamos un check que estara en la pantalla
         self.check= tk.Checkbutton(self.root,text="",font=('Arial',16),variable=self.check_state) #Creamos un chek button que registre el estado del check
@@ -28,6 +30,32 @@ class UI:
         #Creamos un boton que actualizara las imagenes
         self.buttonActImg=tk.Button(self.root,text="Actualizar imagenes",font=('Arial',18),command=self.actualizarimagenes)
         self.buttonActImg.pack(padx=10,pady=10)
+
+        self.labelDesc=tk.Label(self.root,text="Descargas",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
+        self.labelDesc.pack(padx=10,pady=10) #Lo colocamos en la 
+        
+        self.labelIni=tk.Label(self.root,text="Fecha inicio",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
+        self.labelIni.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+
+        self.textboxIni=tk.Text(self.root,font=('Arial',11),height=1)
+        self.textboxIni.pack(padx=30,pady=30)
+
+        self.labelFin=tk.Label(self.root,text="Fecha Fin",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
+        self.labelFin.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+
+        self.textboxFin=tk.Text(self.root,font=('Arial',11),height=1)
+        self.textboxFin.pack(padx=30,pady=30)
+
+        #Creamos un boton que actualizara las imagenes
+        self.buttonDescDat=tk.Button(self.root,text="Descargar Datos",font=('Arial',18),command=self.descDat)
+        self.buttonDescDat.pack(padx=10,pady=10)
+
+        #Creamos un boton que actualizara las imagenes
+        self.buttonDescImg=tk.Button(self.root,text="Descargar imagenes",font=('Arial',18),command=self.descImg)
+        self.buttonDescImg.pack(padx=10,pady=10)
+
+
+
 
         self.bd2=BaseDatosLvl2() #Inicializamos la base de datos que vamos a conectar y utilizar
 
@@ -76,4 +104,16 @@ class UI:
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
             messagebox.showinfo(title="Message",message=messkyscan)
     ############################################################################################################################################################################################
+
+    #Definimos una función para descargar datos
+    ############################################################################################################################################################################################
+    def descDat(self):
+        self.bd2.descdat("*","radio","23-12-10","23-12-10")
+    ############################################################################################################################################################################################
+
+    #Definimos una función para deascargar las imagenes
+    ############################################################################################################################################################################################
+    def descImg(self):
+        self.bd2.descImg("23-12-29-10","23-12-29-10")
+
 UI()
