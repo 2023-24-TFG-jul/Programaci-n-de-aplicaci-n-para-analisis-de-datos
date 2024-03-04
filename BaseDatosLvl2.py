@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.3.2
+#Versión:0.4.0
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -88,12 +88,25 @@ class BaseDatosLvl2:
     #################################################################################################################################################################################################
     def actualizarImg(self):
         self.db1.actuimgCam1()
-    #################################################################################################################################################################################################ç
-           
+    #################################################################################################################################################################################################
+
+    #Definimos una función que descargue las imagenes determinadas
+    ################################################################################################################################################################################################
+    def descImg(self,date1,date2):
+        self.db1.obtenerImg(date1,date2)
+    ###############################################################################################################################################################################################
+   
+    #Definimos una función para que descargue los datos que queramos
+    ################################################################################################################################################################################################ 
+    def descdat(self,selec,base,cond1,cond2):
+        self.db1.descDat(selec,base,cond1,cond2)
+    ################################################################################################################################################################################################
+
     #Definimos una función qe actualice los datos de la base de datos y los procese al mismo tiempo
     ################################################################################################################################################################################################
     def actualizardatos(self):
         #Recibimos de la función de de actialización de datos los datos que se hayan introducidos en el primer nivel de la base de datos
+        
         radio,camera,scanner=self.db1.actualizardatos() 
         #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in radio:
