@@ -1,14 +1,14 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.3
+#Versión:0.2.4
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
 import tkinter as tk
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
-import sqlalchemy
+
 #Clase con la que el usuario interactuará
 class UI:
 
@@ -84,6 +84,8 @@ class UI:
         mensaje=mesradio+messkycam+messkyscan #Creamos el mensaje completo uniendo todos
         if(mensaje!=""): #Si ha habido algun dato repetido mostramos por pantalla los que haya habido
             messagebox.showinfo(title="Datos repetidos",message=mensaje)#Sacamops por pantalla el mensaje
+        else:
+            messagebox.showinfo(title="Operación exitosa",message="Has actualizado los datos con exito")#Sacamops por pantalla el mensaje
     ######################################################################################################################################################################
 
     #Definimos una función para actualizar las imagenes y que devuelva por pantalla si se incluyen imagenes repetidas
