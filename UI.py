@@ -1,14 +1,14 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.1.0
+#Versión:0.2.0
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
 import tkinter as tk
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
-
+import sqlalchemy
 #Clase con la que el usuario interactuará
 class UI:
 
@@ -64,19 +64,9 @@ class UI:
 
     #Definimos una función que al pulsar el boton actualice los datos
     ########################################################################################################################################################################
-    def actualizardatos(self):
-        radioerr=0 #numero de archivos repetidos en radio
-        skycamerr=0 #numero de archivos repetidos en skycam
-        skyscanerr=0 #numero de archivos repetidos en skyscanerr
-
-        try:
-           self.bd2.actualizardatos()#Actualizamos los datos
-        except "radioerr": # Cuando Devuelve un error de datos repetidos de radio añade uno al contador de radierr
-            radioerr=radioerr+1
-        except "skycamerr": # Cuando Devuelve un error de datos repetidos de skycamera añade uno al contador de skycamerr
-            skycamerr=skycamerr+1
-        except "skyscanerr": # Cuando Devuelve un error de datos repetidos de skyscanner añade uno al contador de skyscanerr
-            skyscanerr=skyscanerr+1
+    def actualizardatos(self):  
+        radioerr,skycamerr,skyscanerr=self.bd2.actualizardatos()#Actualizamos los datos
+    
         mesradio="" #Inicializamos las variable de los mensajes como vacio para que en caso de que no se modifiquen no añadan nada al mensaje final
         messkyscan=""
         messkycam=""
