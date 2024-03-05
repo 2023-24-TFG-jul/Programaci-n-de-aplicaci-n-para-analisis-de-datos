@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.0.0
+#Versión:1.0.1
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -152,20 +152,25 @@ class BaseDatosLvl1:
     #Definimo la función para injectar las imagenes en la base de datos
     ##############################################################################################################################################################################################
     def injectarimg(self,nombre,fecha,route1):
+        comprob=False
         #abrimos la imagen en la ruta que recibimos
         with open(route1, 'rb') as f:
             image1_data = f.read()
         #abrimos la segunda imagen de la ruta que recibimos
         #insertamos la imagen en formato binario para que se pueda guardar con el nombre que tiene originalmente y la fecha en la que estaba guardada
         orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data)) 
-        self.cur.execute(orden) 
-        
+        try:
+            self.cur.execute(orden) 
+        except psycopg2.errors.UniqueViolation:
+            comprob= True
         self.conn.commit()  
+        return comprob
     #################################################################################################################################################################################################
     
     #Definimos una función que actualice la base de datos de las imagenes
     ##################################################################################################################################################################################################
     def actuimgCam1(self):
+        cont=0
         #Hacemos uso de todos estos for para ser capaces de recorrer todo el arbol de ficheros donde se guardan las imagenes
         for fold1 in os.listdir(self.dirimgCam1):#Años
             for fold2 in os.listdir(self.dirimgCam1+"\\"+fold1):#Meses
@@ -177,7 +182,12 @@ class BaseDatosLvl1:
                             #Formamos tambien la fecha con ellas
                             date=fold1[2]+fold1[3]+fold2+fold3+fold4
                             #Injectamos la imagen en la base de datos con los datos que hemos obtenido
-                            self.injectarimg(""" '{}' """.format(file),date,dirección)
+                            
+                            comprobador=self.injectarimg(""" '{}' """.format(file),date,dirección)
+                            if (comprobador):
+                               cont+=1
+                               self.log.injeErr("psycopg2.errors.UniqueViolation: llave duplicada viola restricción de unicidad\n")
+        return cont
     #####################################################################################################################################################################################################3333
 
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
