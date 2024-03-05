@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.0
+#Versión:0.2.1
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -46,6 +46,7 @@ class UI:
         self.textboxFin=tk.Text(self.root,font=('Arial',11),height=1)
         self.textboxFin.pack(padx=30,pady=30)
 
+    
         #Creamos un boton que actualizara las imagenes
         self.buttonDescDat=tk.Button(self.root,text="Descargar Datos",font=('Arial',18),command=self.descDat)
         self.buttonDescDat.pack(padx=10,pady=10)
@@ -98,12 +99,17 @@ class UI:
     #Definimos una función para descargar datos
     ############################################################################################################################################################################################
     def descDat(self):
-        self.bd2.descdat("*","radio","23-12-10","23-12-10")
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        self.bd2.descdat("*","radio",fechaini,fechafin)
     ############################################################################################################################################################################################
 
     #Definimos una función para deascargar las imagenes
-    ############################################################################################################################################################################################
+    ####afs########################################################################################################################################################################################
     def descImg(self):
-        self.bd2.descImg("23-12-29-10","23-12-29-10")
+        self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
 
 UI()
+
