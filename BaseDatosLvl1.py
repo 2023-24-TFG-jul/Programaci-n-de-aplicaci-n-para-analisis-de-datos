@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.11.0
+#Versión:1.0.0
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -15,6 +15,7 @@ import numpy as np #Import para operar con los datos de pandas
 from io import BytesIO #Imports para pasar la imagen a binario
 from PIL import Image
 from sqlalchemy.sql import text# convertir strings en text o sql
+from Log import Log
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -39,6 +40,8 @@ class BaseDatosLvl1:
         #inicializamdos la conexopn que usara sqlAlchemy para operar en la base de datos
         conn_string = f'postgresql://{self.datauser}:{self.datapass}@{self.datahost}:{self.dataport}/{self.dataname}'
         self.engine = create_engine(conn_string) 
+        self.log=Log()
+        self.log.limpiarLog()
         #llamamos a la función crear la cual creara las tablas que no esten creadas en la base de datos
         self.crear()
     ########################################################################################################################
@@ -275,6 +278,7 @@ class BaseDatosLvl1:
             except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
                 contrad+=1 #Añadimos 1 al contador de errores
                 df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
+                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
             radiodat.append(df)#introducimos los datos a la tabla de radio
         for datos in camera:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
 
@@ -285,6 +289,7 @@ class BaseDatosLvl1:
             except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
                 contcamera+=1 #Añadimos 1 al contador de errores
                 df=pd.DataFrame({'A' : []}) #establecemos el df a uno vacio
+                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
             cameradat.append(df) #introducimos los datos a la tabla de camera
         for datos in scanner:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
             try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
@@ -294,6 +299,7 @@ class BaseDatosLvl1:
             except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
                 contScanner+=1 #Añadimos 1 al contador de errores
                 df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
+                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
             scannerdat.append(df)#introducimos los datos a la tabla de scanner
         return radiodat,cameradat,scannerdat,contrad,contcamera,contScanner#Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla
     ##################################################################################################################################################################################################### 
