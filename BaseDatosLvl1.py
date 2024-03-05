@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:0.10.3
+#Versión:0.11.0
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -154,11 +154,9 @@ class BaseDatosLvl1:
             image1_data = f.read()
         #abrimos la segunda imagen de la ruta que recibimos
         #insertamos la imagen en formato binario para que se pueda guardar con el nombre que tiene originalmente y la fecha en la que estaba guardada
-        orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data))
-        try: 
-            self.cur.execute(orden) 
-        except psycopg2.errors.UniqueViolation:
-            raise TypeError("imgerr")
+        orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data)) 
+        self.cur.execute(orden) 
+        
         self.conn.commit()  
     #################################################################################################################################################################################################
     
@@ -190,16 +188,10 @@ class BaseDatosLvl1:
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
         df['date']=df['TIMESTAMP'].str.slice(2,10)
         df['date']= df['date'].str.replace('-', '')
-        
-        #Transpasamos los datos en df a la base de datos reciviendo la excepción en caso de que se metan datos repetidos
-        try:
-            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
-            df.to_sql('radio', con=self.engine, if_exists='append',index=False)
+        #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+        df.to_sql('radio', con=self.engine, if_exists='append',index=False)
             
-        except sqlalchemy.exc.IntegrityError:
-            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-            raise TypeError("radioerr")
-            df=pd.DataFrame({'A' : []})
+            
         return df
 
     ################################################################################################################################################################################################
@@ -238,14 +230,11 @@ class BaseDatosLvl1:
         df=df.replace('  ',np.nan)
 
         #Cazamos la excepción en caso de que se metan datos repetidos
-        try:
-            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
-            df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
-        except sqlalchemy.exc.IntegrityError:
-            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-             raise TypeError("skyscanerr")
-             df=pd.DataFrame({'A' : []})
-        return df
+        df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
+       
+            
+             
+           
     ####################################################################################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
@@ -257,18 +246,12 @@ class BaseDatosLvl1:
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
         df['date']=df['time'].str.slice(2,10)
         df['date']= df['date'].str.replace('-', '')
-        #Cazamos la excepción en caso de que se metan datos repetidos
-        try:
-            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
-            df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
-        except sqlalchemy.exc.IntegrityError:
-            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-            raise TypeError("skycamerr")
-            df=pd.DataFrame({'A' : []})
+        #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+        df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
         return df
     #####################################################################################################################################################################################################    
     
-    #Definimos una función que recoja los datos directamente de las carpetas en las que estan
+    #Definimos una función que recoja los datos directamente de las carpetas en las que estan 
     ######################################################################################################################################################################################################
     def actualizardatos(self):
         #Tomamos todos los archivos en el directorio de radio y guardamos sus nombre en una lista
@@ -280,13 +263,39 @@ class BaseDatosLvl1:
         radiodat=[]
         cameradat=[]
         scannerdat=[]
-        for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
-            radiodat.append(self.injectarCsvRadio(self.dirradio+"\\"+datos))#introducimos los datos a la tabla de radio
+        contrad=0
+        contcamera=0
+        contScanner=0
+        for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de 
+            
+            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
+                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
+                df=self.injectarCsvRadio(self.dirradio+"\\"+datos)
+                
+            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
+                contrad+=1 #Añadimos 1 al contador de errores
+                df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
+            radiodat.append(df)#introducimos los datos a la tabla de radio
         for datos in camera:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
-            cameradat.append(self.injectarCsvSkycamera(self.dircamera+"\\"+datos))#introducimos los datos a la tabla de camera
+
+            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
+                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
+                df=self.injectarCsvSkycamera(self.dircamera+"\\"+datos)#introducimos los datos a la tabla de camera
+
+            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
+                contcamera+=1 #Añadimos 1 al contador de errores
+                df=pd.DataFrame({'A' : []}) #establecemos el df a uno vacio
+            cameradat.append(df) #introducimos los datos a la tabla de camera
         for datos in scanner:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
-            scannerdat.append(self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos))#introducimos los datos a la tabla de scanner
-        return radiodat,cameradat,scannerdat#Devolvemos los datos que hemos intoducido para que se procesen a su vez
+            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
+                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
+                df=self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos)#introducimos los datos a la tabla de scanner
+
+            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
+                contScanner+=1 #Añadimos 1 al contador de errores
+                df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
+            scannerdat.append(df)#introducimos los datos a la tabla de scanner
+        return radiodat,cameradat,scannerdat,contrad,contcamera,contScanner#Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla
     ##################################################################################################################################################################################################### 
 
     #Definimos el Cierre de la conexión con la base de datos
