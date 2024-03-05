@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.1
+#Versión:0.2.2
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -46,7 +46,11 @@ class UI:
         self.textboxFin=tk.Text(self.root,font=('Arial',11),height=1)
         self.textboxFin.pack(padx=30,pady=30)
 
-    
+        self.labeltable=tk.Label(self.root,text="Tabla",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
+        self.labeltable.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+
+        self.textboxtable=tk.Text(self.root,font=('Arial',11),height=1)
+        self.textboxtable.pack(padx=30,pady=30)
         #Creamos un boton que actualizara las imagenes
         self.buttonDescDat=tk.Button(self.root,text="Descargar Datos",font=('Arial',18),command=self.descDat)
         self.buttonDescDat.pack(padx=10,pady=10)
@@ -103,7 +107,9 @@ class UI:
         fechaini=fechaini.replace('\n','')
         fechafin=self.textboxFin.get('1.0',tk.END)
         fechafin=fechafin.replace('\n','')
-        self.bd2.descdat("*","radio",fechaini,fechafin)
+        tabla=self.textboxtable.get('1.0',tk.END)
+        tabla=tabla.replace('\n','')
+        self.bd2.descdat("*",tabla,fechaini,fechafin)
     ############################################################################################################################################################################################
 
     #Definimos una función para deascargar las imagenes
