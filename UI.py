@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.2
+#Versión:0.2.3
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -90,11 +90,8 @@ class UI:
     ######################################################################################################################################################################
     def actualizarimagenes(self):
 
-        cont=0 #Contador de excepciones que saltan
-        try:
-            self.bd2.actualizarImg() #hacer la actualización de las imagenes
-        except "imgerr": #Por cada excepción que salga sumara 1 al contador
-            cont=cont+1
+        cont=self.bd2.actualizarImg() #hacer la actualización de las imagenes
+        
         if(cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
             messagebox.showinfo(title="Message",message=messkyscan)
