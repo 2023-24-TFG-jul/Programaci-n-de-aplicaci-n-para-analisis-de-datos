@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.4.0
+#Versión:0.4.1
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -102,12 +102,12 @@ class BaseDatosLvl2:
         self.db1.descDat(selec,base,cond1,cond2)
     ################################################################################################################################################################################################
 
-    #Definimos una función qe actualice los datos de la base de datos y los procese al mismo tiempo
+    #Definimos una función qe actualice los datos de la base de datos y los procese al mismo tiempo 
     ################################################################################################################################################################################################
     def actualizardatos(self):
         #Recibimos de la función de de actialización de datos los datos que se hayan introducidos en el primer nivel de la base de datos
         
-        radio,camera,scanner=self.db1.actualizardatos() 
+        radio,camera,scanner,contrad,contcamera,contscanner=self.db1.actualizardatos() 
         #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in radio:
             if not dat.empty:
@@ -120,6 +120,7 @@ class BaseDatosLvl2:
         for dat in scanner:
             if not dat.empty:
                 self.actualizarScanner(dat)
+        return contrad,contcamera,contscanner
     #################################################################################################################################################################################################
     
     #Definimos la operación que añadira los nuevos datos procesados a la base de datos
