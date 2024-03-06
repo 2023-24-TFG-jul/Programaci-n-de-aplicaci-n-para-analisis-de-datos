@@ -1,24 +1,24 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.0.1
+#Versión:1.0.2
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
 import psycopg2 #Import para la conexión la base de datos
 import pandas as pd #Import para gestion de datos
-from psycopg2 import sql #Import para conectar con la base de datos y poder pasar datos en bulk
 from sqlalchemy import create_engine #Import para pasar los datos en bulk
 import sqlalchemy #import para pasar los datos en bulk
 import os #import para leer los archivos en un directorio especificado
 import numpy as np #Import para operar con los datos de pandas
-from io import BytesIO #Imports para pasar la imagen a binario
-from PIL import Image
 from sqlalchemy.sql import text# convertir strings en text o sql
 from Log import Log
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
+#######################################################################################################################################################################################################################
+#Zona de Creación de la base de datos
+    
     #Definimos el constructor de la base de datos que hara la conexion con la base de sectos
     ####################################################################################################################
     def __init__(self):
@@ -46,57 +46,6 @@ class BaseDatosLvl1:
         self.crear()
     ########################################################################################################################
         
-    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
-    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
-    ####################################################################################################################
-    def obtenerdat(self,selec,base,cond1,cond2):
-
-        
-        if cond1!=None and cond1!=None: #en caso de que conde no sea vacia 
-            #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
-            cond1=cond1.replace('-', '')
-            cond2=cond2.replace('-', '')
-            query="SELECT {cols} FROM {table} WHERE date BETWEEN {condic1} AND {condic2} ".format(cols=selec,table=base,condic1=cond1,condic2=cond2)
-        else: #En caso de que no haya una condicion se toma todo
-            query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
-        #Recogemos los datos en un data frame
-        with self.engine.connect() as db_conn:
-            data = pd.read_sql(sql=text(query),con=db_conn)
-            df=pd.DataFrame(data)
-        #Devolvemos los datos que se encuentran en esa tabla
-        return df
-    ######################################################################################################################
-
-    #Descargamos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
-    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
-    ######################################################################################################################
-    def descDat(self,selec,base,cond1,cond2):
-        #Obtenemos el dataframe de los datos que queremos
-        df=self.obtenerdat(selec,base,cond1,cond2)
-        #Guardamos en la dirección que queramos guardar los archivos en formato tabla,fechainicio,fechafinal
-        df.to_csv("DatosResulta\\{},{},{}.csv".format(base,cond1,cond2), index=False)
-    #######################################################################################################################
-        
-    #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
-    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre)-hora(en dos cifras y en 24h) y en string
-    #########################################################################################################################
-    def obtenerImg(self,date1,date2):
-        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
-        date1=date1.replace('-', '')
-        date2=date2.replace('-', '')
-        #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
-        query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
-        #Ejecutamos la consulta 
-        self.cur.execute(query)
-        self.conn.commit()
-        #guardamos las filas que estaban guardadas en el cursor
-        record=self.cur.fetchall()
-        #Creamos un contador para que cuente la cantidad de imagenes que guardamos
-        for i in record:#recorremos la tupla de imagenes
-                file=open("FotosResulta\\{}".format(i[0],date1,date2), 'wb') #Creamos un archivo para guardar la imagen
-                file.write(i[1]) #guardamos los datos de la imagen
-    ############################################################################################################################    
-    
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################   
     def crear(self):
@@ -148,7 +97,64 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
     ########################################################################################################################################################################################
+        
+######################################################################################################################################################################################################
+#Zona de Obtención y descarga de datos 
+         
+    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
+    ####################################################################################################################
+    def obtenerdat(self,selec,base,cond1,cond2):
 
+        
+        if cond1!=None and cond1!=None: #en caso de que conde no sea vacia 
+            #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+            cond1=cond1.replace('-', '')
+            cond2=cond2.replace('-', '')
+            query="SELECT {cols} FROM {table} WHERE date BETWEEN {condic1} AND {condic2} ".format(cols=selec,table=base,condic1=cond1,condic2=cond2)
+        else: #En caso de que no haya una condicion se toma todo
+            query="SELECT {cols} FROM {table}".format(cols=selec,table=base)
+        #Recogemos los datos en un data frame
+        with self.engine.connect() as db_conn:
+            data = pd.read_sql(sql=text(query),con=db_conn)
+            df=pd.DataFrame(data)
+        #Devolvemos los datos que se encuentran en esa tabla
+        return df
+    ######################################################################################################################
+
+    #Descargamos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
+    ######################################################################################################################
+    def descDat(self,selec,base,cond1,cond2):
+        #Obtenemos el dataframe de los datos que queremos
+        df=self.obtenerdat(selec,base,cond1,cond2)
+        #Guardamos en la dirección que queramos guardar los archivos en formato tabla,fechainicio,fechafinal
+        df.to_csv("DatosResulta\\{},{},{}.csv".format(base,cond1,cond2), index=False)
+    #######################################################################################################################
+        
+    #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
+    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre)-hora(en dos cifras y en 24h) y en string
+    #########################################################################################################################
+    def obtenerImg(self,date1,date2):
+        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+        date1=date1.replace('-', '')
+        date2=date2.replace('-', '')
+        #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
+        query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
+        #Ejecutamos la consulta 
+        self.cur.execute(query)
+        self.conn.commit()
+        #guardamos las filas que estaban guardadas en el cursor
+        record=self.cur.fetchall()
+        #Creamos un contador para que cuente la cantidad de imagenes que guardamos
+        for i in record:#recorremos la tupla de imagenes
+                file=open("FotosResulta\\{}".format(i[0],date1,date2), 'wb') #Creamos un archivo para guardar la imagen
+                file.write(i[1]) #guardamos los datos de la imagen
+    ############################################################################################################################    
+    
+###############################################################################################################################################################################################################
+#Zona de injección y actualización de imagenes
+                    
     #Definimo la función para injectar las imagenes en la base de datos
     ##############################################################################################################################################################################################
     def injectarimg(self,nombre,fecha,route1):
@@ -188,7 +194,60 @@ class BaseDatosLvl1:
                                cont+=1
                                self.log.injeErr("psycopg2.errors.UniqueViolation: llave duplicada viola restricción de unicidad\n")
         return cont
-    #####################################################################################################################################################################################################3333
+    #####################################################################################################################################################################################################
+
+######################################################################################################################################################################################################################
+#Zona de injección y actualización de datos
+    
+    #Definimos una función que recoja los datos directamente de las carpetas en las que estan 
+    ######################################################################################################################################################################################################
+    def actualizardatos(self):
+        #Tomamos todos los archivos en el directorio de radio y guardamos sus nombre en una lista
+        radio=os.listdir(self.dirradio)
+        #Tomamos todos los archivos en el directorio de camera y guardamos sus nombre en una lista
+        camera=os.listdir(self.dircamera)
+        #Tomamos todos los archivos en el directorio de canner y guardamos sus nombre en una lista
+        scanner=os.listdir(self.dirscanner)
+        radiodat=[]
+        cameradat=[]
+        scannerdat=[]
+        contrad=0
+        contcamera=0
+        contScanner=0
+        for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de 
+            
+            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
+                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
+                df=self.injectarCsvRadio(self.dirradio+"\\"+datos)
+                
+            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
+                contrad+=1 #Añadimos 1 al contador de errores
+                df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
+                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
+            radiodat.append(df)#introducimos los datos a la tabla de radio
+        for datos in camera:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
+
+            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
+                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
+                df=self.injectarCsvSkycamera(self.dircamera+"\\"+datos)#introducimos los datos a la tabla de camera
+
+            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
+                contcamera+=1 #Añadimos 1 al contador de errores
+                df=pd.DataFrame({'A' : []}) #establecemos el df a uno vacio
+                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
+            cameradat.append(df) #introducimos los datos a la tabla de camera
+        for datos in scanner:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
+            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
+                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
+                df=self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos)#introducimos los datos a la tabla de scanner
+
+            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
+                contScanner+=1 #Añadimos 1 al contador de errores
+                df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
+                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
+            scannerdat.append(df)#introducimos los datos a la tabla de scanner
+        return radiodat,cameradat,scannerdat,contrad,contcamera,contScanner#Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla
+    ##################################################################################################################################################################################################### 
 
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
     ###############################################################################################################################################################################################
@@ -244,10 +303,7 @@ class BaseDatosLvl1:
 
         #Cazamos la excepción en caso de que se metan datos repetidos
         df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
-       
-            
-             
-           
+        return df  
     ####################################################################################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
@@ -263,56 +319,9 @@ class BaseDatosLvl1:
         df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
         return df
     #####################################################################################################################################################################################################    
-    
-    #Definimos una función que recoja los datos directamente de las carpetas en las que estan 
-    ######################################################################################################################################################################################################
-    def actualizardatos(self):
-        #Tomamos todos los archivos en el directorio de radio y guardamos sus nombre en una lista
-        radio=os.listdir(self.dirradio)
-        #Tomamos todos los archivos en el directorio de camera y guardamos sus nombre en una lista
-        camera=os.listdir(self.dircamera)
-        #Tomamos todos los archivos en el directorio de canner y guardamos sus nombre en una lista
-        scanner=os.listdir(self.dirscanner)
-        radiodat=[]
-        cameradat=[]
-        scannerdat=[]
-        contrad=0
-        contcamera=0
-        contScanner=0
-        for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de 
-            
-            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
-                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
-                df=self.injectarCsvRadio(self.dirradio+"\\"+datos)
-                
-            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
-                contrad+=1 #Añadimos 1 al contador de errores
-                df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
-                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
-            radiodat.append(df)#introducimos los datos a la tabla de radio
-        for datos in camera:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
 
-            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
-                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
-                df=self.injectarCsvSkycamera(self.dircamera+"\\"+datos)#introducimos los datos a la tabla de camera
-
-            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
-                contcamera+=1 #Añadimos 1 al contador de errores
-                df=pd.DataFrame({'A' : []}) #establecemos el df a uno vacio
-                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
-            cameradat.append(df) #introducimos los datos a la tabla de camera
-        for datos in scanner:#recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de datos
-            try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
-                #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
-                df=self.injectarCsvSkyScanner(self.dirscanner+"\\"+datos)#introducimos los datos a la tabla de scanner
-
-            except sqlalchemy.exc.IntegrityError: #Si hay archivos repetidos
-                contScanner+=1 #Añadimos 1 al contador de errores
-                df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
-                self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
-            scannerdat.append(df)#introducimos los datos a la tabla de scanner
-        return radiodat,cameradat,scannerdat,contrad,contcamera,contScanner#Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla
-    ##################################################################################################################################################################################################### 
+######################################################################################################################################################################################################################
+#Zona de Finalizaión de la aplicación  
 
     #Definimos el Cierre de la conexión con la base de datos
     #####################################################################################################################################################################################################
@@ -320,4 +329,4 @@ class BaseDatosLvl1:
         #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
         self.cur.close()
         self.conn.close() 
-
+#####################################################################################################################################################################################################################
