@@ -56,8 +56,7 @@ class TestBaseDatosLvl1(unittest.TestCase):
         self.assertTrue(err3==0)
         result=self.db.obtenerdat("*","radio","23-10-01","23-10-01")
         self.assertFalse(result.empty)
-    
-        
+
 
 if __name__ == '__main__':
     unittest.main()

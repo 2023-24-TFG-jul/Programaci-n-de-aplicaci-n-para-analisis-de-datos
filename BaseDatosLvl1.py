@@ -156,7 +156,7 @@ class BaseDatosLvl1:
         #Guardamos en la dirección que queramos guardar los archivos en formato tabla,fechainicio,fechafinal
         df.to_csv("DatosResulta\\{},{},{}.csv".format(base,cond1,cond2), index=False)
     #######################################################################################################################
-        
+
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
     #Cond1 y cond2 tienes que pasarse con el estilo:
     #Año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre)-hora(en dos cifras y en 24h) y en string

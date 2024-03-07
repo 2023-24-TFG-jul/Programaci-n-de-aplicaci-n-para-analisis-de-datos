@@ -97,7 +97,7 @@ class BaseDatosLvl2:
     def descImg(self,date1,date2):
         self.db1.obtenerImg(date1,date2)
     ##########################################################################################################################################################
-   
+
     #Definimos una función para que descargue los datos que queramos
     ##########################################################################################################################################################
     def descdat(self,selec,base,cond1,cond2):
@@ -143,7 +143,8 @@ class BaseDatosLvl2:
     def actualizarCammera(self,df):
         df.dropna(subset=['image'], inplace=True)
         try:
-            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
+            #y el index a False que no recuerdo para que sirve pero ponlo
             df.to_sql('skycameraproc', con=self.engine, if_exists='append',index=False)
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
@@ -166,7 +167,7 @@ class BaseDatosLvl2:
     ##########################################################################################################################################################
 
     #Definimos una función para que de momento nos devuelva datos
-     #########################################################################################################################################################
+    #########################################################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
         return self.db1.obtenerdat(selec,base,cond1,cond2)
      #########################################################################################################################################################

@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.6
+#Versión:0.2.7
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -34,7 +34,7 @@ class UI:
 
         self.labelDesc=tk.Label(self.root,text="Descargas",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
         self.labelDesc.pack(padx=10,pady=10) #Lo colocamos en la pantalla
-        
+
         self.labelIni=tk.Label(self.root,text="Fecha inicio",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
         self.labelIni.pack(padx=10,pady=10) #Lo colocamos en la pantalla
 
