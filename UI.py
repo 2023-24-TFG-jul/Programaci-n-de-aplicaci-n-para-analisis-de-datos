@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.5
+#Versión:0.2.6
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -16,7 +16,7 @@ from tkinter import messagebox
 class UI:
 
     #Definimos un constructor que inicialice toda la clase con sus cosas necesarias
-    ######################################################################################################################################################################################
+    ########################################################################################################################
     def __init__(self):
         self.root=tk.Tk() #Creamos la pantalla de la aplicación
         self.labelAct=tk.Label(self.root,text="Actualizaciones",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
@@ -68,11 +68,11 @@ class UI:
         self.bd2=BaseDatosLvl2() #Inicializamos la base de datos que vamos a conectar y utilizar
 
         self.root.mainloop()#Iniciamos la aplicación
-    ########################################################################################################################################################################
+    ##################################################################################################################################################
 
     #Definimos una función que al pulsar el boton actualice los datos
-    ########################################################################################################################################################################
-    def actualizardatos(self):  
+    ##################################################################################################################################################
+    def actualizardatos(self):
         radioerr,skycamerr,skyscanerr=self.bd2.actualizardatos()#Actualizamos los datos
     
         mesradio="" #Inicializamos las variable de los mensajes como vacio para que en caso de que no se modifiquen no añadan nada al mensaje final
@@ -82,31 +82,31 @@ class UI:
             mesradio="Has intentado introducir {} archivos repetidos en radio\n".format(radioerr)
         if (skycamerr!=0): #Si ha habido datos repetidos en skycamera creamos el mensaje
             messkycam="Has intentado introducir {} archivos repetidos en skycam\n".format(skycamerr)
-        if(skyscanerr!=0): #Si ha habido datos repetidos en skyscanner creamos el mensaje
+        if (skyscanerr!=0): #Si ha habido datos repetidos en skyscanner creamos el mensaje
             messkyscan="Has intentado introducir {} archivos repetidos en skyscanner\n".format(skyscanerr)
         mensaje=mesradio+messkycam+messkyscan #Creamos el mensaje completo uniendo todos
-        if(mensaje!=""): #Si ha habido algun dato repetido mostramos por pantalla los que haya habido
+        if (mensaje!=""): #Si ha habido algun dato repetido mostramos por pantalla los que haya habido
             messagebox.showinfo(title="Datos repetidos",message=mensaje)#Sacamops por pantalla el mensaje
         else:
             messagebox.showinfo(title="Operación exitosa",message="Has actualizado los datos con exito")#Sacamops por pantalla el mensaje
-    ######################################################################################################################################################################
+    ##########################################################################################################################################
 
     #Definimos una función para actualizar las imagenes y que devuelva por pantalla si se incluyen imagenes repetidas
-    ######################################################################################################################################################################
+    ##########################################################################################################################################
     def actualizarimagenes(self):
 
         cont=self.bd2.actualizarImg() #hacer la actualización de las imagenes
         
-        if(cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
+        if (cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
             messagebox.showinfo(title="Message",message=messkyscan)
         else:
             #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
             messagebox.showinfo(title="Operación exitosa",message="Has actualizado todas las imagenes con exito")
-    ############################################################################################################################################################################################
+    ###########################################################################################################################################
 
     #Definimos una función para descargar datos
-    ############################################################################################################################################################################################
+    ###########################################################################################################################################
     def descDat(self):
         fechaini=self.textboxIni.get('1.0',tk.END)
         fechaini=fechaini.replace('\n','')
@@ -117,16 +117,18 @@ class UI:
         try:
             self.bd2.descdat("*",tabla,fechaini,fechafin)
         except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="Has introducido mal la tabla o las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas")
-    ############################################################################################################################################################################################
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n 
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ###########################################################################################################################################
 
     #Definimos una función para deascargar las imagenes
-    ####afs########################################################################################################################################################################################
+    ####afs####################################################################################################################################
     def descImg(self):
         try:
             self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
         except psycopg2.errors.SyntaxError:
             messagebox.showinfo(title="Error",message="Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
+
 
 UI()
 
