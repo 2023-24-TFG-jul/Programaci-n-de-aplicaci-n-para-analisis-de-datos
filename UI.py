@@ -1,11 +1,14 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.4
+#Versión:0.2.5
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
 import tkinter as tk
+import psycopg2
+
+import sqlalchemy
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
 
@@ -97,6 +100,9 @@ class UI:
         if(cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
             messagebox.showinfo(title="Message",message=messkyscan)
+        else:
+            #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
+            messagebox.showinfo(title="Operación exitosa",message="Has actualizado todas las imagenes con exito")
     ############################################################################################################################################################################################
 
     #Definimos una función para descargar datos
@@ -108,13 +114,19 @@ class UI:
         fechafin=fechafin.replace('\n','')
         tabla=self.textboxtable.get('1.0',tk.END)
         tabla=tabla.replace('\n','')
-        self.bd2.descdat("*",tabla,fechaini,fechafin)
+        try:
+            self.bd2.descdat("*",tabla,fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="Has introducido mal la tabla o las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas")
     ############################################################################################################################################################################################
 
     #Definimos una función para deascargar las imagenes
     ####afs########################################################################################################################################################################################
     def descImg(self):
-        self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
+        try:
+            self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
+        except psycopg2.errors.SyntaxError:
+            messagebox.showinfo(title="Error",message="Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
 
 UI()
 
