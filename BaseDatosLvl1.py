@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.0.3
+#Versión:1.0.4
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -16,7 +16,7 @@ from Log import Log
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
-#######################################################################################################################################################################################################################
+############################################################################################################################################
 #Zona de Creación de la base de datos
 
     #Definimos el constructor de la base de datos que hara la conexion con la base de sectos
@@ -26,8 +26,8 @@ class BaseDatosLvl1:
         self.dirradio="Datos\\datalogger" #path donde se meteran los archivos que se quieran meter en la base de datos radio
         self.dircamera="Datos\\sky-camera"#path donde se meteran los archivos que se quieran meter en la base de datos skycamera
         self.dirscanner="Datos\\Sky-scanner 2023_12"#path donde se meteran los archivos que se quieran meter en la base de datos skyscanner
-        self.dirimgCam1="Datos\\Fotos\CAM1\imagenes"#path en el que se meteran las imagenes de la camara1 que se quiera introducir en la base de datos
-        self.dirimgCam2="Datos\\Fotos\CAM2\imagenes"#path en el que se meteran las imagenes de la camara2 que se quieran introducir en la base de datos
+        self.dirimgCam1="Datos\\Fotos\\CAM1\\imagenes"#path en el que se meteran las imagenes de la camara1 que se quiera introducir en la base de datos
+        self.dirimgCam2="Datos\\Fotos\\CAM2\\imagenes"#path en el que se meteran las imagenes de la camara2 que se quieran introducir en la base de datos
         self.datahost="localhost" #Host de la base de datos
         self.dataname="postgres"  #Nombre de la base de datos
         self.datauser="postgres"  #Nombre del usuario
@@ -45,7 +45,7 @@ class BaseDatosLvl1:
         #llamamos a la función crear la cual creara las tablas que no esten creadas en la base de datos
         self.crear()
     ########################################################################################################################
-        
+
     #Creamos las tablas de la base de datos la base de datos con los ultimos datos que hayamos obtenido
     ##########################################################################################################################
     def crear(self):
@@ -61,13 +61,13 @@ class BaseDatosLvl1:
         sect62 decimal,sect63 decimal,sect64 decimal,sect65 decimal,sect66 decimal,sect67 decimal,sect68 decimal,sect69 decimal,sect70 decimal,sect71 decimal,
         sect72 decimal,sect73 decimal,sect74 decimal,sect75 decimal,sect76 decimal,sect77 decimal,sect78 decimal,sect79 decimal,sect80 decimal,sect81 decimal,
         sect82 decimal,sect83 decimal,sect84 decimal,sect85 decimal,sect86 decimal,sect87 decimal,sect88 decimal,sect89 decimal,sect90 decimal,sect91 decimal,
-        sect92 decimal,sect93 decimal,sect94 decimal,sect95 decimal,sect96 decimal,sect97 decimal,sect98 decimal,sect99 decimal,sect100 decimal,sect101 decimal,
-        sect102 decimal,sect103 decimal,sect104 decimal,sect105 decimal,sect106 decimal,sect107 decimal,sect108 decimal,sect109 decimal,sect110 decimal,
-        sect111 decimal,sect112 decimal,sect113 decimal,sect114 decimal,sect115 decimal,sect116 decimal,sect117 decimal,sect118 decimal,sect119 decimal,
-        sect120 decimal,sect121 decimal,sect122 decimal,sect123 decimal,sect124 decimal,sect125 decimal,sect126 decimal,sect127 decimal,sect128 decimal,
-        sect129 decimal,sect130 decimal,sect131 decimal,sect132 decimal,sect133 decimal,sect134 decimal,sect135 decimal,sect136 decimal,sect137 decimal,
-        sect138 decimal,sect139 decimal,sect140 decimal,sect141 decimal,sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, azimut decimal,
-        elevacion decimal,sidedatehour VARCHAR (255) PRIMARY KEY); """
+        sect92 decimal,sect93 decimal,sect94 decimal,sect95 decimal,sect96 decimal,sect97 decimal,sect98 decimal,sect99 decimal,sect100 decimal,
+        sect101 decimal,sect102 decimal,sect103 decimal,sect104 decimal,sect105 decimal,sect106 decimal,sect107 decimal,sect108 decimal,sect109 decimal,
+        sect110 decimal,sect111 decimal,sect112 decimal,sect113 decimal,sect114 decimal,sect115 decimal,sect116 decimal,sect117 decimal,sect118 decimal,
+        sect119 decimal,sect120 decimal,sect121 decimal,sect122 decimal,sect123 decimal,sect124 decimal,sect125 decimal,sect126 decimal,sect127 decimal,
+        sect128 decimal,sect129 decimal,sect130 decimal,sect131 decimal,sect132 decimal,sect133 decimal,sect134 decimal,sect135 decimal,sect136 decimal,
+        sect137 decimal,sect138 decimal,sect139 decimal,sect140 decimal,sect141 decimal,sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, 
+        azimut decimal,elevacion decimal,sidedatehour VARCHAR (255) PRIMARY KEY); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -99,9 +99,9 @@ class BaseDatosLvl1:
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
-    #############################################################################################################################################################
+    #################################################################################################################################################
         
-#################################################################################################################################################################
+#####################################################################################################################################################
 #Zona de Obtención y descarga de datos
          
     #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen 
@@ -124,9 +124,11 @@ class BaseDatosLvl1:
             data = pd.read_sql(sql=text(query), params=params, con=db_conn)
             df=pd.DataFrame(data)
         #Devolvemos los datos que se encuentran en esa tabla
+        return df
     ######################################################################################################################
 
-    #Descargamos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen atraves de cond1 y cond2
+    #Descargamos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las 
+    #fechas que se pasen atraves de cond1 y cond2
     #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ######################################################################################################################
     def descDat(self,selec,base,cond1,cond2):
@@ -137,30 +139,32 @@ class BaseDatosLvl1:
     #######################################################################################################################
         
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
-    #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre)-hora(en dos cifras y en 24h) y en string
+    #Cond1 y cond2 tienes que pasarse con el estilo: 
+    #Año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre)-hora(en dos cifras y en 24h) y en string
     #########################################################################################################################
     def obtenerImg(self,date1,date2):
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
         date1=date1.replace('-', '')
         date2=date2.replace('-', '')
         #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
-        query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN {condic1} AND {condic2}".format(table="images",condic1=date1,condic2=date2)
+        query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN %s AND %s"
         #Ejecutamos la consulta 
-        self.cur.execute(query)
+        self.cur.execute(query, (date1, date2))
         self.conn.commit()
         #guardamos las filas que estaban guardadas en el cursor
         record=self.cur.fetchall()
         #Creamos un contador para que cuente la cantidad de imagenes que guardamos
         for i in record:#recorremos la tupla de imagenes
-                file=open("FotosResulta\\{}".format(i[0],date1,date2), 'wb') #Creamos un archivo para guardar la imagen
-                file.write(i[1]) #guardamos los datos de la imagen
-    ############################################################################################################################    
+            filename = i[0].replace("'", "")  # eliminamos las comillas simples del nombre del archivo
+            file=open("FotosResulta\\{}".format(filename), 'wb') #Creamos un archivo para guardar la imagen
+            file.write(i[1]) #guardamos los datos de la imagen
+    ############################################################################################################################
     
-###############################################################################################################################################################################################################
+#################################################################################################################################
 #Zona de injección y actualización de imagenes
                     
     #Definimo la función para injectar las imagenes en la base de datos
-    ##############################################################################################################################################################################################
+    ##############################################################################################################################
     def injectarimg(self,nombre,fecha,route1):
         comprob=False
         #abrimos la imagen en la ruta que recibimos
@@ -168,17 +172,17 @@ class BaseDatosLvl1:
             image1_data = f.read()
         #abrimos la segunda imagen de la ruta que recibimos
         #insertamos la imagen en formato binario para que se pueda guardar con el nombre que tiene originalmente y la fecha en la que estaba guardada
-        orden="""INSERT INTO imagescam1 (name,date,image1_data) VALUES ({nom},{date},{img1})""".format(nom=nombre,date=fecha,img1=psycopg2.Binary(image1_data)) 
+        orden="INSERT INTO imagescam1 (name,date,image1_data) VALUES (%s,%s,%s)"
         try:
-            self.cur.execute(orden) 
+            self.cur.execute(orden, (nombre, fecha, psycopg2.Binary(image1_data)))
         except psycopg2.errors.UniqueViolation:
             comprob= True
-        self.conn.commit()  
+        self.conn.commit()
         return comprob
-    #################################################################################################################################################################################################
+    #############################################################################################################################################
     
     #Definimos una función que actualice la base de datos de las imagenes
-    ##################################################################################################################################################################################################
+    #############################################################################################################################################
     def actuimgCam1(self):
         cont=0
         #Hacemos uso de todos estos for para ser capaces de recorrer todo el arbol de ficheros donde se guardan las imagenes
@@ -198,13 +202,13 @@ class BaseDatosLvl1:
                                cont+=1
                                self.log.injeErr("psycopg2.errors.UniqueViolation: llave duplicada viola restricción de unicidad\n")
         return cont
-    #####################################################################################################################################################################################################
+    ##############################################################################################################################################
 
-######################################################################################################################################################################################################################
+##################################################################################################################################################
 #Zona de injección y actualización de datos
     
-    #Definimos una función que recoja los datos directamente de las carpetas en las que estan 
-    ######################################################################################################################################################################################################
+    #Definimos una función que recoja los datos directamente de las carpetas en las que estan
+    ##############################################################################################################################################
     def actualizardatos(self):
         #Tomamos todos los archivos en el directorio de radio y guardamos sus nombre en una lista
         radio=os.listdir(self.dirradio)
@@ -218,7 +222,7 @@ class BaseDatosLvl1:
         contrad=0
         contcamera=0
         contScanner=0
-        for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de 
+        for datos in radio: #recorremos la lista para ir introduciendo los datos a las distintas tablas de las bases de
             
             try:#Cazamos el error en caso de que estemos introduciendo datos repetidos
                 #tomamos el dataframe que hayamos introducido para pasarlo de vuelta al segundo nivel de la base de datos
@@ -250,11 +254,12 @@ class BaseDatosLvl1:
                 df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
                 self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
             scannerdat.append(df)#introducimos los datos a la tabla de scanner
-        return radiodat,cameradat,scannerdat,contrad,contcamera,contScanner#Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla
-    ##################################################################################################################################################################################################### 
+        #Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla    
+        return radiodat,cameradat,scannerdat,contrad,contcamera,contScanner
+    ################################################################################################################################
 
     #Definimos la función que Injectara los datos de la estación meteologica radiologica
-    ###############################################################################################################################################################################################
+    #################################################################################################################################
     def injectarCsvRadio(self, route):
         #lee el datalogger saltandose las filas que no nos interesan, como el titulo(0), las unidades(2), las avrg(3)
         df=pd.read_csv(route,skiprows=[0,2,3])
@@ -264,22 +269,23 @@ class BaseDatosLvl1:
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
         df['date']=df['TIMESTAMP'].str.slice(2,10)
         df['date']= df['date'].str.replace('-', '')
-        #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+        #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
+        #y el index a False que no recuerdo para que sirve pero ponlo
         df.to_sql('radio', con=self.engine, if_exists='append',index=False)
             
             
         return df
 
-    ################################################################################################################################################################################################
+    ########################################################################################################################################
     
     #Definimos la función que injectara los datos del Skyscanner
-    ##################################################################################################################################################################################################
+    ########################################################################################################################################
     def injectarCsvSkyScanner(self, route):
         #lee el csv del skyscanner
         df=pd.read_csv(route,skiprows=8)#Leemos el csv saltandonos las 8 primeras lineas ya que no son lineas de dato si no información del csv
         fecha=pd.read_csv(route,nrows=3, names=[0,1]) #recomes las primeras filas para hallar la fecha de las mediciones
         #Hacemos el tipado de la fechas (añomesdía) y lo hacemos cogiendo solo los caracteres que nos interesan en la fecha que nos da el csv
-        fechatip=fecha[1][2][2]+fecha[1][2][3]+fecha[1][2][5]+fecha[1][2][6]+fecha[1][2][8]+fecha[1][2][9] 
+        fechatip=fecha[1][2][2]+fecha[1][2][3]+fecha[1][2][5]+fecha[1][2][6]+fecha[1][2][8]+fecha[1][2][9]
         #tambien hay que cmabiarle los nombres a las columnas para que coincidan con los de la base de datos y sean más manejables
         names=["side","hour","date","sect1" ,"sect2" ,"sect3","sect4","sect5","sect6","sect7","sect8","sect9","sect10",
         "sect11","sect12","sect13","sect14","sect15","sect16","sect17","sect18","sect19","sect20" ,"sect21",
@@ -307,11 +313,11 @@ class BaseDatosLvl1:
 
         #Cazamos la excepción en caso de que se metan datos repetidos
         df.to_sql('skyscanner', con=self.engine, if_exists='append',index=False)
-        return df  
-    ####################################################################################################################################################################################################
+        return df
+    ############################################################################################################################################
 
     #Definimos la injección de los datos de la skycamera
-    #####################################################################################################################################################################################################
+    ############################################################################################################################################
     def injectarCsvSkycamera(self, route):
         #lee el csv de la skycamera y no hace falta modificar nada ya que de por si ya es compatible con la base de datos
         df=pd.read_csv(route)
@@ -319,18 +325,19 @@ class BaseDatosLvl1:
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
         df['date']=df['time'].str.slice(2,10)
         df['date']= df['date'].str.replace('-', '')
-        #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+        #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
+        #y el index a False que no recuerdo para que sirve pero ponlo
         df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
         return df
-    #####################################################################################################################################################################################################    
+    ################################################################################################################################################
 
-######################################################################################################################################################################################################################
-#Zona de Finalizaión de la aplicación  
+###################################################################################################################################################
+#Zona de Finalizaión de la aplicación
 
     #Definimos el Cierre de la conexión con la base de datos
-    #####################################################################################################################################################################################################
+    ###############################################################################################################################################
     def stop(self):
         #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
         self.cur.close()
-        self.conn.close() 
-#####################################################################################################################################################################################################################
+        self.conn.close()
+####################################################################################################################################################
