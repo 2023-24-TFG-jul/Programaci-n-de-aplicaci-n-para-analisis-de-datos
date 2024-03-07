@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.0.5
+#Versión:1.0.6
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -11,7 +11,6 @@ from sqlalchemy import create_engine #Import para pasar los datos en bulk
 import sqlalchemy #import para pasar los datos en bulk
 import os #import para leer los archivos en un directorio especificado
 import numpy as np #Import para operar con los datos de pandas
-from sqlalchemy.sql import text# convertir strings en text o sql
 from Log import Log
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
@@ -103,34 +102,34 @@ class BaseDatosLvl1:
 
 #####################################################################################################################################################
 #Zona de Obtención y descarga de datos
-         
+
     #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen
     #atraves de cond1 y cond2
     #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ####################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
         # Nos aseguramos que la tabla que se pasa por base es una de las que tenemos en la base de datos
-        tablas = ["radio", "radioproc", "imagescam1", "skycamera", "skycameraproc", "skyscanner", "skyscannerproc"] 
+        tablas = ["radio", "radioproc", "imagescam1", "skycamera", "skycameraproc", "skyscanner", "skyscannerproc"]
         if base not in tablas:
             self.log.injeErr("Tabla no existente en la base de datos\n")
             raise ValueError("Tabla no existente en la base de datos")
         
         # Obtenemos los nombres de las columnas de la tabla que se pasa por base
         if selec != "*":
-            # Get all column names from the table
-            column_query = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
-            self.cur.execute(column_query, (base,))
-            all_columns = [column[0] for column in self.cur.fetchall()]
+            #Conseguimos todos los nombres de las columnas de la tabla que se pasa por base
+            colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+            self.cur.execute(colum, (base,))
+            columnastot = [column[0] for column in self.cur.fetchall()]
             if "," in selec:
                 selec = selec.split(",")
-                if not set(selec).issubset(set(all_columns)):
-                    self.log.injeErr("Some columns do not exist in the table\n")
-                    raise ValueError("Some columns do not exist in the table")
+                if not set(selec).issubset(set(columnastot)):
+                    self.log.injeErr("Algunas Columnas no existen en la tabla\n")
+                    raise ValueError("Algunas Columnas no existen en la tabla")
                 columnas = ', '.join(selec)
             else:
-                if selec not in all_columns:
-                    self.log.injeErr("Column does not exist in the table\n")
-                    raise ValueError("Column does not exist in the table")
+                if selec not in columnastot:
+                    self.log.injeErr("Algunas Columnas no existen en la tabla\n")
+                    raise ValueError("Algunas Columnas no existen en la tabla")
                 columnas = selec
         else:
             columnas = "*"
