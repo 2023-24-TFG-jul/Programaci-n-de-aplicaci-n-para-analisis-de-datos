@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.4.3
+#Versión:0.4.4
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -50,13 +50,13 @@ class BaseDatosLvl2:
         sect62 decimal,sect63 decimal,sect64 decimal,sect65 decimal,sect66 decimal,sect67 decimal,sect68 decimal,sect69 decimal,sect70 decimal,sect71 decimal,
         sect72 decimal,sect73 decimal,sect74 decimal,sect75 decimal,sect76 decimal,sect77 decimal,sect78 decimal,sect79 decimal,sect80 decimal,sect81 decimal,
         sect82 decimal,sect83 decimal,sect84 decimal,sect85 decimal,sect86 decimal,sect87 decimal,sect88 decimal,sect89 decimal,sect90 decimal,sect91 decimal,
-        sect92 decimal,sect93 decimal,sect94 decimal,sect95 decimal,sect96 decimal,sect97 decimal,sect98 decimal,sect99 decimal,sect100 decimal,sect101 decimal,
-        sect102 decimal,sect103 decimal,sect104 decimal,sect105 decimal,sect106 decimal,sect107 decimal,sect108 decimal,sect109 decimal,sect110 decimal,
-        sect111 decimal,sect112 decimal,sect113 decimal,sect114 decimal,sect115 decimal,sect116 decimal,sect117 decimal,sect118 decimal,sect119 decimal,
-        sect120 decimal,sect121 decimal,sect122 decimal,sect123 decimal,sect124 decimal,sect125 decimal,sect126 decimal,sect127 decimal,sect128 decimal,
-        sect129 decimal,sect130 decimal,sect131 decimal,sect132 decimal,sect133 decimal,sect134 decimal,sect135 decimal,sect136 decimal,sect137 decimal,
-        sect138 decimal,sect139 decimal,sect140 decimal,sect141 decimal,sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, azimut decimal, 
-        elevacion decimal,sidedatehour VARCHAR (255) PRIMARY KEY); """
+        sect92 decimal,sect93 decimal,sect94 decimal,sect95 decimal,sect96 decimal,sect97 decimal,sect98 decimal,sect99 decimal,sect100 decimal,
+        sect101 decimal,sect102 decimal,sect103 decimal,sect104 decimal,sect105 decimal,sect106 decimal,sect107 decimal,sect108 decimal,sect109 decimal,
+        sect110 decimal,sect111 decimal,sect112 decimal,sect113 decimal,sect114 decimal,sect115 decimal,sect116 decimal,sect117 decimal,sect118 decimal,
+        sect119 decimal,sect120 decimal,sect121 decimal,sect122 decimal,sect123 decimal,sect124 decimal,sect125 decimal,sect126 decimal,sect127 decimal,
+        sect128 decimal,sect129 decimal,sect130 decimal,sect131 decimal,sect132 decimal,sect133 decimal,sect134 decimal,sect135 decimal,sect136 decimal,
+        sect137 decimal,sect138 decimal,sect139 decimal,sect140 decimal,sect141 decimal,sect142 decimal,sect143 decimal,sect144 decimal,sect145 decimal, 
+        azimut decimal,elevacion decimal,sidedatehour VARCHAR (255) PRIMARY KEY); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -84,7 +84,7 @@ class BaseDatosLvl2:
         self.cur.execute(orden)
         self.conn.commit()
     ##########################################################################################################################################################
-    
+
     #Definimos una función que actualice las imagenes
     ##########################################################################################################################################################
     def actualizarImg(self):
@@ -96,16 +96,16 @@ class BaseDatosLvl2:
     ##########################################################################################################################################################
     def descImg(self,date1,date2):
         self.db1.obtenerImg(date1,date2)
-    ###############################################################################################################################################################################################
+    ##########################################################################################################################################################
    
     #Definimos una función para que descargue los datos que queramos
-    ################################################################################################################################################################################################
+    ##########################################################################################################################################################
     def descdat(self,selec,base,cond1,cond2):
         self.db1.descDat(selec,base,cond1,cond2)
-    ################################################################################################################################################################################################
+    ##########################################################################################################################################################
 
-    #Definimos una función qe actualice los datos de la base de datos y los procese al mismo tiempo 
-    ################################################################################################################################################################################################
+    #Definimos una función qe actualice los datos de la base de datos y los procese al mismo tiempo
+    ##########################################################################################################################################################
     def actualizardatos(self):
         #Recibimos de la función de de actialización de datos los datos que se hayan introducidos en el primer nivel de la base de datos
         
@@ -116,7 +116,7 @@ class BaseDatosLvl2:
                 self.actualizarRadio(dat)
         #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in camera:
-            if not dat.empty:    
+            if not dat.empty:
                 self.actualizarCammera(dat)
         #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in scanner:
@@ -126,7 +126,7 @@ class BaseDatosLvl2:
     ###########################################################################################################################################
     
     #Definimos la operación que añadira los nuevos datos procesados a la base de datos
-    #################################################################################################################################################################################################
+    ##########################################################################################################################################################
     def actualizarRadio(self,df):
         df['fallo']='0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
         try:
@@ -136,10 +136,10 @@ class BaseDatosLvl2:
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en radioproc")
-    #########################################################################################################################################################################################################
+    ##########################################################################################################################################################
 
     #Definimos una funcón que actualice los datos de de la skycamera que se han introducido en la base de datos
-    ##########################################################################################################################################################################################################
+    ##########################################################################################################################################################
     def actualizarCammera(self,df):
         df.dropna(subset=['image'], inplace=True)
         try:
@@ -148,31 +148,32 @@ class BaseDatosLvl2:
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en la skycameraproc")
-    ##########################################################################################################################################################################################################
+    ##########################################################################################################################################################
     
     #Definimos una función que introduzca los datos limpiados del skyscanner
-    ###########################################################################################################################################################################################################
+    ##########################################################################################################################################################
     def actualizarScanner(self,df):
        
         df.dropna(subset=['side'], inplace=True)
         
         try:
-            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),y el index a False que no recuerdo para que sirve pero ponlo
+            #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
+            #y el index a False que no recuerdo para que sirve pero ponlo
             df.to_sql('skyscannerproc', con=self.engine, if_exists='append',index=False)
         except sqlalchemy.exc.IntegrityError:
             #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
             print("Esos datos ya estan introducidos en la skyscannerproc")
-    ##########################################################################################################################################################################################################
+    ##########################################################################################################################################################
 
     #Definimos una función para que de momento nos devuelva datos
-     #########################################################################################################################################################################################################
+     #########################################################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
         return self.db1.obtenerdat(selec,base,cond1,cond2)
-     #########################################################################################################################################################################################################
+     #########################################################################################################################################################
     
     #Definimos la operación de cierre de conexiones para evitar errores en las conexiones futuras
     #SIEMPRE USAR AL FINALIZAR EL PROGRAMA
-    ##########################################################################################################################################################################################################
+    ##########################################################################################################################################################
     def stop(self):
         #Cerramos las conexiones del primer nivel de la base de datos
         self.cur.close()

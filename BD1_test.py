@@ -45,7 +45,7 @@ class TestBaseDatosLvl1(unittest.TestCase):
         #Por lo cual en una nueva base de datos el resultado debería ser 0
         result = self.db.actuimgCam1()
         self.assertTrue(result==0)  # Ponemos que sea 0 el resultado´
-    
+
     def test_actualizardatos_y_obtenerdat(self):
         # Comprobamos que en una base de datos nueva no hay errores al actualizar los datos
         # La función devuelve el nº de errores que se han producido al actualizar los datos

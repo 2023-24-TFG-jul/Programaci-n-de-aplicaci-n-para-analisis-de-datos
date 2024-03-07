@@ -22,8 +22,6 @@ class UI:
         self.labelAct=tk.Label(self.root,text="Actualizaciones",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
         self.labelAct.pack(padx=10,pady=10) #Lo colocamos en la pantalla
 
-        
-
         self.check_state=tk.IntVar() #Creamos un check que estara en la pantalla
         self.check= tk.Checkbutton(self.root,text="",font=('Arial',16),variable=self.check_state) #Creamos un chek button que registre el estado del check
         self.check.pack(padx=10,pady=10) #Lo colocamos en la pantalla
@@ -35,7 +33,7 @@ class UI:
         self.buttonActImg.pack(padx=10,pady=10)
 
         self.labelDesc=tk.Label(self.root,text="Descargas",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
-        self.labelDesc.pack(padx=10,pady=10) #Lo colocamos en la 
+        self.labelDesc.pack(padx=10,pady=10) #Lo colocamos en la pantalla
         
         self.labelIni=tk.Label(self.root,text="Fecha inicio",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
         self.labelIni.pack(padx=10,pady=10) #Lo colocamos en la pantalla
@@ -117,7 +115,7 @@ class UI:
         try:
             self.bd2.descdat("*",tabla,fechaini,fechafin)
         except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n 
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
 

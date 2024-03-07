@@ -113,7 +113,7 @@ class BaseDatosLvl1:
         if base not in tablas:
             self.log.injeErr("Tabla no existente en la base de datos\n")
             raise ValueError("Tabla no existente en la base de datos")
-        
+
         # Obtenemos los nombres de las columnas de la tabla que se pasa por base
         if selec != "*":
             #Conseguimos todos los nombres de las columnas de la tabla que se pasa por base
