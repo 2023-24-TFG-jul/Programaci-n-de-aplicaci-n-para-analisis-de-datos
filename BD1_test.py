@@ -1,7 +1,7 @@
 #Nombre:BD1_test
 #Autor:Álvaro Villar Val
 #Fecha:07/03/24
-#Versión:0.2.0
+#Versión:0.2.1
 #Descripción: Test para de la creación de la base de datos
 #########################################################################################################################
 #Definimos los imports
@@ -46,7 +46,7 @@ class TestBaseDatosLvl1(unittest.TestCase):
         result = self.db.actuimgCam1()
         self.assertTrue(result==0)  # Ponemos que sea 0 el resultado´
     
-    def test_actualizardatos(self):
+    def test_actualizardatos_y_obtenerdat(self):
         # Comprobamos que en una base de datos nueva no hay errores al actualizar los datos
         # La función devuelve el nº de errores que se han producido al actualizar los datos
         #Por lo cual en una nueva base de datos el resultado debería ser 0
@@ -54,11 +54,10 @@ class TestBaseDatosLvl1(unittest.TestCase):
         self.assertTrue(err1==0)
         self.assertTrue(err2==0)
         self.assertTrue(err3==0)
-    
-    def test_obtenerdat(self):
-        _,_,_,err1,err2,err3 = self.db.actualizardatos()
         result=self.db.obtenerdat("*","radio","23-10-01","23-10-01")
         self.assertFalse(result.empty)
+    
+        
 
 if __name__ == '__main__':
     unittest.main()
