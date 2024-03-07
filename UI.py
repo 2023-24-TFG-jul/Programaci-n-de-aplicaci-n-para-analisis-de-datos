@@ -1,14 +1,17 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.0
+#Versión:0.2.5
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
 import tkinter as tk
+import psycopg2
+
+import sqlalchemy
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
-import sqlalchemy
+
 #Clase con la que el usuario interactuará
 class UI:
 
@@ -46,6 +49,11 @@ class UI:
         self.textboxFin=tk.Text(self.root,font=('Arial',11),height=1)
         self.textboxFin.pack(padx=30,pady=30)
 
+        self.labeltable=tk.Label(self.root,text="Tabla",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
+        self.labeltable.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+
+        self.textboxtable=tk.Text(self.root,font=('Arial',11),height=1)
+        self.textboxtable.pack(padx=30,pady=30)
         #Creamos un boton que actualizara las imagenes
         self.buttonDescDat=tk.Button(self.root,text="Descargar Datos",font=('Arial',18),command=self.descDat)
         self.buttonDescDat.pack(padx=10,pady=10)
@@ -79,31 +87,46 @@ class UI:
         mensaje=mesradio+messkycam+messkyscan #Creamos el mensaje completo uniendo todos
         if(mensaje!=""): #Si ha habido algun dato repetido mostramos por pantalla los que haya habido
             messagebox.showinfo(title="Datos repetidos",message=mensaje)#Sacamops por pantalla el mensaje
+        else:
+            messagebox.showinfo(title="Operación exitosa",message="Has actualizado los datos con exito")#Sacamops por pantalla el mensaje
     ######################################################################################################################################################################
 
     #Definimos una función para actualizar las imagenes y que devuelva por pantalla si se incluyen imagenes repetidas
     ######################################################################################################################################################################
     def actualizarimagenes(self):
 
-        cont=0 #Contador de excepciones que saltan
-        try:
-            self.bd2.actualizarImg() #hacer la actualización de las imagenes
-        except "imgerr": #Por cada excepción que salga sumara 1 al contador
-            cont=cont+1
+        cont=self.bd2.actualizarImg() #hacer la actualización de las imagenes
+        
         if(cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
             messagebox.showinfo(title="Message",message=messkyscan)
+        else:
+            #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
+            messagebox.showinfo(title="Operación exitosa",message="Has actualizado todas las imagenes con exito")
     ############################################################################################################################################################################################
 
     #Definimos una función para descargar datos
     ############################################################################################################################################################################################
     def descDat(self):
-        self.bd2.descdat("*","radio","23-12-10","23-12-10")
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        tabla=self.textboxtable.get('1.0',tk.END)
+        tabla=tabla.replace('\n','')
+        try:
+            self.bd2.descdat("*",tabla,fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="Has introducido mal la tabla o las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas")
     ############################################################################################################################################################################################
 
     #Definimos una función para deascargar las imagenes
-    ############################################################################################################################################################################################
+    ####afs########################################################################################################################################################################################
     def descImg(self):
-        self.bd2.descImg("23-12-29-10","23-12-29-10")
+        try:
+            self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
+        except psycopg2.errors.SyntaxError:
+            messagebox.showinfo(title="Error",message="Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
 
 UI()
+

@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.4.1
+#Versión:0.4.2
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -87,7 +87,8 @@ class BaseDatosLvl2:
     #Definimos una función que actualice las imagenes
     #################################################################################################################################################################################################
     def actualizarImg(self):
-        self.db1.actuimgCam1()
+        cont=self.db1.actuimgCam1()
+        return cont
     #################################################################################################################################################################################################
 
     #Definimos una función que descargue las imagenes determinadas
