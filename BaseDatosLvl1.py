@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.0.4
+#Versión:1.0.5
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -86,11 +86,11 @@ class BaseDatosLvl1:
         "BuWD_Avg" decimal,"BuTDP_Avg" decimal,"BuTWB_Avg" decimal,"BuRaGVN_Avg" decimal,"BuRaGVE_Avg" decimal,"BuRaGVS_Avg" decimal,"BuRaGVW_Avg" decimal,
         "BuRaGH_Avg" decimal,"BuRaDH_Avg" decimal,"BuRaB_Avg" decimal,"BuLxGVN_Avg" decimal,"BuLxGVE_Avg" decimal,"BuLxGVS_Avg" decimal,"BuLxGVW_Avg" decimal,
         "BuLxGH_Avg" decimal,"BuLxDH_Avg" decimal,"BuLxB_Avg" decimal,"BuPaGVN_Avg" decimal,"BuPaGVE_Avg" decimal,"BuPaGVS_Avg" decimal,"BuPaGVW_Avg" decimal,
-        "BuPaGH_Avg" decimal,"BuPaDH_Avg" decimal,"BuPaB_Avg" decimal,"BuUvGVN_Avg" decimal,"BuUvGVE_Avg" decimal, "BuUvGVS_Avg" decimal,"BuUvGVW_Avg" decimal,
-        "BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,"BuUvBGH_Avg" decimal,
-        "BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,"BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,
-        "BuRaDVS_Avg" decimal,"BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,"BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,
-        "BuIrGH_Avg" decimal,date integer)"""
+        "BuPaGH_Avg" decimal,"BuPaDH_Avg" decimal,"BuPaB_Avg" decimal,"BuUvGVN_Avg" decimal,"BuUvGVE_Avg" decimal, "BuUvGVS_Avg" decimal,
+        "BuUvGVW_Avg" decimal,"BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,
+        "BuUvBGH_Avg" decimal,"BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,
+        "BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,"BuRaDVS_Avg" decimal,"BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,
+        "BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,date integer)"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
@@ -100,34 +100,54 @@ class BaseDatosLvl1:
         self.cur.execute(orden)
         self.conn.commit()
     #################################################################################################################################################
-        
+
 #####################################################################################################################################################
 #Zona de Obtención y descarga de datos
          
-    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen 
+    #Obtenemos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las fechas que se pasen
     #atraves de cond1 y cond2
     #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ####################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
-        if cond1 is not None and cond1 is not None: #en caso de que conde no sea vacia
-            #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
-            cond1=cond1.replace('-', '')
-            cond2=cond2.replace('-', '')
-            query="SELECT {} FROM {} WHERE date BETWEEN :condic1 AND :condic2".format(selec, base)
-            params = {"condic1": cond1, "condic2": cond2}
-        else: #En caso de que no haya una condicion se toma todo
-            query="SELECT {} FROM {}".format(selec, base)
-            params = {}
+        # Nos aseguramos que la tabla que se pasa por base es una de las que tenemos en la base de datos
+        tablas = ["radio", "radioproc", "imagescam1", "skycamera", "skycameraproc", "skyscanner", "skyscannerproc"] 
+        if base not in tablas:
+            self.log.injeErr("Tabla no existente en la base de datos\n")
+            raise ValueError("Tabla no existente en la base de datos")
+        
+        # Obtenemos los nombres de las columnas de la tabla que se pasa por base
+        if selec != "*":
+            # Get all column names from the table
+            column_query = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+            self.cur.execute(column_query, (base,))
+            all_columns = [column[0] for column in self.cur.fetchall()]
+            if "," in selec:
+                selec = selec.split(",")
+                if not set(selec).issubset(set(all_columns)):
+                    self.log.injeErr("Some columns do not exist in the table\n")
+                    raise ValueError("Some columns do not exist in the table")
+                columnas = ', '.join(selec)
+            else:
+                if selec not in all_columns:
+                    self.log.injeErr("Column does not exist in the table\n")
+                    raise ValueError("Column does not exist in the table")
+                columnas = selec
+        else:
+            columnas = "*"
 
+        #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
+        cond1=cond1.replace('-', '')
+        cond2=cond2.replace('-', '')
+        query="SELECT {} FROM {} WHERE date BETWEEN %s AND %s".format(columnas, base)
         #Recogemos los datos en un data frame
         with self.engine.connect() as db_conn:
-            data = pd.read_sql(sql=text(query), params=params, con=db_conn)
+            data = pd.read_sql(sql=query, params=(cond1, cond2), con=db_conn)
             df=pd.DataFrame(data)
         #Devolvemos los datos que se encuentran en esa tabla
         return df
     ######################################################################################################################
 
-    #Descargamos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las 
+    #Descargamos los datos de una tabla especifica que se pasa por base a las columna que se pase por select y entre las
     #fechas que se pasen atraves de cond1 y cond2
     #Cond1 y cond2 tienes que pasarse con el estil año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre) y en string
     ######################################################################################################################
@@ -139,7 +159,7 @@ class BaseDatosLvl1:
     #######################################################################################################################
         
     #Definimos un metodo para recuperar la imagen que hemos guardado en la base de datos
-    #Cond1 y cond2 tienes que pasarse con el estilo: 
+    #Cond1 y cond2 tienes que pasarse con el estilo:
     #Año(sin el 20)-mes(de dos cifras siempre)-dia(de dos cifras siempre)-hora(en dos cifras y en 24h) y en string
     #########################################################################################################################
     def obtenerImg(self,date1,date2):
@@ -148,7 +168,7 @@ class BaseDatosLvl1:
         date2=date2.replace('-', '')
         #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
         query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN %s AND %s"
-        #Ejecutamos la consulta 
+        #Ejecutamos la consulta
         self.cur.execute(query, (date1, date2))
         self.conn.commit()
         #guardamos las filas que estaban guardadas en el cursor
@@ -254,7 +274,7 @@ class BaseDatosLvl1:
                 df=pd.DataFrame({'A' : []})#establecemos el df a uno vacio
                 self.log.injeErr("sqlalchemy.exc.IntegrityError:PrimaryKeyRepetida\n")
             scannerdat.append(df)#introducimos los datos a la tabla de scanner
-        #Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla    
+        #Devolvemos los datos que hemos intoducido para que se procesen a su vez y los errores ocurridos para sacarlos por pantalla
         return radiodat,cameradat,scannerdat,contrad,contcamera,contScanner
     ################################################################################################################################
 
