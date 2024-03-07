@@ -54,6 +54,11 @@ class TestBaseDatosLvl1(unittest.TestCase):
         self.assertTrue(err1==0)
         self.assertTrue(err2==0)
         self.assertTrue(err3==0)
+    
+    def test_obtenerdat(self):
+        _,_,_,err1,err2,err3 = self.db.actualizardatos()
+        result=self.db.obtenerdat("*","radio","23-10-01","23-10-01")
+        self.assertFalse(result.empty)
 
 if __name__ == '__main__':
     unittest.main()
