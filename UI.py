@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.3.0
+#Versión:0.3.1
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -53,20 +53,27 @@ class Descargas(tk.Frame):
 class DescDatos(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
-        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        botonRadio=tk.Button(self, text="Radio", font=('Arial', 18), command=lambda:master.switch_frame(DescRadio)).pack(padx=10, pady=10)
+        botonRadioProc=tk.Button(self, text="RadioProc", font=('Arial', 18), command=lambda:master.switch_frame(DescRadioProc)).pack(padx=10, pady=10)
+        botonSkyscanner=tk.Button(self, text="Skyscanner", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscanner)).pack(padx=10, pady=10)
+        botonSkyscannerProc=tk.Button(self, text="SkyscannerProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscannerProc)).pack(padx=10, pady=10)
+        botonSkycamera=tk.Button(self, text="Skycamera", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammera)).pack(padx=10, pady=10)
+        botonSkycameraProc=tk.Button(self, text="SkycameraProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
+        botonAtras=tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        self.bd2=BaseDatosLvl2()
+class DescRadio(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self,text="Tabla Radio", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxIni = tk.Text(self, height=1, width=20)
         self.textboxIni.pack()
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
-        tk.Label(self, text="Introduce la tabla", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxtable = tk.Text(self, height=1, width=20)
-        self.textboxtable.pack()
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
         self.bd2=BaseDatosLvl2()
-
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -74,14 +81,147 @@ class DescDatos(tk.Frame):
         fechaini=fechaini.replace('\n','')
         fechafin=self.textboxFin.get('1.0',tk.END)
         fechafin=fechafin.replace('\n','')
-        tabla=self.textboxtable.get('1.0',tk.END)
-        tabla=tabla.replace('\n','')
         try:
-            self.bd2.descdat("*",tabla,fechaini,fechafin)
+            self.bd2.descdat("*","radio",fechaini,fechafin)
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
+class DescRadioProc(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self,text="Tabla RadioProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxIni = tk.Text(self, height=1, width=20)
+        self.textboxIni.pack()
+        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxFin = tk.Text(self, height=1, width=20)
+        self.textboxFin.pack()
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        self.bd2=BaseDatosLvl2()
+    #Definimos una función para descargar datos
+    ###########################################################################################################################################
+    def descDat(self):
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        try:
+            self.bd2.descdat("*","radioproc",fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ###########################################################################################################################################
+
+class DescSkyscanner(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self,text="Tabla Skyscanner", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxIni = tk.Text(self, height=1, width=20)
+        self.textboxIni.pack()
+        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxFin = tk.Text(self, height=1, width=20)
+        self.textboxFin.pack()
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        self.bd2=BaseDatosLvl2()
+    #Definimos una función para descargar datos
+    ###########################################################################################################################################
+    def descDat(self):
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        try:
+            self.bd2.descdat("*","skyscanner",fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ###########################################################################################################################################
+
+class DescSkyscannerProc(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self,text="Tabla SkyScannerProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxIni = tk.Text(self, height=1, width=20)
+        self.textboxIni.pack()
+        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxFin = tk.Text(self, height=1, width=20)
+        self.textboxFin.pack()
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        self.bd2=BaseDatosLvl2()
+    #Definimos una función para descargar datos
+    ###########################################################################################################################################
+    def descDat(self):
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        try:
+            self.bd2.descdat("*","skyscannerproc",fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ###########################################################################################################################################
+
+class DescSkyCammera(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self,text="Tabla Skycamera", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxIni = tk.Text(self, height=1, width=20)
+        self.textboxIni.pack()
+        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxFin = tk.Text(self, height=1, width=20)
+        self.textboxFin.pack()
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        self.bd2=BaseDatosLvl2()
+    #Definimos una función para descargar datos
+    ###########################################################################################################################################
+    def descDat(self):
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        try:
+            self.bd2.descdat("*","skycamera",fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ##########################################################################################################################################
+
+class DescSkyCammeraProc(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self,text="Tabla SkyCameraProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxIni = tk.Text(self, height=1, width=20)
+        self.textboxIni.pack()
+        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxFin = tk.Text(self, height=1, width=20)
+        self.textboxFin.pack()
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        self.bd2=BaseDatosLvl2()
+    #Definimos una función para descargar datos
+    ###########################################################################################################################################
+    def descDat(self):
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        try:
+            self.bd2.descdat("*","skycameraproc",fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ##########################################################################################################################################º
+
 class DescImg(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
@@ -93,7 +233,7 @@ class DescImg(tk.Frame):
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descImg).pack(padx=10, pady=10)
-        tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
         self.bd2=BaseDatosLvl2()
 
     #Definimos una función para deascargar las imagenes
