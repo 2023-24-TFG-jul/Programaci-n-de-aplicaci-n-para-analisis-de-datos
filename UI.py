@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.3.1
+#Versión:0.3.2
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -53,16 +53,17 @@ class Descargas(tk.Frame):
 class DescDatos(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)
-        botonRadio=tk.Button(self, text="Radio", font=('Arial', 18), command=lambda:master.switch_frame(DescRadio)).pack(padx=10, pady=10)
-        botonRadioProc=tk.Button(self, text="RadioProc", font=('Arial', 18), command=lambda:master.switch_frame(DescRadioProc)).pack(padx=10, pady=10)
-        botonSkyscanner=tk.Button(self, text="Skyscanner", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscanner)).pack(padx=10, pady=10)
-        botonSkyscannerProc=tk.Button(self, text="SkyscannerProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscannerProc)).pack(padx=10, pady=10)
-        botonSkycamera=tk.Button(self, text="Skycamera", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammera)).pack(padx=10, pady=10)
-        botonSkycameraProc=tk.Button(self, text="SkycameraProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
-        botonAtras=tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        tk.Button(self, text="Radio", font=('Arial', 18), command=lambda:master.switch_frame(DescRadio)).pack(padx=10, pady=10)
+        tk.Button(self, text="RadioProc", font=('Arial', 18), command=lambda:master.switch_frame(DescRadioProc)).pack(padx=10, pady=10)
+        tk.Button(self, text="Skyscanner", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscanner)).pack(padx=10, pady=10)
+        tk.Button(self, text="SkyscannerProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscannerProc)).pack(padx=10, pady=10)
+        tk.Button(self, text="Skycamera", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammera)).pack(padx=10, pady=10)
+        tk.Button(self, text="SkycameraProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
         self.bd2=BaseDatosLvl2()
 class DescRadio(tk.Frame):
     def __init__(self, master):
+        self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
         tk.Label(self,text="Tabla Radio", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
@@ -71,9 +72,21 @@ class DescRadio(tk.Frame):
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
+        # Make a check mark to select each possible column in radio
+        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+        self.bd2.cur.execute(colum, ("radio",))
+        columns = [column[0] for column in self.bd2.cur.fetchall()]
+        # Make a check mark to select each possible column in radio
+        num_columns = 3
+        self.vars = {column: tk.BooleanVar() for column in columns}
+        for i, column in enumerate(columns):
+            if i % num_columns == 0:
+                frame = tk.Frame(self)
+                frame.pack(side="top")
+            tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-        self.bd2=BaseDatosLvl2()
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -81,11 +94,14 @@ class DescRadio(tk.Frame):
         fechaini=fechaini.replace('\n','')
         fechafin=self.textboxFin.get('1.0',tk.END)
         fechafin=fechafin.replace('\n','')
-        try:
-            self.bd2.descdat("*","radio",fechaini,fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+        checked_columns = [column for column, var in self.vars.items() if var.get()]
+        columnas=",".join(checked_columns)
+        print(columnas)
+        #try:
+        self.bd2.descdat(columnas,"radio",fechaini,fechafin)
+        #except sqlalchemy.exc.ProgrammingError:
+            #messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                #Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
 class DescRadioProc(tk.Frame):
     def __init__(self, master):
