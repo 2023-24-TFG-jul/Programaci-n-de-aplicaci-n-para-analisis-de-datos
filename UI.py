@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.2.7
+#Versión:0.3.0
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -13,66 +13,112 @@ from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
 
 #Clase con la que el usuario interactuará
-class UI:
+class UI(tk.Tk):
 
-    #Definimos un constructor que inicialice toda la clase con sus cosas necesarias
-    ########################################################################################################################
     def __init__(self):
-        self.root=tk.Tk() #Creamos la pantalla de la aplicación
-        self.labelAct=tk.Label(self.root,text="Actualizaciones",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
-        self.labelAct.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+        tk.Tk.__init__(self)
+        self._frame = None
+        self.switch_frame(LoginPage)
 
-        self.check_state=tk.IntVar() #Creamos un check que estara en la pantalla
-        self.check= tk.Checkbutton(self.root,text="",font=('Arial',16),variable=self.check_state) #Creamos un chek button que registre el estado del check
-        self.check.pack(padx=10,pady=10) #Lo colocamos en la pantalla
-        #Creamos el boton que actualizara los datos
-        self.buttonActDat=tk.Button(self.root,text="Actualizar datos",font=('Arial',18),command=self.actualizardatos)
-        self.buttonActDat.pack(padx=10,pady=10)
-        #Creamos un boton que actualizara las imagenes
-        self.buttonActImg=tk.Button(self.root,text="Actualizar imagenes",font=('Arial',18),command=self.actualizarimagenes)
-        self.buttonActImg.pack(padx=10,pady=10)
+    def switch_frame(self, frame_class):
+        #Destroys current frame and replaces it with a new one.
+        new_frame = frame_class(self)
+        if self._frame is not None:
+            self._frame.destroy()
+        self._frame = new_frame
+        self._frame.pack()
 
-        self.labelDesc=tk.Label(self.root,text="Descargas",font=('Arial',25))# Creamos un titulo para llamar a la aplicación
-        self.labelDesc.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+class LoginPage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self, text="Login Page", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Button(self, text="Login",
+                  command=lambda: master.switch_frame(MainPage)).pack()
+        
+class MainPage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self,text="Pagina Principal", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Button(self, text="Descargas", font=('Arial', 18), command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
+        tk.Button(self, text="Actualizaciones", font=('Arial', 18), command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
 
-        self.labelIni=tk.Label(self.root,text="Fecha inicio",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
-        self.labelIni.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+class Descargas(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Button(self, text="Descarga de datos", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack()
+        tk.Button(self, text="Descarga de imagenes", font=('Arial', 18), command=lambda: master.switch_frame(DescImg)).pack()
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack()
+    
+class DescDatos(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxIni = tk.Text(self, height=1, width=20)
+        self.textboxIni.pack()
+        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxFin = tk.Text(self, height=1, width=20)
+        self.textboxFin.pack()
+        tk.Label(self, text="Introduce la tabla", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxtable = tk.Text(self, height=1, width=20)
+        self.textboxtable.pack()
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        self.bd2=BaseDatosLvl2()
 
-        self.textboxIni=tk.Text(self.root,font=('Arial',11),height=1)
-        self.textboxIni.pack(padx=30,pady=30)
+    #Definimos una función para descargar datos
+    ###########################################################################################################################################
+    def descDat(self):
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        tabla=self.textboxtable.get('1.0',tk.END)
+        tabla=tabla.replace('\n','')
+        try:
+            self.bd2.descdat("*",tabla,fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ###########################################################################################################################################
+class DescImg(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxIni = tk.Text(self, height=1, width=20)
+        self.textboxIni.pack()
+        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
+        self.textboxFin = tk.Text(self, height=1, width=20)
+        self.textboxFin.pack()
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descImg).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        self.bd2=BaseDatosLvl2()
 
-        self.labelFin=tk.Label(self.root,text="Fecha Fin",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
-        self.labelFin.pack(padx=10,pady=10) #Lo colocamos en la pantalla
+    #Definimos una función para deascargar las imagenes
+    ########################################################################################################################################
+    def descImg(self):
+        try:
+            self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
+        except psycopg2.errors.SyntaxError:
+            messagebox.showinfo(title="Error",message="Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
 
-        self.textboxFin=tk.Text(self.root,font=('Arial',11),height=1)
-        self.textboxFin.pack(padx=30,pady=30)
+class Actualizaciones(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Button(self, text="Actualizar datos", font=('Arial', 18), command=self.actualizardatos).pack(padx=10, pady=10)
+        tk.Button(self, text="Actualizar imagenes", font=('Arial', 18), command=self.actualizarimagenes).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack()    
+        self.bd2=BaseDatosLvl2() 
+    
 
-        self.labeltable=tk.Label(self.root,text="Tabla",font=('Arial',15))# Creamos un titulo para llamar a la aplicación
-        self.labeltable.pack(padx=10,pady=10) #Lo colocamos en la pantalla
-
-        self.textboxtable=tk.Text(self.root,font=('Arial',11),height=1)
-        self.textboxtable.pack(padx=30,pady=30)
-        #Creamos un boton que actualizara las imagenes
-        self.buttonDescDat=tk.Button(self.root,text="Descargar Datos",font=('Arial',18),command=self.descDat)
-        self.buttonDescDat.pack(padx=10,pady=10)
-
-        #Creamos un boton que actualizara las imagenes
-        self.buttonDescImg=tk.Button(self.root,text="Descargar imagenes",font=('Arial',18),command=self.descImg)
-        self.buttonDescImg.pack(padx=10,pady=10)
-
-
-
-
-        self.bd2=BaseDatosLvl2() #Inicializamos la base de datos que vamos a conectar y utilizar
-
-        self.root.mainloop()#Iniciamos la aplicación
-    ##################################################################################################################################################
-
-    #Definimos una función que al pulsar el boton actualice los datos
+     #Definimos una función que al pulsar el boton actualice los datos
     ##################################################################################################################################################
     def actualizardatos(self):
         radioerr,skycamerr,skyscanerr=self.bd2.actualizardatos()#Actualizamos los datos
-    
+
         mesradio="" #Inicializamos las variable de los mensajes como vacio para que en caso de que no se modifiquen no añadan nada al mensaje final
         messkyscan=""
         messkycam=""
@@ -102,31 +148,8 @@ class UI:
             #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
             messagebox.showinfo(title="Operación exitosa",message="Has actualizado todas las imagenes con exito")
     ###########################################################################################################################################
-
-    #Definimos una función para descargar datos
-    ###########################################################################################################################################
-    def descDat(self):
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        tabla=self.textboxtable.get('1.0',tk.END)
-        tabla=tabla.replace('\n','')
-        try:
-            self.bd2.descdat("*",tabla,fechaini,fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
-    ###########################################################################################################################################
-
-    #Definimos una función para deascargar las imagenes
-    ####afs####################################################################################################################################
-    def descImg(self):
-        try:
-            self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
-        except psycopg2.errors.SyntaxError:
-            messagebox.showinfo(title="Error",message="Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
-
-
-UI()
+        
+if __name__ == "__main__":
+    app = UI()
+    app.mainloop()
 

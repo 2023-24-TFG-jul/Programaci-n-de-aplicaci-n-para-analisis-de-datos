@@ -178,7 +178,7 @@ class BaseDatosLvl1:
             file=open("FotosResulta\\{}".format(filename), 'wb') #Creamos un archivo para guardar la imagen
             file.write(i[1]) #guardamos los datos de la imagen
     ############################################################################################################################
-    
+
 #################################################################################################################################
 #Zona de injección y actualización de imagenes
                     
