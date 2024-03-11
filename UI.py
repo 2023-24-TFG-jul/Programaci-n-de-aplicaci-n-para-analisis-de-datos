@@ -1,13 +1,13 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.3.2
+#Versión:0.4.0
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
 import tkinter as tk
 import psycopg2
-
+import matplotlib.pyplot as plt
 import sqlalchemy
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
@@ -85,6 +85,7 @@ class DescRadio(tk.Frame):
                 frame.pack(side="top")
             tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
 
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
     #Definimos una función para descargar datos
@@ -97,14 +98,33 @@ class DescRadio(tk.Frame):
         checked_columns = [column for column, var in self.vars.items() if var.get()]
         columnas=",".join(checked_columns)
         print(columnas)
-        #try:
-        self.bd2.descdat(columnas,"radio",fechaini,fechafin)
-        #except sqlalchemy.exc.ProgrammingError:
-            #messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                #Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+        try:
+            self.bd2.descdat(columnas,"radio",fechaini,fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
+    
+    def graficar(self):
+        checked_columns = [column for column, var in self.vars.items() if var.get()]
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        dataframe=self.bd2.obtenerdat("*","radio",fechaini,fechafin)
+        plt.figure(figsize=(10, 6))  # Create a new figure with custom size
+        for column in checked_columns:
+            plt.plot(dataframe[column], label=column)  # Plot each column
+        plt.xlabel('X-axis')
+        plt.ylabel('Y-axis')
+        plt.title('Graph of Columns')
+        plt.legend()  # Show legend with column names
+        plt.show()  # Display the graph
+        
+
 class DescRadioProc(tk.Frame):
     def __init__(self, master):
+        self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
         tk.Label(self,text="Tabla RadioProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
@@ -113,9 +133,21 @@ class DescRadioProc(tk.Frame):
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
+        # Make a check mark to select each possible column in radio
+        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+        self.bd2.cur.execute(colum, ("radioproc",))
+        columns = [column[0] for column in self.bd2.cur.fetchall()]
+        # Make a check mark to select each possible column in radio
+        num_columns = 3
+        self.vars = {column: tk.BooleanVar() for column in columns}
+        for i, column in enumerate(columns):
+            if i % num_columns == 0:
+                frame = tk.Frame(self)
+                frame.pack(side="top")
+            tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-        self.bd2=BaseDatosLvl2()
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -123,15 +155,33 @@ class DescRadioProc(tk.Frame):
         fechaini=fechaini.replace('\n','')
         fechafin=self.textboxFin.get('1.0',tk.END)
         fechafin=fechafin.replace('\n','')
+        checked_columns = [column for column, var in self.vars.items() if var.get()]
+        columnas=",".join(checked_columns)
         try:
-            self.bd2.descdat("*","radioproc",fechaini,fechafin)
+            self.bd2.descdat(columnas,"radioproc",fechaini,fechafin)
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
-
+    def graficar(self):
+        checked_columns = [column for column, var in self.vars.items() if var.get()]
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        dataframe=self.bd2.obtenerdat("*","radioproc",fechaini,fechafin)
+        plt.figure(figsize=(10, 6))  # Create a new figure with custom size
+        for column in checked_columns:
+            plt.plot(dataframe[column], label=column)  # Plot each column
+        plt.xlabel('X-axis')
+        plt.ylabel('Y-axis')
+        plt.title('Graph of Columns')
+        plt.legend()  # Show legend with column names
+        plt.show()  # Display the graph
+    
 class DescSkyscanner(tk.Frame):
     def __init__(self, master):
+        self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
         tk.Label(self,text="Tabla Skyscanner", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
@@ -141,8 +191,8 @@ class DescSkyscanner(tk.Frame):
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-        self.bd2=BaseDatosLvl2()
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -159,6 +209,7 @@ class DescSkyscanner(tk.Frame):
 
 class DescSkyscannerProc(tk.Frame):
     def __init__(self, master):
+        self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
         tk.Label(self,text="Tabla SkyScannerProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
@@ -168,8 +219,8 @@ class DescSkyscannerProc(tk.Frame):
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-        self.bd2=BaseDatosLvl2()
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -186,6 +237,7 @@ class DescSkyscannerProc(tk.Frame):
 
 class DescSkyCammera(tk.Frame):
     def __init__(self, master):
+        self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
         tk.Label(self,text="Tabla Skycamera", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
@@ -194,9 +246,20 @@ class DescSkyCammera(tk.Frame):
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
+        # Make a check mark to select each possible column in radio
+        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+        self.bd2.cur.execute(colum, ("skycamera",))
+        columns = [column[0] for column in self.bd2.cur.fetchall()]
+        # Make a check mark to select each possible column in radio
+        num_columns = 3
+        self.vars = {column: tk.BooleanVar() for column in columns}
+        for i, column in enumerate(columns):
+            if i % num_columns == 0:
+                frame = tk.Frame(self)
+                frame.pack(side="top")
+            tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-        self.bd2=BaseDatosLvl2()
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -204,8 +267,10 @@ class DescSkyCammera(tk.Frame):
         fechaini=fechaini.replace('\n','')
         fechafin=self.textboxFin.get('1.0',tk.END)
         fechafin=fechafin.replace('\n','')
+        checked_columns = [column for column, var in self.vars.items() if var.get()]
+        columnas=",".join(checked_columns)
         try:
-            self.bd2.descdat("*","skycamera",fechaini,fechafin)
+            self.bd2.descdat(columnas,"skycamera",fechaini,fechafin)
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
@@ -213,6 +278,7 @@ class DescSkyCammera(tk.Frame):
 
 class DescSkyCammeraProc(tk.Frame):
     def __init__(self, master):
+        self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
         tk.Label(self,text="Tabla SkyCameraProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
@@ -221,9 +287,21 @@ class DescSkyCammeraProc(tk.Frame):
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
+        # Make a check mark to select each possible column in radio
+        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+        self.bd2.cur.execute(colum, ("skycameraproc",))
+        columns = [column[0] for column in self.bd2.cur.fetchall()]
+        # Make a check mark to select each possible column in radio
+        num_columns = 3
+        self.vars = {column: tk.BooleanVar() for column in columns}
+        for i, column in enumerate(columns):
+            if i % num_columns == 0:
+                frame = tk.Frame(self)
+                frame.pack(side="top")
+            tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-        self.bd2=BaseDatosLvl2()
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -231,12 +309,30 @@ class DescSkyCammeraProc(tk.Frame):
         fechaini=fechaini.replace('\n','')
         fechafin=self.textboxFin.get('1.0',tk.END)
         fechafin=fechafin.replace('\n','')
+        checked_columns = [column for column, var in self.vars.items() if var.get()]
+        columnas=",".join(checked_columns)
         try:
-            self.bd2.descdat("*","skycameraproc",fechaini,fechafin)
+            self.bd2.descdat(columnas,"skycameraproc",fechaini,fechafin)
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ##########################################################################################################################################º
+            
+    def graficar(self):
+        checked_columns = [column for column, var in self.vars.items() if var.get()]
+        fechaini=self.textboxIni.get('1.0',tk.END)
+        fechaini=fechaini.replace('\n','')
+        fechafin=self.textboxFin.get('1.0',tk.END)
+        fechafin=fechafin.replace('\n','')
+        dataframe=self.bd2.obtenerdat("*","skycameraproc",fechaini,fechafin)
+        plt.figure(figsize=(10, 6))  # Create a new figure with custom size
+        for column in checked_columns:
+            plt.plot(dataframe[column], label=column)  # Plot each column
+        plt.xlabel('X-axis')
+        plt.ylabel('Y-axis')
+        plt.title('Graph of Columns')
+        plt.legend()  # Show legend with column names
+        plt.show()  # Display the graph
 
 class DescImg(tk.Frame):
     def __init__(self, master):
