@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.0.6
+#Versión:1.0.7
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -125,18 +125,21 @@ class BaseDatosLvl1:
                 if not set(selec).issubset(set(columnastot)):
                     self.log.injeErr("Algunas Columnas no existen en la tabla\n")
                     raise ValueError("Algunas Columnas no existen en la tabla")
+                for i in range(len(selec)):
+                    selec[i]=""" " """+selec[i]+""" " """
                 columnas = ', '.join(selec)
             else:
                 if selec not in columnastot:
                     self.log.injeErr("Algunas Columnas no existen en la tabla\n")
                     raise ValueError("Algunas Columnas no existen en la tabla")
-                columnas = selec
+                columnas = """ " """+selec+""" " """
         else:
             columnas = "*"
 
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
         cond1=cond1.replace('-', '')
         cond2=cond2.replace('-', '')
+        columnas=columnas.replace(" ", "")
         query="SELECT {} FROM {} WHERE date BETWEEN %s AND %s".format(columnas, base)
         #Recogemos los datos en un data frame
         with self.engine.connect() as db_conn:
