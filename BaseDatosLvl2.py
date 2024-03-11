@@ -71,7 +71,7 @@ class BaseDatosLvl2:
         #Creación de las tablas en caso de que no exixta la radio de datos procesados
         #La primary key es timestamp la cual se divide en:año-mes-día hora
         orden=""" CREATE TABLE IF NOT EXISTS radioproc ("TIMESTAMP" VARCHAR PRIMARY KEY,"Year" integer,"Month" integer,"Dia" integer,"YearDay" integer,
-        "Hour" integer,"Minute" integer,"BuPres_Avg" decimal,"BuRH_Avg" decimal,"BuTemp_Avg" decimal,"BuRain_Tot" decimal,"BuWS_Avg" decimal
+        "Hour" integer,"Minute" integer,"BuPres_Avg" decimal,"BuRH_Avg" decimal,"BuTemp_Avg" decimal,"BuRain_Tot" decimal,"BuWS_Avg" decimal,
         "BuWD_Avg" decimal,"BuTDP_Avg" decimal,"BuTWB_Avg" decimal,"BuRaGVN_Avg" decimal,"BuRaGVE_Avg" decimal,"BuRaGVS_Avg" decimal,"BuRaGVW_Avg" decimal,
         "BuRaGH_Avg" decimal,"BuRaDH_Avg" decimal,"BuRaB_Avg" decimal,"BuLxGVN_Avg" decimal,"BuLxGVE_Avg" decimal,"BuLxGVS_Avg" decimal,"BuLxGVW_Avg" decimal,
         "BuLxGH_Avg" decimal,"BuLxDH_Avg" decimal,"BuLxB_Avg" decimal,"BuPaGVN_Avg" decimal,"BuPaGVE_Avg" decimal,"BuPaGVS_Avg" decimal,"BuPaGVW_Avg" decimal,
@@ -108,7 +108,7 @@ class BaseDatosLvl2:
     ##########################################################################################################################################################
     def actualizardatos(self):
         #Recibimos de la función de de actialización de datos los datos que se hayan introducidos en el primer nivel de la base de datos
-        
+
         radio,camera,scanner,contrad,contcamera,contscanner=self.db1.actualizardatos()
         #Recorremos todos los datos introducidos,comprobamos que no estan vacios y los procesamos e introducimoes en la segunda base de datos
         for dat in radio:
@@ -170,7 +170,7 @@ class BaseDatosLvl2:
     #########################################################################################################################################################
     def obtenerdat(self,selec,base,cond1,cond2):
         return self.db1.obtenerdat(selec,base,cond1,cond2)
-     #########################################################################################################################################################
+    #########################################################################################################################################################
     
     #Definimos la operación de cierre de conexiones para evitar errores en las conexiones futuras
     #SIEMPRE USAR AL FINALIZAR EL PROGRAMA
