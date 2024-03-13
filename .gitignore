@@ -3,3 +3,6 @@ FotosResulta
 DatosResulta
 .vscode
 log.txt
+myenv
+.coverage
+coverage.xml
