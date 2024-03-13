@@ -77,7 +77,7 @@ class DescRadio(tk.Frame):
         self.bd2.cur.execute(colum, ("radio",))
         columns = [column[0] for column in self.bd2.cur.fetchall()]
         # Make a check mark to select each possible column in radio
-        num_columns = 3
+        num_columns = 4
         self.vars = {column: tk.BooleanVar() for column in columns}
         for i, column in enumerate(columns):
             if i % num_columns == 0:
@@ -251,7 +251,7 @@ class DescSkyCammera(tk.Frame):
         self.bd2.cur.execute(colum, ("skycamera",))
         columns = [column[0] for column in self.bd2.cur.fetchall()]
         # Make a check mark to select each possible column in radio
-        num_columns = 3
+        num_columns = 4
         self.vars = {column: tk.BooleanVar() for column in columns}
         for i, column in enumerate(columns):
             if i % num_columns == 0:
