@@ -22,7 +22,7 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        coverage run -m unittest discover
+        coverage run -m unittest BD1_test
 
     - name: Convert coverage report to Codacy format
       run: |
