@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.0
+#Versión:0.4.1
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -12,14 +12,20 @@ import sqlalchemy
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
 
+#########################################################################################################################
 #Clase con la que el usuario interactuará
 class UI(tk.Tk):
 
+    #Definimos el constructor de la primera pagina de la interfaz de usuario
+    #########################################################################################################################
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(LoginPage)
-
+    #########################################################################################################################
+    
+    #Definimos una función para cambiar de frame
+    #########################################################################################################################
     def switch_frame(self, frame_class):
         #Destroys current frame and replaces it with a new one.
         new_frame = frame_class(self)
@@ -27,30 +33,52 @@ class UI(tk.Tk):
             self._frame.destroy()
         self._frame = new_frame
         self._frame.pack()
-
+    #########################################################################################################################
+        
+#########################################################################################################################
+    
+#Definimos la clase de log in 
+#########################################################################################################################
 class LoginPage(tk.Frame):
+    #Definimos el constructor de la clase
+    #########################################################################################################################
     def __init__(self, master):
         tk.Frame.__init__(self, master)
         tk.Label(self, text="Login Page", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Button(self, text="Login",
                   command=lambda: master.switch_frame(MainPage)).pack()
-        
+#########################################################################################################################
+
+#Definimos la clase de la pagina principal
+#########################################################################################################################        
 class MainPage(tk.Frame):
+    #Definimos el constructor de la clase
+    #########################################################################################################################
     def __init__(self, master):
         tk.Frame.__init__(self, master)
         tk.Label(self,text="Pagina Principal", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Button(self, text="Descargas", font=('Arial', 18), command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
         tk.Button(self, text="Actualizaciones", font=('Arial', 18), command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
+#########################################################################################################################
 
+#Definimos la clase de la pagina de descargas
+#########################################################################################################################
 class Descargas(tk.Frame):
+    #Definimos el constructor de la clase
+    #########################################################################################################################
     def __init__(self, master):
         tk.Frame.__init__(self, master)
         tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         tk.Button(self, text="Descarga de datos", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack()
         tk.Button(self, text="Descarga de imagenes", font=('Arial', 18), command=lambda: master.switch_frame(DescImg)).pack()
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack()
-    
+#########################################################################################################################
+
+#Definimos la clase de la pagina de descarga de datos
+#########################################################################################################################    
 class DescDatos(tk.Frame):
+    #Definimos el constructor de la clase
+    #########################################################################################################################
     def __init__(self, master):
         tk.Frame.__init__(self, master)
         tk.Button(self, text="Radio", font=('Arial', 18), command=lambda:master.switch_frame(DescRadio)).pack(padx=10, pady=10)
@@ -61,7 +89,14 @@ class DescDatos(tk.Frame):
         tk.Button(self, text="SkycameraProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
         self.bd2=BaseDatosLvl2()
+#########################################################################################################################
+
+#Definimos la clase de la pagina de descarga de datos de la tabla radio
+#########################################################################################################################
 class DescRadio(tk.Frame):
+
+    #Definimos el constructor de la clase
+    ###########################################################################################################################################
     def __init__(self, master):
         self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
@@ -88,6 +123,8 @@ class DescRadio(tk.Frame):
         tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
 
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+    ###########################################################################################################################################
+
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -105,6 +142,8 @@ class DescRadio(tk.Frame):
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
     
+    #Definimos una función para graficar los datos
+    ###########################################################################################################################################
     def graficar(self):
         checked_columns = [column for column, var in self.vars.items() if var.get()]
         fechaini=self.textboxIni.get('1.0',tk.END)
@@ -120,9 +159,14 @@ class DescRadio(tk.Frame):
         plt.title('Graph of Columns')
         plt.legend()  # Show legend with column names
         plt.show()  # Display the graph
-        
+    ###########################################################################################################################################
+#########################################################################################################################
 
+#Definimos la clase de la pagina de descarga de datos de la tabla radio procesada
+#########################################################################################################################
 class DescRadioProc(tk.Frame):
+    #Definimos el constructor de la clase
+    ###########################################################################################################################################
     def __init__(self, master):
         self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
@@ -148,6 +192,8 @@ class DescRadioProc(tk.Frame):
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
         tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+    ###########################################################################################################################################
+        
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -162,6 +208,9 @@ class DescRadioProc(tk.Frame):
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+    ###########################################################################################################################################
+            
+    #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
         checked_columns = [column for column, var in self.vars.items() if var.get()]
@@ -178,8 +227,14 @@ class DescRadioProc(tk.Frame):
         plt.title('Graph of Columns')
         plt.legend()  # Show legend with column names
         plt.show()  # Display the graph
-    
+    ###########################################################################################################################################
+#########################################################################################################################
+
+#Definimos la clase de la pagina de descarga de datos de la tabla skyscanner
+#############################################################################################################################################
 class DescSkyscanner(tk.Frame):
+    #Definimos el constructor de la clase
+    ###########################################################################################################################################
     def __init__(self, master):
         self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
@@ -193,6 +248,8 @@ class DescSkyscanner(tk.Frame):
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
 
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+    ###########################################################################################################################################
+    
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -206,8 +263,13 @@ class DescSkyscanner(tk.Frame):
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
+#########################################################################################################################
 
+#Definimos la clase de la pagina de descarga de datos de la tabla skyscanner procesada
+###########################################################################################################################################
 class DescSkyscannerProc(tk.Frame):
+    #Definimos el constructor de la clase
+    ###########################################################################################################################################
     def __init__(self, master):
         self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
@@ -221,6 +283,8 @@ class DescSkyscannerProc(tk.Frame):
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
 
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+    ###########################################################################################################################################
+    
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -234,8 +298,12 @@ class DescSkyscannerProc(tk.Frame):
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
-
+#########################################################################################################################
+            
+#Definimos la clase de la pagina de descarga de datos de la tabla skycamera
+###########################################################################################################################################
 class DescSkyCammera(tk.Frame):
+
     def __init__(self, master):
         self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
@@ -260,6 +328,8 @@ class DescSkyCammera(tk.Frame):
             tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+    ###########################################################################################################################################
+    
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -275,8 +345,13 @@ class DescSkyCammera(tk.Frame):
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ##########################################################################################################################################
+#########################################################################################################################
 
+#Definimos la clase de la pagina de descarga de datos de la tabla skycamera procesada
+###########################################################################################################################################
 class DescSkyCammeraProc(tk.Frame):
+    #Definimos el constructor de la clase
+    ###########################################################################################################################################
     def __init__(self, master):
         self.bd2=BaseDatosLvl2()
         tk.Frame.__init__(self, master)
@@ -302,6 +377,8 @@ class DescSkyCammeraProc(tk.Frame):
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
         tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+    ###########################################################################################################################################
+    
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
@@ -317,7 +394,9 @@ class DescSkyCammeraProc(tk.Frame):
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ##########################################################################################################################################º
-            
+
+    #Definimos una función para graficar los datos
+    ###########################################################################################################################################       
     def graficar(self):
         checked_columns = [column for column, var in self.vars.items() if var.get()]
         fechaini=self.textboxIni.get('1.0',tk.END)
@@ -333,8 +412,14 @@ class DescSkyCammeraProc(tk.Frame):
         plt.title('Graph of Columns')
         plt.legend()  # Show legend with column names
         plt.show()  # Display the graph
+    ###########################################################################################################################################
+#########################################################################################################################
 
+#Definimos la clase de la pagina de descarga de imagenes
+#########################################################################################################################
 class DescImg(tk.Frame):
+    #Definimos el constructor de la clase
+    ########################################################################################################################################
     def __init__(self, master):
         tk.Frame.__init__(self, master)
         tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
@@ -347,7 +432,8 @@ class DescImg(tk.Frame):
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descImg).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
         self.bd2=BaseDatosLvl2()
-
+    ########################################################################################################################################
+        
     #Definimos una función para deascargar las imagenes
     ########################################################################################################################################
     def descImg(self):
@@ -355,8 +441,14 @@ class DescImg(tk.Frame):
             self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
         except psycopg2.errors.SyntaxError:
             messagebox.showinfo(title="Error",message="Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
+    ########################################################################################################################################
+#########################################################################################################################
 
+#Definimos la clase de la pagina de actualizaciones
+#########################################################################################################################
 class Actualizaciones(tk.Frame):
+    #Definimos el constructor de la clase
+    ########################################################################################################################################
     def __init__(self, master):
         tk.Frame.__init__(self, master)
         tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
@@ -364,7 +456,7 @@ class Actualizaciones(tk.Frame):
         tk.Button(self, text="Actualizar imagenes", font=('Arial', 18), command=self.actualizarimagenes).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack()    
         self.bd2=BaseDatosLvl2() 
-    
+    ########################################################################################################################################    
 
      #Definimos una función que al pulsar el boton actualice los datos
     ##################################################################################################################################################
@@ -400,8 +492,12 @@ class Actualizaciones(tk.Frame):
             #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
             messagebox.showinfo(title="Operación exitosa",message="Has actualizado todas las imagenes con exito")
     ###########################################################################################################################################
-        
+#########################################################################################################################
+
+#Ejecutamos la interfaz de usuario     
+#########################################################################################################################   
 if __name__ == "__main__":
     app = UI()
     app.mainloop()
+#########################################################################################################################
 
