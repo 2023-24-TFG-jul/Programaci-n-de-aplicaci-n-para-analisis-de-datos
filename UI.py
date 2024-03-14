@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.1
+#Versión:0.4.2
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -13,6 +13,15 @@ from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
 
 #########################################################################################################################
+class page(tk.Frame):
+    def __init__(self, master,titulo,):
+        tk.Frame.__init__(self, master)
+        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        tk.Button(self, text=titulo, command=lambda: master.switch_frame(DescDatos)).pack()
+        self.bd2=BaseDatosLvl2()
+
+
+
 #Clase con la que el usuario interactuará
 class UI(tk.Tk):
 
