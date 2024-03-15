@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.2
+#Versión:0.4.3
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -14,11 +14,9 @@ from tkinter import messagebox
 
 #########################################################################################################################
 class page(tk.Frame):
-    def __init__(self, master,titulo,):
+    def __init__(self, master,titulo):
         tk.Frame.__init__(self, master)
-        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Button(self, text=titulo, command=lambda: master.switch_frame(DescDatos)).pack()
-        self.bd2=BaseDatosLvl2()
+        tk.Label(self,text=titulo, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
 
 
 
@@ -48,36 +46,33 @@ class UI(tk.Tk):
     
 #Definimos la clase de log in 
 #########################################################################################################################
-class LoginPage(tk.Frame):
+class LoginPage(page):
     #Definimos el constructor de la clase
     #########################################################################################################################
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        tk.Label(self, text="Login Page", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        page.__init__(self, master,"Login Page")
         tk.Button(self, text="Login",
                   command=lambda: master.switch_frame(MainPage)).pack()
 #########################################################################################################################
 
 #Definimos la clase de la pagina principal
 #########################################################################################################################        
-class MainPage(tk.Frame):
+class MainPage(page):
     #Definimos el constructor de la clase
     #########################################################################################################################
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        tk.Label(self,text="Pagina Principal", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        page.__init__(self, master,"Main Page")
         tk.Button(self, text="Descargas", font=('Arial', 18), command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
         tk.Button(self, text="Actualizaciones", font=('Arial', 18), command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descargas
 #########################################################################################################################
-class Descargas(tk.Frame):
+class Descargas(page):
     #Definimos el constructor de la clase
     #########################################################################################################################
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        page.__init__(self, master,"Descargas")
         tk.Button(self, text="Descarga de datos", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack()
         tk.Button(self, text="Descarga de imagenes", font=('Arial', 18), command=lambda: master.switch_frame(DescImg)).pack()
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack()
@@ -85,11 +80,11 @@ class Descargas(tk.Frame):
 
 #Definimos la clase de la pagina de descarga de datos
 #########################################################################################################################    
-class DescDatos(tk.Frame):
+class DescDatos(page):
     #Definimos el constructor de la clase
     #########################################################################################################################
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
+        page.__init__(self, master,"Descarga de datos")
         tk.Button(self, text="Radio", font=('Arial', 18), command=lambda:master.switch_frame(DescRadio)).pack(padx=10, pady=10)
         tk.Button(self, text="RadioProc", font=('Arial', 18), command=lambda:master.switch_frame(DescRadioProc)).pack(padx=10, pady=10)
         tk.Button(self, text="Skyscanner", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscanner)).pack(padx=10, pady=10)
@@ -99,26 +94,27 @@ class DescDatos(tk.Frame):
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
         self.bd2=BaseDatosLvl2()
 #########################################################################################################################
-
-#Definimos la clase de la pagina de descarga de datos de la tabla radio
-#########################################################################################################################
-class DescRadio(tk.Frame):
-
-    #Definimos el constructor de la clase
-    ###########################################################################################################################################
-    def __init__(self, master):
+class DescBase(page):
+    def __init__(self, master,titulo,tabla):
+        self.tabla=tabla
         self.bd2=BaseDatosLvl2()
-        tk.Frame.__init__(self, master)
-        tk.Label(self,text="Tabla Radio", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        page.__init__(self, master,titulo)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxIni = tk.Text(self, height=1, width=20)
         self.textboxIni.pack()
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
+        
+
+class DescVar1(DescBase):
+    def __init__(self, master,titulo,tabla):
+        self.tabla=tabla
+        self.bd2=BaseDatosLvl2()
+        DescBase.__init__(self, master,titulo,tabla)
         # Make a check mark to select each possible column in radio
         colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
-        self.bd2.cur.execute(colum, ("radio",))
+        self.bd2.cur.execute(colum, (tabla,))
         columns = [column[0] for column in self.bd2.cur.fetchall()]
         # Make a check mark to select each possible column in radio
         num_columns = 4
@@ -145,12 +141,11 @@ class DescRadio(tk.Frame):
         columnas=",".join(checked_columns)
         print(columnas)
         try:
-            self.bd2.descdat(columnas,"radio",fechaini,fechafin)
+            self.bd2.descdat(columnas,self.tabla,fechaini,fechafin)
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
-    
     #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
@@ -159,7 +154,7 @@ class DescRadio(tk.Frame):
         fechaini=fechaini.replace('\n','')
         fechafin=self.textboxFin.get('1.0',tk.END)
         fechafin=fechafin.replace('\n','')
-        dataframe=self.bd2.obtenerdat("*","radio",fechaini,fechafin)
+        dataframe=self.bd2.obtenerdat("*",self.tabla,fechaini,fechafin)
         plt.figure(figsize=(10, 6))  # Create a new figure with custom size
         for column in checked_columns:
             plt.plot(dataframe[column], label=column)  # Plot each column
@@ -168,74 +163,27 @@ class DescRadio(tk.Frame):
         plt.title('Graph of Columns')
         plt.legend()  # Show legend with column names
         plt.show()  # Display the graph
+    ###########################################################################################################################################
+#########################################################################################################################
+        
+#Definimos la clase de la pagina de descarga de datos de la tabla radio
+#########################################################################################################################
+class DescRadio(DescVar1):
+
+    #Definimos el constructor de la clase
+    ###########################################################################################################################################
+    def __init__(self, master):
+        DescVar1.__init__(self, master,"Tabla Radio","radio")
     ###########################################################################################################################################
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos de la tabla radio procesada
 #########################################################################################################################
-class DescRadioProc(tk.Frame):
+class DescRadioProc(DescVar1):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        self.bd2=BaseDatosLvl2()
-        tk.Frame.__init__(self, master)
-        tk.Label(self,text="Tabla RadioProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxIni = tk.Text(self, height=1, width=20)
-        self.textboxIni.pack()
-        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxFin = tk.Text(self, height=1, width=20)
-        self.textboxFin.pack()
-        # Make a check mark to select each possible column in radio
-        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
-        self.bd2.cur.execute(colum, ("radioproc",))
-        columns = [column[0] for column in self.bd2.cur.fetchall()]
-        # Make a check mark to select each possible column in radio
-        num_columns = 3
-        self.vars = {column: tk.BooleanVar() for column in columns}
-        for i, column in enumerate(columns):
-            if i % num_columns == 0:
-                frame = tk.Frame(self)
-                frame.pack(side="top")
-            tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
-        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
-        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-    ###########################################################################################################################################
-        
-    #Definimos una función para descargar datos
-    ###########################################################################################################################################
-    def descDat(self):
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        checked_columns = [column for column, var in self.vars.items() if var.get()]
-        columnas=",".join(checked_columns)
-        try:
-            self.bd2.descdat(columnas,"radioproc",fechaini,fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
-    ###########################################################################################################################################
-            
-    #Definimos una función para graficar los datos
-    ###########################################################################################################################################
-    def graficar(self):
-        checked_columns = [column for column, var in self.vars.items() if var.get()]
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        dataframe=self.bd2.obtenerdat("*","radioproc",fechaini,fechafin)
-        plt.figure(figsize=(10, 6))  # Create a new figure with custom size
-        for column in checked_columns:
-            plt.plot(dataframe[column], label=column)  # Plot each column
-        plt.xlabel('X-axis')
-        plt.ylabel('Y-axis')
-        plt.title('Graph of Columns')
-        plt.legend()  # Show legend with column names
-        plt.show()  # Display the graph
+        DescVar1.__init__(self, master,"Tabla RadioProc","radioproc")
     ###########################################################################################################################################
 #########################################################################################################################
 
