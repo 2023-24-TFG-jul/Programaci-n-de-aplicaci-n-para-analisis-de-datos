@@ -15,3 +15,7 @@ Aspectos relevantes ir haciendolo
 
 Skyscanner simplemente pasarlo  y ya
 Sky camera eliminar filas nulas
+
+Añadir a la representación grafica las fechas con las horas incluidas
+Añadir la libreria del sol
+avanzar poco a poco todo :) animo
