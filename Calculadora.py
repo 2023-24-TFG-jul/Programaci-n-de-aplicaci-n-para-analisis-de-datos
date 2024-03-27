@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.4
+#Versión:0.0.5
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -14,6 +14,8 @@ class Calculadora:
     #Physical limits
     dni0=1361.1 #W/m2
     dnil0=133334 #lux
+    dnp0=531.81 #W/m2
+    dnuv0=102.15 #W/m2
     #TODO añadir la latitud y longitud de la central
     latitude=0
     longitude=0
@@ -62,7 +64,7 @@ class Calculadora:
     #Physical limits
     def ghilPhys(self,value,date):
         max=self.dnil0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+10000
-        if value>-0 and value<=max:
+        if value>0 and value<=max:
              return True
         else:
             return False
@@ -76,7 +78,7 @@ class Calculadora:
     #Physical limits
     def dhilPhys(self,value,date):
         max=self.dnil0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+5000
-        if value>-0 and value<=max:
+        if value>0 and value<=max:
              return True
         else:
             return False
@@ -100,8 +102,12 @@ class Calculadora:
     
     #GHP:	global horizontal PAR irradiance.
     #Physical limits
-    def ghpPhys(self,latitud,longitud,fecha):
-        return 0
+    def ghpPhys(self,value,date):
+        max=self.dnp0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+40
+        if value>-0 and value<=max:
+             return True
+        else:
+            return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghpSky(self,latitud,longitud,fecha):
         return 0
@@ -110,8 +116,12 @@ class Calculadora:
         return 0
     #DHP:	diffuse horizontal PAR irradiance.
     #Physical limits
-    def dhpPhys(self,latitud,longitud,fecha):
-        return 0
+    def dhpPhys(self,value,date):
+        max=self.dnp0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+20
+        if value>-0 and value<=max:
+             return True
+        else:
+            return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhpSky(self,latitud,longitud,fecha):
         return 0
@@ -120,8 +130,9 @@ class Calculadora:
         return 0
     #DNP:	direct normal PAR irradiance.
     #Physical limits
-    def dnpPhys(self,latitud,longitud,fecha):
-        return 0
+    def dnpPhys(self,value):
+        if value>-0 and value<=self.dnp0:
+            return True
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dnpSky(self,latitud,longitud,fecha):
         return 0
@@ -131,8 +142,12 @@ class Calculadora:
   
     #GHUV:	global horizontal UV irradiance.
     #Physical limits
-    def ghuvPhys(self,latitud,longitud,fecha):
-        return 0
+    def ghuvPhys(self,value,date):
+        max=self.dnuv0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+5
+        if value>-0 and value<=max:
+             return True
+        else:
+            return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghuvSky(self,latitud,longitud,fecha):
         return 0
@@ -141,8 +156,12 @@ class Calculadora:
         return 0
     #DHUV:	diffuse horizontal UV irradiance.
     #Physical limits
-    def dhuvPhys(self,latitud,longitud,fecha):
-        return 0
+    def dhuvPhys(self,value,date):
+        max=self.dnuv0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+2
+        if value>-0 and value<=max:
+             return True
+        else:
+            return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhuvSky(self,latitud,longitud,fecha):
         return 0
@@ -151,8 +170,9 @@ class Calculadora:
         return 0
     #DNUV:	direct normal UV irradiance.
     #Physical limits
-    def dnuvPhys(self,latitud,longitud,fecha):
-        return 0
+    def dnuvPhys(self,value):
+        if value>-0 and value<=self.dnuv0:
+            return True
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dnuvSky(self,latitud,longitud,fecha):
         return 0
