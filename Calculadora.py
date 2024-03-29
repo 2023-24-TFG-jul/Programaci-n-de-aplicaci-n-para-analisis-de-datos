@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.6
+#Versión:0.0.7
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -20,6 +20,7 @@ class Calculadora:
     dniclear=0 #TODO encontrar dni clear
     latitude=42.3515619402223
     longitude=-3.6879829504876676
+    m=1#TODO encontrar relative optical air mass 
     def dates(self,fecha):
         año=str(fecha)[0:4]
         mes=str(fecha)[5:7]
@@ -139,8 +140,14 @@ class Calculadora:
         else:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghpSky(self,latitud,longitud,fecha):
-        return 0
+    def ghpSky(self,value,fecha):
+        max=(46.5325*self.m**2-1738.11*self.m+48907.2)/(4.78443*self.m**2+89.17*self.m+1)
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=max:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def ghpCohe(self,latitud,longitud,fecha):
         return 0
@@ -155,7 +162,13 @@ class Calculadora:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhpSky(self,latitud,longitud,fecha):
-        return 0
+        value=(-0.489631*self.m**2+17.4211*self.m+51.858)/(0.0575636*self.m**2+0.671139*self.m+1)
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=max:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def dhpCohe(self,latitud,longitud,fecha):
         return 0
@@ -165,8 +178,14 @@ class Calculadora:
         if value>-0 and value<=self.dnp0:
             return True
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dnpSky(self,latitud,longitud,fecha):
-        return 0
+    def dnpSky(self,value,fecha):
+        max=(0.171991*self.m**2-9.88174*self.m+532.694)/(0.00732718*self.m**2+0.13576*self.m+1)
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=max:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def dnpCohe(self,latitud,longitud,fecha):
         return 0
@@ -181,8 +200,14 @@ class Calculadora:
         else:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghuvSky(self,latitud,longitud,fecha):
-        return 0
+    def ghuvSky(self,value,fecha):
+        max=(1.78513*self.m^2+177.076*self.m+2594.06)/(13.8072*self.m**2+25.6894*self.m+1)
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=max:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def ghuvCohe(self,latitud,longitud,fecha):
         return 0
@@ -196,8 +221,14 @@ class Calculadora:
         else:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhuvSky(self,latitud,longitud,fecha):
-        return 0
+    def dhuvSky(self,value,fecha):
+        max=(0.0284353*self.m**2-0.773392*self.m+34.2974)/(0.0393782*self.m**2+0.593745*self.m+1)
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=max:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def dhuvCohe(self,latitud,longitud,fecha):
         return 0
@@ -207,8 +238,14 @@ class Calculadora:
         if value>-0 and value<=self.dnuv0:
             return True
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dnuvSky(self,latitud,longitud,fecha):
-        return 0
+    def dnuvSky(self,value,fecha):
+        max=(0.613588*self.m**2-14.0356*self.m+88.664)/(0.0966512*self.m**2+0.474748*self.m+1)
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=max:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def dnuvCohe(self,latitud,longitud,fecha):
         return 0
