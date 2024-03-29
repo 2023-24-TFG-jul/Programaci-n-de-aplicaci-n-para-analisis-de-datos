@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.5
+#Versión:0.0.6
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -16,32 +16,54 @@ class Calculadora:
     dnil0=133334 #lux
     dnp0=531.81 #W/m2
     dnuv0=102.15 #W/m2
-    #TODO añadir la latitud y longitud de la central
-    latitude=0
-    longitude=0
-    def ghiPhys(self,value,date):
+    ghiclear=0 #TODO encontrar ghi clear
+    dniclear=0 #TODO encontrar dni clear
+    latitude=42.3515619402223
+    longitude=-3.6879829504876676
+    def dates(self,fecha):
+        año=str(fecha)[0:4]
+        mes=str(fecha)[5:7]
+        dia=str(fecha)[8:10]
+        hora=str(fecha)[11:13]
+        minuto=str(fecha)[14:16]
+        return datetime.datetime(año, mes, dia, hora, minuto, tzinfo=datetime.timezone.utc)
+    
+
+    def ghiPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dni0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+100
         if value>-4 and value<=max:
              return True
         else:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghiSky(self,latitud,longitud,fecha):
-        return 0
+    def ghiSky(self,value,fecha):
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=self.ghiclear:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def ghiCohe(self,latitud,longitud,fecha):
         return 0
     #DHI:	diffuse horizontal irradiance.
     #Physical limits
-    def dhiPhys(self,value,date):
+    def dhiPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dni0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+50
         if value>-4 and value<=max:
              return True
         else:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhiSky(self,latitud,longitud,fecha):
-        return 0
+    def dhiSky(self,value,fecha):
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=self.ghiclear:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def dhiCohe(self,latitud,longitud,fecha):
         return 0
@@ -53,8 +75,13 @@ class Calculadora:
         else:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dniSky(self,latitud,longitud,fecha):
-        return 0
+    def dniSky(self,value,fecha):
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<85 and value<=self.dniclear:
+             return True
+        else:
+            return False
     #Coherence between measurements 
     def dniCohe(self,latitud,longitud,fecha):
         return 0
@@ -62,7 +89,8 @@ class Calculadora:
 
     #GHIL:	global horizontal illuminance.
     #Physical limits
-    def ghilPhys(self,value,date):
+    def ghilPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dnil0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+10000
         if value>0 and value<=max:
              return True
@@ -76,7 +104,8 @@ class Calculadora:
         return 0
     #DHIL:	diffuse horizontal illuminance.
     #Physical limits
-    def dhilPhys(self,value,date):
+    def dhilPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dnil0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+5000
         if value>0 and value<=max:
              return True
@@ -102,7 +131,8 @@ class Calculadora:
     
     #GHP:	global horizontal PAR irradiance.
     #Physical limits
-    def ghpPhys(self,value,date):
+    def ghpPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dnp0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+40
         if value>-0 and value<=max:
              return True
@@ -116,7 +146,8 @@ class Calculadora:
         return 0
     #DHP:	diffuse horizontal PAR irradiance.
     #Physical limits
-    def dhpPhys(self,value,date):
+    def dhpPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dnp0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+20
         if value>-0 and value<=max:
              return True
@@ -142,7 +173,8 @@ class Calculadora:
   
     #GHUV:	global horizontal UV irradiance.
     #Physical limits
-    def ghuvPhys(self,value,date):
+    def ghuvPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dnuv0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+5
         if value>-0 and value<=max:
              return True
@@ -156,7 +188,8 @@ class Calculadora:
         return 0
     #DHUV:	diffuse horizontal UV irradiance.
     #Physical limits
-    def dhuvPhys(self,value,date):
+    def dhuvPhys(self,value,fecha):
+        date = self.dates(fecha)
         max=self.dnuv0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+2
         if value>-0 and value<=max:
              return True
