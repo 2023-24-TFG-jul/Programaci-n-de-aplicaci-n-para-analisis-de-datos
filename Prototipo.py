@@ -15,11 +15,26 @@ from sqlalchemy import create_engine
 #Parametros de la base de datos
 import tkinter as tk
 from BaseDatosLvl2 import BaseDatosLvl2
+from Calculadora import Calculadora 
 
+calc=Calculadora()
+from pysolar.solar import *
 import datetime
-tzinfo='2023-10-01 00:00:00'
-dato = str(tzinfo)[14:16]
-print(dato)
+import math
+date = calc.dates("2023-08-30 0:00:00")
+altitud=90-get_altitude(42.3515619402223,-3.6879829504876676, date)
+
+print(altitud)
+
+
+
+
+
+
+
+
+
+
 # root=tk.Tk()
 # root.geometry("800x500")
 # root.title("Acceso base datos")
