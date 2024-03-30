@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.7
+#Versión:0.0.8
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -22,21 +22,28 @@ class Calculadora:
     longitude=-3.6879829504876676
     m=1#TODO encontrar relative optical air mass 
     def dates(self,fecha):
-        año=str(fecha)[0:4]
-        mes=str(fecha)[5:7]
-        dia=str(fecha)[8:10]
-        hora=str(fecha)[11:13]
-        minuto=str(fecha)[14:16]
+        año=int(str(fecha)[0:4])
+        mes=int(str(fecha)[5:7])
+        dia=int(str(fecha)[8:10])
+        hora=int(str(fecha)[11:13])+1
+        minuto=int(str(fecha)[14:16])
         return datetime.datetime(año, mes, dia, hora, minuto, tzinfo=datetime.timezone.utc)
     
 
     def ghiPhys(self,value,fecha):
         date = self.dates(fecha)
-        max=self.dni0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+100
+        altitude=math.cos(get_altitude(self.latitude, self.longitude, date))
+        print(altitude)
+        if altitude<0:
+            return 0
+        max=self.dni0*1.5*(altitude**1.2)+100
+        print(max)
         if value>-4 and value<=max:
-             return True
+             return 1
+        elif value>-4:
+            return 2
         else:
-            return False
+            return 3
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghiSky(self,value,fecha):
         date = self.dates(fecha)
