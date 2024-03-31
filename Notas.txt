@@ -18,4 +18,9 @@ Sky camera eliminar filas nulas
 
 
 
+
 Preguntar sobre la segunda tanda de medidas de el  clean and dry clear sky condition GHIL DHIL NIL
+
+Añadir a la representación grafica las fechas con las horas incluidas
+Añadir la libreria del sol
+avanzar poco a poco todo :) animo
