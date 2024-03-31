@@ -15,38 +15,60 @@ from sqlalchemy import create_engine
 #Parametros de la base de datos
 import tkinter as tk
 from BaseDatosLvl2 import BaseDatosLvl2
+from Calculadora import Calculadora 
 
-import tkinter as tk
+calc=Calculadora()
+from pysolar.solar import *
+import datetime
+import math
+date = calc.dates("2023-08-30 0:00:00")
+altitud=90-get_altitude(42.3515619402223,-3.6879829504876676, date)
 
-class SampleApp(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
-        self._frame = None
-        self.switch_frame(StartPage)
+print(altitud)
 
-    def switch_frame(self, frame_class):
-        #Destroys current frame and replaces it with a new one.
-        new_frame = frame_class(self)
-        if self._frame is not None:
-            self._frame.destroy()
-        self._frame = new_frame
-        self._frame.pack()
 
-class StartPage(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        tk.Label(self, text="Start page", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Button(self, text="Go to page one",
-                  command=lambda: master.switch_frame(PageOne)).pack()
 
-class PageOne(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        tk.Frame.configure(self,bg='blue')
-        tk.Label(self, text="Page one", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Button(self, text="Go back to start page",
-                  command=lambda: master.switch_frame(StartPage)).pack()
 
-if __name__ == "__main__":
-    app = SampleApp()
-    app.mainloop()
+
+
+
+
+
+
+# root=tk.Tk()
+# root.geometry("800x500")
+# root.title("Acceso base datos")
+# label=tk.Label(root,text="Introduzca su usuario", font=('arial',18))
+# label.pack(padx=20,pady=20)
+
+# textbox=tk.Text(root,font=('Arial',16),height=1)
+# textbox.pack(padx=30,pady=30)
+
+# buttonframe=tk.Frame(root)
+# buttonframe.columnconfigure(0,weight=1)
+# buttonframe.columnconfigure(1,weight=1)
+# buttonframe.columnconfigure(2,weight=1)
+
+# btn1=tk.Button(buttonframe,text="1",font=('Arial',18))
+# btn1.grid(row=0,column=0,sticky=tk.W+tk.E)
+# btn2=tk.Button(buttonframe,text="2",font=('Arial',18))
+# btn2.grid(row=0,column=1,sticky=tk.W+tk.E)
+# btn3=tk.Button(buttonframe,text="3",font=('Arial',18))
+# btn3.grid(row=0,column=2,sticky=tk.W+tk.E)
+# btn4=tk.Button(buttonframe,text="4",font=('Arial',18))
+# btn4.grid(row=1,column=0,sticky=tk.W+tk.E)
+
+# btn5=tk.Button(buttonframe,text="5",font=('Arial',18))
+# btn5.grid(row=1,column=1,sticky=tk.W+tk.E)
+
+# btn6=tk.Button(buttonframe,text="6",font=('Arial',18))
+# btn6.grid(row=1,column=2,sticky=tk.W+tk.E)
+
+# buttonframe.pack(fill='x')
+
+# anotherbutton=tk.Button(root,text="TEST")
+# anotherbutton.place(x=200,y=200,height=100,width=100)
+
+# root.mainloop()
+
+
