@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.10
+#Versión:0.0.11
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -114,7 +114,7 @@ class Calculadora:
         angle=get_altitude(self.latitude, self.longitude, date)
         if angle<75 and ghi>50:
             return False
-        value=dhi/dni
+        value=dhi/ghi
         if value<1.05:
             return  True
         else:
@@ -125,7 +125,7 @@ class Calculadora:
         angle=get_altitude(self.latitude, self.longitude, date)
         if angle<93 and angle>75 and  ghi>50:
             return False
-        value=dhi/dni
+        value=dhi/ghi
         if  value<1.1:
             return  True
         else:
@@ -194,7 +194,7 @@ class Calculadora:
         angle=get_altitude(self.latitude, self.longitude, date)
         if angle<75 and ghil>5000:
             return False
-        value=dhil/dnil
+        value=dhil/ghil
         if value<1.05:
             return  True
         else:
@@ -205,7 +205,7 @@ class Calculadora:
         angle=get_altitude(self.latitude, self.longitude, date)
         if angle<93 and angle>75 and  ghil>5000:
             return False
-        value=dhil/dnil
+        value=dhil/ghil
         if  value<1.1:
             return  True
         else:
@@ -264,6 +264,51 @@ class Calculadora:
         else:
             return False
 
+    #coherence between measurements of the PAR irradiance
+    def coheP1(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghp>20:
+            return False
+        value=ghp/((dhp+dnp*math.cos(angle) ) )
+        if value>0.92 and value<1.08:
+            return  True
+        else:
+            return False
+        
+    def coheP2(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghp>20:
+            return False
+        value=ghp/((dhp+dnp*math.cos(angle) ) )
+        if value>0.85 and value<1.15:
+            return  True
+        else:
+            return False    
+
+    def coheP3(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghp>20:
+            return False
+        value=dhp/ghp
+        if value<1.05:
+            return  True
+        else:
+            return False
+            
+    def coheP4(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghp>20:
+            return False
+        value=dhp/ghp
+        if  value<1.1:
+            return  True
+        else:
+            return False 
+          
   
     #GHUV:	global horizontal UV irradiance.
     #Physical limits
@@ -318,4 +363,5 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
+        
+    
