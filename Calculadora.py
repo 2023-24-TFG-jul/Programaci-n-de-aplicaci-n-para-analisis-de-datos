@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.11
+#Versión:0.0.12
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -364,4 +364,48 @@ class Calculadora:
         else:
             return False
         
-    
+    #coherence between measurements of the UV irradiance
+    def coheUv1(self,ghuv,dhuv,dnuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghuv>2:
+            return False
+        value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
+        if value>0.92 and value<1.08:
+            return  True
+        else:
+            return False
+        
+    def coheUv2(self,ghuv,dhuv,dnuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghuv>20:
+            return False
+        value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
+        if value>0.85 and value<1.15:
+            return  True
+        else:
+            return False    
+
+    def coheUv3(self,ghuv,dhuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghuv>20:
+            return False
+        value=dhuv/ghuv
+        if value<1.05:
+            return  True
+        else:
+            return False
+            
+    def coheUv4(self,ghuv,dhuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghuv>20:
+            return False
+        value=dhuv/ghuv
+        if  value<1.1:
+            return  True
+        else:
+            return False 
+          
