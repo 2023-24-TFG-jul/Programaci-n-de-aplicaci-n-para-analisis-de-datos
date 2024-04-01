@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.9
+#Versión:0.0.10
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -109,13 +109,13 @@ class Calculadora:
         else:
             return False    
 
-    def coheI1(self,ghi,dhi,dni,fecha):
+    def coheI3(self,ghi,dhi,dni,fecha):
         date = self.dates(fecha)
         angle=get_altitude(self.latitude, self.longitude, date)
         if angle<75 and ghi>50:
             return False
         value=dhi/dni
-        if value<1.1:
+        if value<1.05:
             return  True
         else:
             return False
@@ -126,7 +126,7 @@ class Calculadora:
         if angle<93 and angle>75 and  ghi>50:
             return False
         value=dhi/dni
-        if  value<1.05:
+        if  value<1.1:
             return  True
         else:
             return False 
@@ -166,7 +166,50 @@ class Calculadora:
     def dnilSky(self,latitud,longitud,fecha):
         return 0
  
+    #coherence between measurements of the illuminance
+    def coheIl1(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghil>5000:
+            return False
+        value=ghil/((dhil+dnil*math.cos(angle) ) )
+        if value>0.92 and value<1.08:
+            return  True
+        else:
+            return False
+        
+    def coheIl2(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghil>5000:
+            return False
+        value=ghil/((dhil+dnil*math.cos(angle) ) )
+        if value>0.85 and value<1.15:
+            return  True
+        else:
+            return False    
 
+    def coheIl3(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghil>5000:
+            return False
+        value=dhil/dnil
+        if value<1.05:
+            return  True
+        else:
+            return False
+            
+    def coheIl4(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghil>5000:
+            return False
+        value=dhil/dnil
+        if  value<1.1:
+            return  True
+        else:
+            return False 
     
     #GHP:	global horizontal PAR irradiance.
     #Physical limits
@@ -259,7 +302,7 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
+    
 
     #DNUV:	direct normal UV irradiance.
     #Physical limits
