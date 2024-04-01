@@ -3,3 +3,7 @@ FotosResulta
 DatosResulta
 .vscode
 log.txt
+myenv
+.coverage
+coverage.xml
+Como Funciona la validación continiua.txt
