@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.8
+#Versión:0.0.12
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -52,9 +52,7 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def ghiCohe(self,latitud,longitud,fecha):
-        return 0
+
     #DHI:	diffuse horizontal irradiance.
     #Physical limits
     def dhiPhys(self,value,fecha):
@@ -72,9 +70,7 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def dhiCohe(self,latitud,longitud,fecha):
-        return 0
+        
     #DNI:	direct normal irradiance.
     #Physical limits
     def dniPhys(self,value):
@@ -90,11 +86,51 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def dniCohe(self,latitud,longitud,fecha):
-        return 0
-    
+    #Coherence mesaurements de la irradiancia
+    def coheI1(self,ghi,dhi,dni,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghi>50:
+            return False
+        value=ghi/((dhi+dni*math.cos(angle) ) )
+        if value>0.92 and value<1.08:
+            return  True
+        else:
+            return False
+        
+    def coheI2(self,ghi,dhi,dni,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghi>50:
+            return False
+        value=ghi/((dhi+dni*math.cos(angle) ) )
+        if value>0.85 and value<1.15:
+            return  True
+        else:
+            return False    
 
+    def coheI3(self,ghi,dhi,dni,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghi>50:
+            return False
+        value=dhi/ghi
+        if value<1.05:
+            return  True
+        else:
+            return False
+            
+    def coheI4(self,ghi,dhi,dni,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghi>50:
+            return False
+        value=dhi/ghi
+        if  value<1.1:
+            return  True
+        else:
+            return False 
+          
     #GHIL:	global horizontal illuminance.
     #Physical limits
     def ghilPhys(self,value,fecha):
@@ -107,9 +143,7 @@ class Calculadora:
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghilSky(self,latitud,longitud,fecha):
         return 0
-    #Coherence between measurements 
-    def ghilCohe(self,latitud,longitud,fecha):
-        return 0
+ 
     #DHIL:	diffuse horizontal illuminance.
     #Physical limits
     def dhilPhys(self,value,fecha):
@@ -122,9 +156,7 @@ class Calculadora:
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhilSky(self,latitud,longitud,fecha):
         return 0
-    #Coherence between measurements 
-    def dhilCohe(self,latitud,longitud,fecha):
-        return 0
+
     #DNIL:	direct normal illuminance.
     #Physical limits
     def dnilPhys(self,value):
@@ -133,9 +165,51 @@ class Calculadora:
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dnilSky(self,latitud,longitud,fecha):
         return 0
-    #Coherence between measurements 
-    def dnilCohe(self,latitud,longitud,fecha):
-        return 0
+ 
+    #coherence between measurements of the illuminance
+    def coheIl1(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghil>5000:
+            return False
+        value=ghil/((dhil+dnil*math.cos(angle) ) )
+        if value>0.92 and value<1.08:
+            return  True
+        else:
+            return False
+        
+    def coheIl2(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghil>5000:
+            return False
+        value=ghil/((dhil+dnil*math.cos(angle) ) )
+        if value>0.85 and value<1.15:
+            return  True
+        else:
+            return False    
+
+    def coheIl3(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghil>5000:
+            return False
+        value=dhil/ghil
+        if value<1.05:
+            return  True
+        else:
+            return False
+            
+    def coheIl4(self,ghil,dhil,dnil,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghil>5000:
+            return False
+        value=dhil/ghil
+        if  value<1.1:
+            return  True
+        else:
+            return False 
     
     #GHP:	global horizontal PAR irradiance.
     #Physical limits
@@ -155,9 +229,7 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def ghpCohe(self,latitud,longitud,fecha):
-        return 0
+
     #DHP:	diffuse horizontal PAR irradiance.
     #Physical limits
     def dhpPhys(self,value,fecha):
@@ -176,9 +248,7 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def dhpCohe(self,latitud,longitud,fecha):
-        return 0
+
     #DNP:	direct normal PAR irradiance.
     #Physical limits
     def dnpPhys(self,value):
@@ -193,9 +263,52 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def dnpCohe(self,latitud,longitud,fecha):
-        return 0
+
+    #coherence between measurements of the PAR irradiance
+    def coheP1(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghp>20:
+            return False
+        value=ghp/((dhp+dnp*math.cos(angle) ) )
+        if value>0.92 and value<1.08:
+            return  True
+        else:
+            return False
+        
+    def coheP2(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghp>20:
+            return False
+        value=ghp/((dhp+dnp*math.cos(angle) ) )
+        if value>0.85 and value<1.15:
+            return  True
+        else:
+            return False    
+
+    def coheP3(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghp>20:
+            return False
+        value=dhp/ghp
+        if value<1.05:
+            return  True
+        else:
+            return False
+            
+    def coheP4(self,ghp,dhp,dnp,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghp>20:
+            return False
+        value=dhp/ghp
+        if  value<1.1:
+            return  True
+        else:
+            return False 
+          
   
     #GHUV:	global horizontal UV irradiance.
     #Physical limits
@@ -215,9 +328,7 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def ghuvCohe(self,latitud,longitud,fecha):
-        return 0
+
     #DHUV:	diffuse horizontal UV irradiance.
     #Physical limits
     def dhuvPhys(self,value,fecha):
@@ -236,9 +347,8 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def dhuvCohe(self,latitud,longitud,fecha):
-        return 0
+    
+
     #DNUV:	direct normal UV irradiance.
     #Physical limits
     def dnuvPhys(self,value):
@@ -253,7 +363,49 @@ class Calculadora:
              return True
         else:
             return False
-    #Coherence between measurements 
-    def dnuvCohe(self,latitud,longitud,fecha):
-        return 0
-    
+        
+    #coherence between measurements of the UV irradiance
+    def coheUv1(self,ghuv,dhuv,dnuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghuv>2:
+            return False
+        value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
+        if value>0.92 and value<1.08:
+            return  True
+        else:
+            return False
+        
+    def coheUv2(self,ghuv,dhuv,dnuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghuv>20:
+            return False
+        value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
+        if value>0.85 and value<1.15:
+            return  True
+        else:
+            return False    
+
+    def coheUv3(self,ghuv,dhuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<75 and ghuv>20:
+            return False
+        value=dhuv/ghuv
+        if value<1.05:
+            return  True
+        else:
+            return False
+            
+    def coheUv4(self,ghuv,dhuv,fecha):
+        date = self.dates(fecha)
+        angle=get_altitude(self.latitude, self.longitude, date)
+        if angle<93 and angle>75 and  ghuv>20:
+            return False
+        value=dhuv/ghuv
+        if  value<1.1:
+            return  True
+        else:
+            return False 
+          
