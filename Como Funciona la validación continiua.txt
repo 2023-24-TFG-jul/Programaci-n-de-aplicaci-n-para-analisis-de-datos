@@ -1,0 +1,4 @@
+1º$env:CODACY_PROJECT_TOKEN="ea7231ce6cc743bf8e09c918c342dc00"
+2ºcoverage run -m unittest BD1_test
+3ºcoverage xml
+4ºpython-codacy-coverage -r coverage.xml
