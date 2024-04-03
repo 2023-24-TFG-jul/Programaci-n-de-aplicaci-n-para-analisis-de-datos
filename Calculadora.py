@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.1.5
+#Versión:0.1.6
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -585,64 +585,162 @@ class Calculadora:
           
   
     #GHUV:	global horizontal UV irradiance.
-    #Physical limits
-    def ghuvPhys(self,value,fecha):
-        date = self.dates(fecha)
-        max=self.dnuv0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+5
-        if value>-0 and value<=max:
-             return True
-        else:
-            return False
-    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghuvSky(self,value,fecha):
-        max=(1.78513*self.m^2+177.076*self.m+2594.06)/(13.8072*self.m**2+25.6894*self.m+1)
+    
+    def comprobarghuv(self,valueGhuv,valueDHuv,valueDNuv,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<85 and value<=max:
+        if grado>85:
+            return 0
+        else:
+            resultado=self.ghuvPhys(valueGhuv,fecha)
+            if resultado==1:
+                if self.ghuvSky(valueGhuv,fecha):
+                    if grado<75:
+                        if self.coheUv1(valueGhuv,valueDHuv,valueDNuv,fecha):
+                            if self.coheUv3(valueGhuv,valueDHuv):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheUv2(valueGhuv,valueDHuv,valueDNuv,fecha):
+                                if self.coheUv4(valueGhuv,valueDHuv):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    #Physical limits
+    def ghuvPhys(self,value,grado):
+        max=self.dnuv0*1.5*(math.cos(grado)**1.2)+5
+        if value>-0:
+            if value<=max:
+             return 1
+            else:
+                return 3
+        else:
+            return 2
+    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
+    def ghuvSky(self,value):
+        max=(1.78513*self.m^2+177.076*self.m+2594.06)/(13.8072*self.m**2+25.6894*self.m+1)
+        if  value<=max:
              return True
         else:
             return False
 
     #DHUV:	diffuse horizontal UV irradiance.
-    #Physical limits
-    def dhuvPhys(self,value,fecha):
-        date = self.dates(fecha)
-        max=self.dnuv0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+2
-        if value>-0 and value<=max:
-             return True
-        else:
-            return False
-    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhuvSky(self,value,fecha):
-        max=(0.0284353*self.m**2-0.773392*self.m+34.2974)/(0.0393782*self.m**2+0.593745*self.m+1)
+    def comprobardhuv(self,valueGhuv,valueDHuv,valueDNuv,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<85 and value<=max:
+        if grado>85:
+            return 0
+        else:
+            resultado=self.dhuvPhys(valueDHuv,fecha)
+            if resultado==1:
+                if self.dhuvSky(valueDHuv,fecha):
+                    if grado<75:
+                        if self.coheUv1(valueGhuv,valueDHuv,valueDNuv,fecha):
+                            if self.coheUv3(valueGhuv,valueDHuv):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheUv2(valueGhuv,valueDHuv,valueDNuv,fecha):
+                                if self.coheUv4(valueGhuv,valueDHuv):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    #Physical limits
+    def dhuvPhys(self,value,grado):
+        max=self.dnuv0*0.95*(math.cos(grado)**1.2)+2
+        if value>-0:
+            if value<=max:
+             return 1
+            else:
+                return 3
+        else:
+            return 2
+    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
+    def dhuvSky(self,value):
+        max=(0.0284353*self.m**2-0.773392*self.m+34.2974)/(0.0393782*self.m**2+0.593745*self.m+1)
+        if value<=max:
              return True
         else:
             return False
     
 
-    #DNUV:	direct normal UV irradiance.
-    #Physical limits
-    def dnuvPhys(self,value):
-        if value>-0 and value<=self.dnuv0:
-            return True
-    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dnuvSky(self,value,fecha):
-        max=(0.613588*self.m**2-14.0356*self.m+88.664)/(0.0966512*self.m**2+0.474748*self.m+1)
+    #DNUV:	direct normal UV irradiance.+
+    def comprobardnuv(self,valueGhuv,valueDHuv,valueDNuv,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<85 and value<=max:
+        if grado>85:
+            return 0
+        else:
+            resultado=self.dnuvPhys(valueDNuv)
+            if resultado==1:
+                if self.dnuvSky(valueDNuv,fecha):
+                    if grado<75:
+                        if self.coheUv1(valueGhuv,valueDHuv,valueDNuv,fecha):
+                            if self.coheUv3(valueGhuv,valueDHuv):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheUv2(valueGhuv,valueDHuv,valueDNuv,fecha):
+                                if self.coheUv4(valueGhuv,valueDHuv):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    #Physical limits
+    def dnuvPhys(self,value):
+        if value>-0:
+            if value<=self.dnuv0:
+                return 1
+            else:
+                return 3
+        else:
+            return 2
+    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
+    def dnuvSky(self,value):
+        max=(0.613588*self.m**2-14.0356*self.m+88.664)/(0.0966512*self.m**2+0.474748*self.m+1)
+        if value<=max:
              return True
         else:
             return False
         
     #coherence between measurements of the UV irradiance
-    def coheUv1(self,ghuv,dhuv,dnuv,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghuv>2:
+    def coheUv1(self,ghuv,dhuv,dnuv,angle):
+        if ghuv>2:
             return False
         value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
         if value>0.92 and value<1.08:
@@ -650,10 +748,8 @@ class Calculadora:
         else:
             return False
         
-    def coheUv2(self,ghuv,dhuv,dnuv,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghuv>20:
+    def coheUv2(self,ghuv,dhuv,dnuv,angle):
+        if  ghuv>20:
             return False
         value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
         if value>0.85 and value<1.15:
@@ -661,10 +757,8 @@ class Calculadora:
         else:
             return False    
 
-    def coheUv3(self,ghuv,dhuv,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghuv>20:
+    def coheUv3(self,ghuv,dhuv):
+        if ghuv>20:
             return False
         value=dhuv/ghuv
         if value<1.05:
@@ -672,10 +766,8 @@ class Calculadora:
         else:
             return False
             
-    def coheUv4(self,ghuv,dhuv,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghuv>20:
+    def coheUv4(self,ghuv,dhuv):
+        if  ghuv>20:
             return False
         value=dhuv/ghuv
         if  value<1.1:
