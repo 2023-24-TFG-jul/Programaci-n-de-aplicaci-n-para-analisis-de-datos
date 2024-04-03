@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.1.0
+#Versión:0.1.1
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -37,19 +37,31 @@ class Calculadora:
         else:
             resultado=self.ghiPhys(valueGhi,grado)
             if resultado==1:
-                if self.ghiSky(valueGhi,fecha):
-                    if grado>75:
-                        if  grado<93:
-                            if self.coheI1(valueGhi,valueDHi,valueDNi,fecha):
+                if self.ghiSky(valueGhi,grado):
+                    if grado<75:
+                        if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
+                            if self.coheI3(valueGhi,valueDHi,valueDNi,grado):
                                 return 1
                             else:
-                                return 4
-                        return 1
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheI2(valueGhi,valueDHi,valueDNi,grado):
+                                if self.coheI4(valueGhi,valueDHi,valueDNi,grado):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
                 else:
                     return 4
                     
             else:
                 return resultado
+    
     def ghiPhys(self,value,altitude):
        
         max=self.dni0*1.5*(altitude**1.2)+100
