@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.1.2
+#Versión:0.1.3
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -130,7 +130,38 @@ class Calculadora:
             return False
         
     #DNI:	direct normal irradiance.
-   
+    def comprobardni(self,valueGhi,valueDHi,valueDNi,fecha):
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<0:
+            return 0
+        else:
+            resultado=self.dniPhys(valueDNi)
+            if resultado==1:
+                if self.dniSky(valueDNi,grado):
+                    if grado<75:
+                        if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
+                            if self.coheI3(valueGhi,valueDHi):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheI2(valueGhi,valueDHi,valueDNi,grado):
+                                if self.coheI4(valueGhi,valueDHi):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
     #Physical limits
     def dniPhys(self,value):
         if value>-4:
