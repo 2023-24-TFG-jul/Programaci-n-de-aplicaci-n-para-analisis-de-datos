@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.0.12
+#Versión:0.1.0
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -29,15 +29,30 @@ class Calculadora:
         minuto=int(str(fecha)[14:16])
         return datetime.datetime(año, mes, dia, hora, minuto, tzinfo=datetime.timezone.utc)
     
-
-    def ghiPhys(self,value,fecha):
+    def comprobarghi(self,valueGhi,valueDHi,valueDNi,fecha):
         date = self.dates(fecha)
-        altitude=math.cos(get_altitude(self.latitude, self.longitude, date))
-        print(altitude)
-        if altitude<0:
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<0:
             return 0
+        else:
+            resultado=self.ghiPhys(valueGhi,grado)
+            if resultado==1:
+                if self.ghiSky(valueGhi,fecha):
+                    if grado>75:
+                        if  grado<93:
+                            if self.coheI1(valueGhi,valueDHi,valueDNi,fecha):
+                                return 1
+                            else:
+                                return 4
+                        return 1
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    def ghiPhys(self,value,altitude):
+       
         max=self.dni0*1.5*(altitude**1.2)+100
-        print(max)
         if value>-4 and value<=max:
              return 1
         elif value>-4:
@@ -90,7 +105,7 @@ class Calculadora:
     def coheI1(self,ghi,dhi,dni,fecha):
         date = self.dates(fecha)
         angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghi>50:
+        if angle>75 and ghi<50:
             return False
         value=ghi/((dhi+dni*math.cos(angle) ) )
         if value>0.92 and value<1.08:
