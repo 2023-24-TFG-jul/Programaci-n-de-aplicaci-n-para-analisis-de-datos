@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.1.4
+#Versión:0.1.5
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -37,7 +37,7 @@ class Calculadora:
         else:
             resultado=self.ghiPhys(valueGhi,grado)
             if resultado==1:
-                if self.ghiSky(valueGhi,grado):
+                if self.ghiSky(valueGhi):
                     if grado<75:
                         if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
                             if self.coheI3(valueGhi,valueDHi):
@@ -73,8 +73,8 @@ class Calculadora:
         else:
             return 3
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghiSky(self,value,grado):
-        if grado<85 and value<=self.ghiclear:
+    def ghiSky(self,value):
+        if value<=self.ghiclear:
              return True
         else:
             return False
@@ -88,7 +88,7 @@ class Calculadora:
         else:
             resultado=self.dhiPhys(valueDHi,grado)
             if resultado==1 :
-                if self.dhiSky(valueDHi,grado):
+                if self.dhiSky(valueDHi):
                     if grado<75:
                         if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
                             if self.coheI3(valueGhi,valueDHi):
@@ -123,8 +123,8 @@ class Calculadora:
         else:
             return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhiSky(self,value,grado):
-        if grado<85 and value<=self.ghiclear:
+    def dhiSky(self,value):
+        if value<=self.ghiclear:
              return True
         else:
             return False
@@ -138,7 +138,7 @@ class Calculadora:
         else:
             resultado=self.dniPhys(valueDNi)
             if resultado==1:
-                if self.dniSky(valueDNi,grado):
+                if self.dniSky(valueDNi):
                     if grado<75:
                         if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
                             if self.coheI3(valueGhi,valueDHi):
@@ -172,13 +172,15 @@ class Calculadora:
         else:
             return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dniSky(self,value,grado):
-        if grado<85 and value<=self.dniclear:
+    def dniSky(self,value):
+        if value<=self.dniclear:
              return True
         else:
             return False
     #Coherence mesaurements de la irradiancia
     def coheI1(self,ghi,dhi,dni,angle):
+        if ghi<50:
+            return False
         value=ghi/((dhi+dni*math.cos(angle) ) )
         if value>0.92 and value<1.08:
             return  True
@@ -186,6 +188,8 @@ class Calculadora:
             return False
         
     def coheI2(self,ghi,dhi,dni,angle):
+        if ghi<50:
+            return False
         value=ghi/((dhi+dni*math.cos(angle) ) )
         if value>0.85 and value<1.15:
             return  True
@@ -193,6 +197,8 @@ class Calculadora:
             return False    
 
     def coheI3(self,ghi,dhi):
+        if ghi<50:
+            return False
         value=dhi/ghi
         if value<1.05:
             return  True
@@ -200,6 +206,8 @@ class Calculadora:
             return False
             
     def coheI4(self,ghi,dhi):
+        if ghi<50:
+            return False
         value=dhi/ghi
         if  value<1.1:
             return  True
@@ -215,7 +223,7 @@ class Calculadora:
         else:
             resultado=self.ghilPhys(valueGhil,grado)
             if resultado==1:
-                if self.ghilSky(valueGhil,grado):
+                if self.ghilSky(valueGhil):
                     if grado<75:
                         if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
                             if self.coheIl3(valueGhil,valueDHil):
@@ -251,11 +259,11 @@ class Calculadora:
         else:
             return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghilSky(self,value,grado):
+    def ghilSky(self,value):
         return 0
  
     #DHIL:	diffuse horizontal illuminance.
-    def comprobardhi(self,valueGhil,valueDHil,valueDNil,fecha):
+    def comprobardhil(self,valueGhil,valueDHil,valueDNil,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
         if grado>85:
@@ -263,7 +271,7 @@ class Calculadora:
         else:
             resultado=self.dhilPhys(valueDHil,grado)
             if resultado==1 :
-                if self.dhilSky(valueDHil,grado):
+                if self.dhilSky(valueDHil):
                     if grado<75:
                         if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
                             if self.coheIl3(valueGhil,valueDHil):
@@ -298,11 +306,11 @@ class Calculadora:
         else:
             return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhilSky(self,value,grado):
+    def dhilSky(self,value):
         return 0
 
     #DNIL:	direct normal illuminance.
-    def comprobardni(self,valueGhil,valueDHil,valueDNil,fecha):
+    def comprobardnil(self,valueGhil,valueDHil,valueDNil,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
         if grado>85:
@@ -310,7 +318,7 @@ class Calculadora:
         else:
             resultado=self.dnilPhys(valueDNil)
             if resultado==1:
-                if self.dnilSky(valueDNil,grado):
+                if self.dnilSky(valueDNil):
                     if grado<75:
                         if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
                             if self.coheIl3(valueGhil,valueDHil):
@@ -344,7 +352,7 @@ class Calculadora:
         else:
             return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dnilSky(self,value,grado):
+    def dnilSky(self,value):
         return 0
  
     #coherence between measurements of the illuminance
@@ -387,6 +395,39 @@ class Calculadora:
             return False 
     
     #GHP:	global horizontal PAR irradiance.
+    def comprobarghp(self,valueGhp,valueDHp,valueDNp,fecha):
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado>85:
+            return 0
+        else:
+            resultado=self.ghpPhys(valueGhp,grado)
+            if resultado==1:
+                if self.ghpSky(valueGhp):
+                    if grado<75:
+                        if self.coheP1(valueGhp,valueDHp,valueDNp,grado):
+                            if self.coheP3(valueGhp,valueDHp):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheP2(valueGhp,valueDHp,valueDNp,grado):
+                                if self.coheP4(valueGhp,valueDHp):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+            
     #Physical limits
     def ghpPhys(self,value,fecha):
         date = self.dates(fecha)
@@ -396,54 +437,118 @@ class Calculadora:
         else:
             return False
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghpSky(self,value,fecha):
+    def ghpSky(self,value):
         max=(46.5325*self.m**2-1738.11*self.m+48907.2)/(4.78443*self.m**2+89.17*self.m+1)
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<85 and value<=max:
+        if value<=max:
              return True
         else:
             return False
 
     #DHP:	diffuse horizontal PAR irradiance.
-    #Physical limits
-    def dhpPhys(self,value,fecha):
-        date = self.dates(fecha)
-        max=self.dnp0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+20
-        if value>-0 and value<=max:
-             return True
-        else:
-            return False
-    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhpSky(self,latitud,longitud,fecha):
-        value=(-0.489631*self.m**2+17.4211*self.m+51.858)/(0.0575636*self.m**2+0.671139*self.m+1)
+    def comprobardhp(self,valueGhp,valueDHp,valueDNp,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<85 and value<=max:
+        if grado>85:
+            return 0
+        else:
+            resultado=self.dhpPhys(valueDHp,grado)
+            if resultado==1 :
+                if self.dhpSky(valueDHp):
+                    if grado<75:
+                        if self.coheP1(valueGhp,valueDHp,valueDNp,grado):
+                            if self.coheP3(valueGhp,valueDHp):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheP2(valueGhp,valueDHp,valueDNp,grado):
+                                if self.coheP4(valueGhp,valueDHp):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    #Physical limits
+    def dhpPhys(self,value,grado):
+        max=self.dnp0*0.95*(math.cos(grado)**1.2)+20
+        if value>-0:
+            if value<=max:
+                return 1
+            else:
+                return 3
+        else:
+            return 2
+    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
+    def dhpSky(self,value):
+        max=(-0.489631*self.m**2+17.4211*self.m+51.858)/(0.0575636*self.m**2+0.671139*self.m+1)
+        if value<=max:
              return True
         else:
             return False
 
     #DNP:	direct normal PAR irradiance.
-    #Physical limits
-    def dnpPhys(self,value):
-        if value>-0 and value<=self.dnp0:
-            return True
-    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dnpSky(self,value,fecha):
-        max=(0.171991*self.m**2-9.88174*self.m+532.694)/(0.00732718*self.m**2+0.13576*self.m+1)
+    def comprobardnp(self,valueGhp,valueDHp,valueDNp,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<85 and value<=max:
+        if grado>85:
+            return 0
+        else:
+            resultado=self.dnpPhys(valueDNp)
+            if resultado==1:
+                if self.dnpSky(valueDNp):
+                    if grado<75:
+                        if self.coheP1(valueGhp,valueDHp,valueDNp,grado):
+                            if self.coheP3(valueGhp,valueDHp):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheP2(valueGhp,valueDHp,valueDNp,grado):
+                                if self.coheP4(valueGhp,valueDHp):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    #Physical limits
+    def dnpPhys(self,value):
+        if value>-0:
+            if value<=self.dnp0:
+                return 1
+            else:
+                return 3
+        else:
+            return 2
+    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
+    def dnpSky(self,value):
+        max=(0.171991*self.m**2-9.88174*self.m+532.694)/(0.00732718*self.m**2+0.13576*self.m+1)
+       
+        if value<=max:
              return True
         else:
             return False
 
     #coherence between measurements of the PAR irradiance
-    def coheP1(self,ghp,dhp,dnp,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghp>20:
+    def coheP1(self,ghp,dhp,dnp,angle):
+        if ghp>20:
             return False
         value=ghp/((dhp+dnp*math.cos(angle) ) )
         if value>0.92 and value<1.08:
@@ -451,10 +556,8 @@ class Calculadora:
         else:
             return False
         
-    def coheP2(self,ghp,dhp,dnp,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghp>20:
+    def coheP2(self,ghp,dhp,dnp,angle):
+        if   ghp>20:
             return False
         value=ghp/((dhp+dnp*math.cos(angle) ) )
         if value>0.85 and value<1.15:
@@ -462,10 +565,8 @@ class Calculadora:
         else:
             return False    
 
-    def coheP3(self,ghp,dhp,dnp,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghp>20:
+    def coheP3(self,ghp,dhp):
+        if ghp>20:
             return False
         value=dhp/ghp
         if value<1.05:
@@ -473,10 +574,8 @@ class Calculadora:
         else:
             return False
             
-    def coheP4(self,ghp,dhp,dnp,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghp>20:
+    def coheP4(self,ghp,dhp):
+        if  ghp>20:
             return False
         value=dhp/ghp
         if  value<1.1:
