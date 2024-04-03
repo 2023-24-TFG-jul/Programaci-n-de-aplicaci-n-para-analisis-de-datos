@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.1.3
+#Versión:0.1.4
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -32,7 +32,7 @@ class Calculadora:
     def comprobarghi(self,valueGhi,valueDHi,valueDNi,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<0:
+        if grado>85:
             return 0
         else:
             resultado=self.ghiPhys(valueGhi,grado)
@@ -83,11 +83,11 @@ class Calculadora:
     def comprobardhi(self,valueGhi,valueDHi,valueDNi,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<0:
+        if grado>85:
             return 0
         else:
             resultado=self.dhiPhys(valueDHi,grado)
-            if resultado==1:
+            if resultado==1 :
                 if self.dhiSky(valueDHi,grado):
                     if grado<75:
                         if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
@@ -133,7 +133,7 @@ class Calculadora:
     def comprobardni(self,valueGhi,valueDHi,valueDNi,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado<0:
+        if grado>85:
             return 0
         else:
             resultado=self.dniPhys(valueDNi)
@@ -207,45 +207,149 @@ class Calculadora:
             return False 
           
     #GHIL:	global horizontal illuminance.
-    #Physical limits
-    def ghilPhys(self,value,fecha):
+    def comprobarghil(self,valueGhil,valueDHil,valueDNil,fecha):
         date = self.dates(fecha)
-        max=self.dnil0*1.5*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+10000
-        if value>0 and value<=max:
-             return True
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado>85:
+            return 0
         else:
-            return False
+            resultado=self.ghilPhys(valueGhil,grado)
+            if resultado==1:
+                if self.ghilSky(valueGhil,grado):
+                    if grado<75:
+                        if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
+                            if self.coheIl3(valueGhil,valueDHil):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheIl2(valueGhil,valueDHil,valueDNil,grado):
+                                if self.coheIl4(valueGhil,valueDHil):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    
+    #Physical limits
+    def ghilPhys(self,value,grado):
+        max=self.dnil0*1.5*(math.cos(grado)**1.2)+10000
+        if value>0: 
+            if value<=max:
+             return 1
+            else:
+                return 3
+        else:
+            return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghilSky(self,latitud,longitud,fecha):
+    def ghilSky(self,value,grado):
         return 0
  
     #DHIL:	diffuse horizontal illuminance.
-    #Physical limits
-    def dhilPhys(self,value,fecha):
+    def comprobardhi(self,valueGhil,valueDHil,valueDNil,fecha):
         date = self.dates(fecha)
-        max=self.dnil0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+5000
-        if value>0 and value<=max:
-             return True
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado>85:
+            return 0
         else:
-            return False
+            resultado=self.dhilPhys(valueDHil,grado)
+            if resultado==1 :
+                if self.dhilSky(valueDHil,grado):
+                    if grado<75:
+                        if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
+                            if self.coheIl3(valueGhil,valueDHil):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheIll2(valueGhil,valueDHil,valueDNil,grado):
+                                if self.coheIl4(valueGhil,valueDHil):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    #Physical limits
+    def dhilPhys(self,value,grado):
+        max=self.dnil0*0.95*(math.cos(grado)**1.2)+5000
+        if value>0:
+            if value<=max:
+             return 1
+            else:
+                return 3
+        else:
+            return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhilSky(self,latitud,longitud,fecha):
+    def dhilSky(self,value,grado):
         return 0
 
     #DNIL:	direct normal illuminance.
+    def comprobardni(self,valueGhil,valueDHil,valueDNil,fecha):
+        date = self.dates(fecha)
+        grado=get_altitude(self.latitude, self.longitude, date)
+        if grado>85:
+            return 0
+        else:
+            resultado=self.dnilPhys(valueDNil)
+            if resultado==1:
+                if self.dnilSky(valueDNil,grado):
+                    if grado<75:
+                        if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
+                            if self.coheIl3(valueGhil,valueDHil):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheIl2(valueGhil,valueDHil,valueDNil,grado):
+                                if self.coheIl4(valueGhil,valueDHil):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
     #Physical limits
     def dnilPhys(self,value):
-        if value>-0 and value<=self.dnil0:
-            return True
+        if value>-0:
+            if value<=self.dnil0:
+                return 1
+            else:
+                return 3
+        else:
+            return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dnilSky(self,latitud,longitud,fecha):
+    def dnilSky(self,value,grado):
         return 0
  
     #coherence between measurements of the illuminance
-    def coheIl1(self,ghil,dhil,dnil,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghil>5000:
+    def coheIl1(self,ghil,dhil,dnil,angle):
+        if ghil>5000:
             return False
         value=ghil/((dhil+dnil*math.cos(angle) ) )
         if value>0.92 and value<1.08:
@@ -253,10 +357,8 @@ class Calculadora:
         else:
             return False
         
-    def coheIl2(self,ghil,dhil,dnil,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghil>5000:
+    def coheIl2(self,ghil,dhil,dnil,angle):
+        if  ghil>5000:
             return False
         value=ghil/((dhil+dnil*math.cos(angle) ) )
         if value>0.85 and value<1.15:
@@ -264,10 +366,10 @@ class Calculadora:
         else:
             return False    
 
-    def coheIl3(self,ghil,dhil,dnil,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghil>5000:
+    def coheIl3(self,ghil,dhil):
+        
+        
+        if ghil>5000:
             return False
         value=dhil/ghil
         if value<1.05:
@@ -275,10 +377,8 @@ class Calculadora:
         else:
             return False
             
-    def coheIl4(self,ghil,dhil,dnil,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghil>5000:
+    def coheIl4(self,ghil,dhil):
+        if ghil>5000:
             return False
         value=dhil/ghil
         if  value<1.1:
