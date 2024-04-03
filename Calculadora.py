@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.1.1
+#Versión:0.1.2
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -40,7 +40,7 @@ class Calculadora:
                 if self.ghiSky(valueGhi,grado):
                     if grado<75:
                         if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
-                            if self.coheI3(valueGhi,valueDHi,valueDNi,grado):
+                            if self.coheI3(valueGhi,valueDHi):
                                 return 1
                             else:
                                 return 6
@@ -48,7 +48,7 @@ class Calculadora:
                             return 5
                     elif grado<93:
                             if self.coheI2(valueGhi,valueDHi,valueDNi,grado):
-                                if self.coheI4(valueGhi,valueDHi,valueDNi,grado):
+                                if self.coheI4(valueGhi,valueDHi):
                                     return 1
                                 else:
                                     return 6
@@ -61,6 +61,7 @@ class Calculadora:
                     
             else:
                 return resultado
+            
     
     def ghiPhys(self,value,altitude):
        
@@ -72,86 +73,102 @@ class Calculadora:
         else:
             return 3
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghiSky(self,value,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
+    def ghiSky(self,value,grado):
         if grado<85 and value<=self.ghiclear:
              return True
         else:
             return False
 
     #DHI:	diffuse horizontal irradiance.
-    #Physical limits
-    def dhiPhys(self,value,fecha):
-        date = self.dates(fecha)
-        max=self.dni0*0.95*(math.cos(get_altitude(self.latitude, self.longitude, date))**1.2)+50
-        if value>-4 and value<=max:
-             return True
-        else:
-            return False
-    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dhiSky(self,value,fecha):
+    def comprobardhi(self,valueGhi,valueDHi,valueDNi,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
+        if grado<0:
+            return 0
+        else:
+            resultado=self.dhiPhys(valueDHi,grado)
+            if resultado==1:
+                if self.dhiSky(valueDHi,grado):
+                    if grado<75:
+                        if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
+                            if self.coheI3(valueGhi,valueDHi):
+                                return 1
+                            else:
+                                return 6
+                        else:
+                            return 5
+                    elif grado<93:
+                            if self.coheI2(valueGhi,valueDHi,valueDNi,grado):
+                                if self.coheI4(valueGhi,valueDHi):
+                                    return 1
+                                else:
+                                    return 6
+                            else:
+                                return 5
+                    else:
+                        return 0
+                else:
+                    return 4
+                    
+            else:
+                return resultado
+    #Physical limits
+    def dhiPhys(self,value,grado):
+        max=self.dni0*0.95*(math.cos(grado)**1.2)+50
+        if value>-4:
+            if value<=max:
+             return 1
+            else:
+                return 3
+        else:
+            return 2
+    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
+    def dhiSky(self,value,grado):
         if grado<85 and value<=self.ghiclear:
              return True
         else:
             return False
         
     #DNI:	direct normal irradiance.
+   
     #Physical limits
     def dniPhys(self,value):
-        if value>-4 and value<=self.dni0:
-            return True
+        if value>-4:
+            if value<=self.dni0:
+                return 1
+            else:
+                return 3
         else:
-            return False
+            return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def dniSky(self,value,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
+    def dniSky(self,value,grado):
         if grado<85 and value<=self.dniclear:
              return True
         else:
             return False
     #Coherence mesaurements de la irradiancia
-    def coheI1(self,ghi,dhi,dni,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle>75 and ghi<50:
-            return False
+    def coheI1(self,ghi,dhi,dni,angle):
         value=ghi/((dhi+dni*math.cos(angle) ) )
         if value>0.92 and value<1.08:
             return  True
         else:
             return False
         
-    def coheI2(self,ghi,dhi,dni,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghi>50:
-            return False
+    def coheI2(self,ghi,dhi,dni,angle):
         value=ghi/((dhi+dni*math.cos(angle) ) )
         if value>0.85 and value<1.15:
             return  True
         else:
             return False    
 
-    def coheI3(self,ghi,dhi,dni,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<75 and ghi>50:
-            return False
+    def coheI3(self,ghi,dhi):
         value=dhi/ghi
         if value<1.05:
             return  True
         else:
             return False
             
-    def coheI4(self,ghi,dhi,dni,fecha):
-        date = self.dates(fecha)
-        angle=get_altitude(self.latitude, self.longitude, date)
-        if angle<93 and angle>75 and  ghi>50:
-            return False
+    def coheI4(self,ghi,dhi):
         value=dhi/ghi
         if  value<1.1:
             return  True
