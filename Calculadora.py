@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.1.6
+#Versión:0.2.0
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -29,26 +29,26 @@ class Calculadora:
         minuto=int(str(fecha)[14:16])
         return datetime.datetime(año, mes, dia, hora, minuto, tzinfo=datetime.timezone.utc)
     
-    def comprobarghi(self,valueGhi,valueDHi,valueDNi,fecha):
+    def comprobar (self,valuePrin,funPhys,funSky,cohe1,cohe2,cohe3,cohe4,valueGH,valueDH,valueDN,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
         if grado>85:
             return 0
         else:
-            resultado=self.ghiPhys(valueGhi,grado)
+            resultado=funPhys(valuePrin,grado)
             if resultado==1:
-                if self.ghiSky(valueGhi):
+                if funSky(valuePrin):
                     if grado<75:
-                        if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
-                            if self.coheI3(valueGhi,valueDHi):
+                        if cohe1(valueGH,valueDH,valueDN,grado):
+                            if cohe3(valueGH,valueDH):
                                 return 1
                             else:
                                 return 6
                         else:
                             return 5
                     elif grado<93:
-                            if self.coheI2(valueGhi,valueDHi,valueDNi,grado):
-                                if self.coheI4(valueGhi,valueDHi):
+                            if cohe2(valueGH,valueDH,valueDN,grado):
+                                if cohe4(valueGH,valueDH):
                                     return 1
                                 else:
                                     return 6
@@ -61,6 +61,9 @@ class Calculadora:
                     
             else:
                 return resultado
+            
+    def comprobarghi(self,valueGhi,valueDHi,valueDNi,fecha):
+        return self.comprobar(valueGhi,self.ghiPhys,self.ghiSky,self.coheI1,self.coheI2,self.coheI3,self.coheI4,valueGhi,valueDHi,valueDNi,fecha)
             
     
     def ghiPhys(self,value,altitude):
@@ -81,37 +84,8 @@ class Calculadora:
 
     #DHI:	diffuse horizontal irradiance.
     def comprobardhi(self,valueGhi,valueDHi,valueDNi,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dhiPhys(valueDHi,grado)
-            if resultado==1 :
-                if self.dhiSky(valueDHi):
-                    if grado<75:
-                        if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
-                            if self.coheI3(valueGhi,valueDHi):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheI2(valueGhi,valueDHi,valueDNi,grado):
-                                if self.coheI4(valueGhi,valueDHi):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueDHi,self.dhiPhys,self.dhiSky,self.coheI1,self.coheI2,self.coheI3,self.coheI4,valueGhi,valueDHi,valueDNi,fecha)
+    
     #Physical limits
     def dhiPhys(self,value,grado):
         max=self.dni0*0.95*(math.cos(grado)**1.2)+50
@@ -131,37 +105,8 @@ class Calculadora:
         
     #DNI:	direct normal irradiance.
     def comprobardni(self,valueGhi,valueDHi,valueDNi,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dniPhys(valueDNi)
-            if resultado==1:
-                if self.dniSky(valueDNi):
-                    if grado<75:
-                        if self.coheI1(valueGhi,valueDHi,valueDNi,grado):
-                            if self.coheI3(valueGhi,valueDHi):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheI2(valueGhi,valueDHi,valueDNi,grado):
-                                if self.coheI4(valueGhi,valueDHi):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueDNi,self.dniPhys,self.dniSky,self.coheI1,self.coheI2,self.coheI3,self.coheI4,valueGhi,valueDHi,valueDNi,fecha)
+    
     #Physical limits
     def dniPhys(self,value):
         if value>-4:
@@ -216,37 +161,7 @@ class Calculadora:
           
     #GHIL:	global horizontal illuminance.
     def comprobarghil(self,valueGhil,valueDHil,valueDNil,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.ghilPhys(valueGhil,grado)
-            if resultado==1:
-                if self.ghilSky(valueGhil):
-                    if grado<75:
-                        if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
-                            if self.coheIl3(valueGhil,valueDHil):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheIl2(valueGhil,valueDHil,valueDNil,grado):
-                                if self.coheIl4(valueGhil,valueDHil):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueGhil,self.ghilPhys,self.ghilSky,self.coheIl1,self.coheIl2,self.coheIl3,self.coheIl4,valueGhil,valueDHil,valueDNil,fecha)
     
     #Physical limits
     def ghilPhys(self,value,grado):
@@ -260,41 +175,12 @@ class Calculadora:
             return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghilSky(self,value):
-        return 0
+        return True
  
     #DHIL:	diffuse horizontal illuminance.
     def comprobardhil(self,valueGhil,valueDHil,valueDNil,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dhilPhys(valueDHil,grado)
-            if resultado==1 :
-                if self.dhilSky(valueDHil):
-                    if grado<75:
-                        if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
-                            if self.coheIl3(valueGhil,valueDHil):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheIll2(valueGhil,valueDHil,valueDNil,grado):
-                                if self.coheIl4(valueGhil,valueDHil):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueDHil,self.dhilPhys,self.dhilSky,self.coheIl1,self.coheIl2,self.coheIl3,self.coheIl4,valueGhil,valueDHil,valueDNil,fecha)
+    
     #Physical limits
     def dhilPhys(self,value,grado):
         max=self.dnil0*0.95*(math.cos(grado)**1.2)+5000
@@ -307,41 +193,12 @@ class Calculadora:
             return 2
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhilSky(self,value):
-        return 0
+        return True
 
     #DNIL:	direct normal illuminance.
     def comprobardnil(self,valueGhil,valueDHil,valueDNil,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dnilPhys(valueDNil)
-            if resultado==1:
-                if self.dnilSky(valueDNil):
-                    if grado<75:
-                        if self.coheIl1(valueGhil,valueDHil,valueDNil,grado):
-                            if self.coheIl3(valueGhil,valueDHil):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheIl2(valueGhil,valueDHil,valueDNil,grado):
-                                if self.coheIl4(valueGhil,valueDHil):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueDNil,self.dnilPhys,self.dnilSky,self.coheIl1,self.coheIl2,self.coheIl3,self.coheIl4,valueGhil,valueDHil,valueDNil,fecha)
+    
     #Physical limits
     def dnilPhys(self,value):
         if value>-0:
@@ -396,37 +253,7 @@ class Calculadora:
     
     #GHP:	global horizontal PAR irradiance.
     def comprobarghp(self,valueGhp,valueDHp,valueDNp,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.ghpPhys(valueGhp,grado)
-            if resultado==1:
-                if self.ghpSky(valueGhp):
-                    if grado<75:
-                        if self.coheP1(valueGhp,valueDHp,valueDNp,grado):
-                            if self.coheP3(valueGhp,valueDHp):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheP2(valueGhp,valueDHp,valueDNp,grado):
-                                if self.coheP4(valueGhp,valueDHp):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueGhp,self.ghpPhys,self.ghpSky,self.coheP1,self.coheP2,self.coheP3,self.coheP4,valueGhp,valueDHp,valueDNp,fecha)
             
     #Physical limits
     def ghpPhys(self,value,fecha):
@@ -446,37 +273,8 @@ class Calculadora:
 
     #DHP:	diffuse horizontal PAR irradiance.
     def comprobardhp(self,valueGhp,valueDHp,valueDNp,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dhpPhys(valueDHp,grado)
-            if resultado==1 :
-                if self.dhpSky(valueDHp):
-                    if grado<75:
-                        if self.coheP1(valueGhp,valueDHp,valueDNp,grado):
-                            if self.coheP3(valueGhp,valueDHp):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheP2(valueGhp,valueDHp,valueDNp,grado):
-                                if self.coheP4(valueGhp,valueDHp):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+       return self.comprobar(valueDHp,self.dhpPhys,self.dhpSky,self.coheP1,self.coheP2,self.coheP3,self.coheP4,valueGhp,valueDHp,valueDNp,fecha)
+    
     #Physical limits
     def dhpPhys(self,value,grado):
         max=self.dnp0*0.95*(math.cos(grado)**1.2)+20
@@ -497,37 +295,8 @@ class Calculadora:
 
     #DNP:	direct normal PAR irradiance.
     def comprobardnp(self,valueGhp,valueDHp,valueDNp,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dnpPhys(valueDNp)
-            if resultado==1:
-                if self.dnpSky(valueDNp):
-                    if grado<75:
-                        if self.coheP1(valueGhp,valueDHp,valueDNp,grado):
-                            if self.coheP3(valueGhp,valueDHp):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheP2(valueGhp,valueDHp,valueDNp,grado):
-                                if self.coheP4(valueGhp,valueDHp):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueDNp,self.dnpPhys,self.dnpSky,self.coheP1,self.coheP2,self.coheP3,self.coheP4,valueGhp,valueDHp,valueDNp,fecha)
+    
     #Physical limits
     def dnpPhys(self,value):
         if value>-0:
@@ -587,37 +356,8 @@ class Calculadora:
     #GHUV:	global horizontal UV irradiance.
     
     def comprobarghuv(self,valueGhuv,valueDHuv,valueDNuv,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.ghuvPhys(valueGhuv,fecha)
-            if resultado==1:
-                if self.ghuvSky(valueGhuv,fecha):
-                    if grado<75:
-                        if self.coheUv1(valueGhuv,valueDHuv,valueDNuv,fecha):
-                            if self.coheUv3(valueGhuv,valueDHuv):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheUv2(valueGhuv,valueDHuv,valueDNuv,fecha):
-                                if self.coheUv4(valueGhuv,valueDHuv):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueGhuv,self.ghuvPhys,self.ghuvSky,self.coheUv1,self.coheUv2,self.coheUv3,self.coheUv4,valueGhuv,valueDHuv,valueDNuv,fecha)
+    
     #Physical limits
     def ghuvPhys(self,value,grado):
         max=self.dnuv0*1.5*(math.cos(grado)**1.2)+5
@@ -638,37 +378,8 @@ class Calculadora:
 
     #DHUV:	diffuse horizontal UV irradiance.
     def comprobardhuv(self,valueGhuv,valueDHuv,valueDNuv,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dhuvPhys(valueDHuv,fecha)
-            if resultado==1:
-                if self.dhuvSky(valueDHuv,fecha):
-                    if grado<75:
-                        if self.coheUv1(valueGhuv,valueDHuv,valueDNuv,fecha):
-                            if self.coheUv3(valueGhuv,valueDHuv):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheUv2(valueGhuv,valueDHuv,valueDNuv,fecha):
-                                if self.coheUv4(valueGhuv,valueDHuv):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueDHuv,self.dhuvPhys,self.dhuvSky,self.coheUv1,self.coheUv2,self.coheUv3,self.coheUv4,valueGhuv,valueDHuv,valueDNuv,fecha)
+    
     #Physical limits
     def dhuvPhys(self,value,grado):
         max=self.dnuv0*0.95*(math.cos(grado)**1.2)+2
@@ -690,37 +401,8 @@ class Calculadora:
 
     #DNUV:	direct normal UV irradiance.+
     def comprobardnuv(self,valueGhuv,valueDHuv,valueDNuv,fecha):
-        date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
-            return 0
-        else:
-            resultado=self.dnuvPhys(valueDNuv)
-            if resultado==1:
-                if self.dnuvSky(valueDNuv,fecha):
-                    if grado<75:
-                        if self.coheUv1(valueGhuv,valueDHuv,valueDNuv,fecha):
-                            if self.coheUv3(valueGhuv,valueDHuv):
-                                return 1
-                            else:
-                                return 6
-                        else:
-                            return 5
-                    elif grado<93:
-                            if self.coheUv2(valueGhuv,valueDHuv,valueDNuv,fecha):
-                                if self.coheUv4(valueGhuv,valueDHuv):
-                                    return 1
-                                else:
-                                    return 6
-                            else:
-                                return 5
-                    else:
-                        return 0
-                else:
-                    return 4
-                    
-            else:
-                return resultado
+        return self.comprobar(valueDNuv,self.dnuvPhys,self.dnuvSky,self.coheUv1,self.coheUv2,self.coheUv3,self.coheUv4,valueGhuv,valueDHuv,valueDNuv,fecha)
+    
     #Physical limits
     def dnuvPhys(self,value):
         if value>-0:
