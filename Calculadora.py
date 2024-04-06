@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.1
+#Versión:0.2.2
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -46,12 +46,25 @@ class Calculadora:
                 return 3
         else:
             return 2
-    #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
-    def ghiSky(self,value):
-        if value<=self.ghiclear:
-             return True
+        
+    def coheGen1(self,gh,dh,dn,angle,max,min,valueMin):
+        if gh<valueMin:
+            return False
+        value=gh/((dh+dn*math.cos(angle) ) )
+        if value>min and value<max:
+            return  True
         else:
             return False
+    
+    def coheGen2(self,gh,dh,max,valueMin):
+        if gh<valueMin:
+            return False
+        value=dh/gh
+        if value<max:
+            return  True
+        else:
+            return False
+
     def comprobar (self,valuePrin,funPhys,funSky,cohe1,cohe2,cohe3,cohe4,valueGH,valueDH,valueDN,fecha):
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
@@ -129,40 +142,17 @@ class Calculadora:
             return False
     #Coherence mesaurements de la irradiancia
     def coheI1(self,ghi,dhi,dni,angle):
-        if ghi<50:
-            return False
-        value=ghi/((dhi+dni*math.cos(angle) ) )
-        if value>0.92 and value<1.08:
-            return  True
-        else:
-            return False
+        return self.coheGen1(ghi,dhi,dni,angle,1.08,0.92,50)
+        
         
     def coheI2(self,ghi,dhi,dni,angle):
-        if ghi<50:
-            return False
-        value=ghi/((dhi+dni*math.cos(angle) ) )
-        if value>0.85 and value<1.15:
-            return  True
-        else:
-            return False    
+        return self.coheGen1(ghi,dhi,dni,angle,1.15,0.85,50) 
 
     def coheI3(self,ghi,dhi):
-        if ghi<50:
-            return False
-        value=dhi/ghi
-        if value<1.05:
-            return  True
-        else:
-            return False
+        return self.coheGen2(ghi,dhi,1.05,50)
             
     def coheI4(self,ghi,dhi):
-        if ghi<50:
-            return False
-        value=dhi/ghi
-        if  value<1.1:
-            return  True
-        else:
-            return False 
+        return self.coheGen2(ghi,dhi,1.1,50)
           
     #GHIL:	global horizontal illuminance.
     def comprobarghil(self,valueGhil,valueDHil,valueDNil,fecha):
@@ -201,43 +191,17 @@ class Calculadora:
  
     #coherence between measurements of the illuminance
     def coheIl1(self,ghil,dhil,dnil,angle):
-        if ghil>5000:
-            return False
-        value=ghil/((dhil+dnil*math.cos(angle) ) )
-        if value>0.92 and value<1.08:
-            return  True
-        else:
-            return False
-        
+        return self.coheGen1(ghil,dhil,dnil,angle,1.08,0.92,5000)
+             
     def coheIl2(self,ghil,dhil,dnil,angle):
-        if  ghil>5000:
-            return False
-        value=ghil/((dhil+dnil*math.cos(angle) ) )
-        if value>0.85 and value<1.15:
-            return  True
-        else:
-            return False    
-
+        return self.coheGen1(ghil,dhil,dnil,angle,1.15,0.85,5000)
+        
     def coheIl3(self,ghil,dhil):
-        
-        
-        if ghil>5000:
-            return False
-        value=dhil/ghil
-        if value<1.05:
-            return  True
-        else:
-            return False
-            
+        return self.coheGen2(ghil,dhil,1.05,5000)
+   
     def coheIl4(self,ghil,dhil):
-        if ghil>5000:
-            return False
-        value=dhil/ghil
-        if  value<1.1:
-            return  True
-        else:
-            return False 
-    
+        return self.coheGen2(ghil,dhil,1.1,5000)
+
     #GHP:	global horizontal PAR irradiance.
     def comprobarghp(self,valueGhp,valueDHp,valueDNp,fecha):
         return self.comprobar(valueGhp,self.ghpPhys,self.ghpSky,self.coheP1,self.coheP2,self.coheP3,self.coheP4,valueGhp,valueDHp,valueDNp,fecha)
@@ -288,41 +252,17 @@ class Calculadora:
 
     #coherence between measurements of the PAR irradiance
     def coheP1(self,ghp,dhp,dnp,angle):
-        if ghp>20:
-            return False
-        value=ghp/((dhp+dnp*math.cos(angle) ) )
-        if value>0.92 and value<1.08:
-            return  True
-        else:
-            return False
+        return  self.coheGen1(ghp,dhp,dnp,angle,1.08,0.92,20)
+        
         
     def coheP2(self,ghp,dhp,dnp,angle):
-        if   ghp>20:
-            return False
-        value=ghp/((dhp+dnp*math.cos(angle) ) )
-        if value>0.85 and value<1.15:
-            return  True
-        else:
-            return False    
+        return self.coheGen1(ghp,dhp,dnp,angle,1.15,0.85,20)   
 
     def coheP3(self,ghp,dhp):
-        if ghp>20:
-            return False
-        value=dhp/ghp
-        if value<1.05:
-            return  True
-        else:
-            return False
+        return self.coheGen2(ghp,dhp,1.05,20)
             
     def coheP4(self,ghp,dhp):
-        if  ghp>20:
-            return False
-        value=dhp/ghp
-        if  value<1.1:
-            return  True
-        else:
-            return False 
-          
+        return self.coheGen2(ghp,dhp,1.1,20)
   
     #GHUV:	global horizontal UV irradiance.
     
@@ -357,7 +297,6 @@ class Calculadora:
         else:
             return False
     
-
     #DNUV:	direct normal UV irradiance.+
     def comprobardnuv(self,valueGhuv,valueDHuv,valueDNuv,fecha):
         return self.comprobar(valueDNuv,self.dnuvPhys,self.dnuvSky,self.coheUv1,self.coheUv2,self.coheUv3,self.coheUv4,valueGhuv,valueDHuv,valueDNuv,fecha)
@@ -375,38 +314,14 @@ class Calculadora:
         
     #coherence between measurements of the UV irradiance
     def coheUv1(self,ghuv,dhuv,dnuv,angle):
-        if ghuv>2:
-            return False
-        value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
-        if value>0.92 and value<1.08:
-            return  True
-        else:
-            return False
+        return self.coheGen1(ghuv,dhuv,dnuv,angle,1.08,0.92,2)#Comprobar que es 2
         
     def coheUv2(self,ghuv,dhuv,dnuv,angle):
-        if  ghuv>20:
-            return False
-        value=ghuv/((dhuv+dnuv*math.cos(angle) ) )
-        if value>0.85 and value<1.15:
-            return  True
-        else:
-            return False    
+        return self.coheGen1(ghuv,dhuv,dnuv,angle,1.15,0.85,20) 
 
     def coheUv3(self,ghuv,dhuv):
-        if ghuv>20:
-            return False
-        value=dhuv/ghuv
-        if value<1.05:
-            return  True
-        else:
-            return False
+        return self.coheGen2(ghuv,dhuv,1.05,20)
             
     def coheUv4(self,ghuv,dhuv):
-        if  ghuv>20:
-            return False
-        value=dhuv/ghuv
-        if  value<1.1:
-            return  True
-        else:
-            return False 
+        return self.coheGen2(ghuv,dhuv,1.1,20) 
           
