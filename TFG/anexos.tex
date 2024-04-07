@@ -5,7 +5,7 @@
 \selectlanguage{spanish}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern} % Scalable font
+\usepackage{lmodern} % scalable font
 \usepackage{microtype}
 \usepackage{placeins}
 
@@ -33,39 +33,33 @@
 \widowpenalty100000
 \clubpenalty100000
 
-% Imágenes
+% Evitar solapes en el header
+\nouppercaseheads
 
-% Comando para insertar una imagen en un lugar concreto.
-% Los parámetros son:
-% 1 --> Ruta absoluta/relativa de la figura
-% 2 --> Texto a pie de figura
-% 3 --> Tamaño en tanto por uno relativo al ancho de página
+% Imagenes
 \usepackage{graphicx}
-\newcommand{\imagen}[3]{
+\newcommand{\imagen}[2]{
 	\begin{figure}[!h]
 		\centering
-		\includegraphics[width=#3\textwidth]{#1}
+		\includegraphics[width=0.9\textwidth]{#1}
 		\caption{#2}\label{fig:#1}
 	\end{figure}
 	\FloatBarrier
 }
 
-% Comando para insertar una imagen sin posición.
-% Los parámetros son:
-% 1 --> Ruta absoluta/relativa de la figura
-% 2 --> Texto a pie de figura
-% 3 --> Tamaño en tanto por uno relativo al ancho de página
-\newcommand{\imagenflotante}[3]{
-	\begin{figure}
+\newcommand{\imagenflotante}[2]{
+	\begin{figure}%[!h]
 		\centering
-		\includegraphics[width=#3\textwidth]{#1}
+		\includegraphics[width=0.9\textwidth]{#1}
 		\caption{#2}\label{fig:#1}
 	\end{figure}
 }
 
+
+
 % El comando \figura nos permite insertar figuras comodamente, y utilizando
 % siempre el mismo formato. Los parametros son:
-% 1 --> Porcentaje del ancho de página que ocupará la figura (de 0 a 1)
+% 1 -> Porcentaje del ancho de página que ocupará la figura (de 0 a 1)
 % 2 --> Fichero de la imagen
 % 3 --> Texto a pie de imagen
 % 4 --> Etiqueta (label) para referencias
@@ -121,6 +115,10 @@
   \end{center}
  \end{table}
 }
+
+%
+%Para el float H de tablaSmallSinColores
+\usepackage{float}
 
 %
 % Nuevo comando para tablas pequeñas (menos de una página).
@@ -285,6 +283,7 @@
 
 
 
+
 \graphicspath{ {./img/} }
 
 % Capítulos
@@ -294,8 +293,8 @@
 	\setcounter{section}{0}
 	\setcounter{figure}{0}
 	\setcounter{table}{0}
-	\chapter*{\thechapter.\enskip #2}
-	\addcontentsline{toc}{chapter}{\thechapter.\enskip #2}
+	\chapter*{#2}
+	\addcontentsline{toc}{chapter}{#2}
 	\markboth{#2}{#2}
 }
 
@@ -352,12 +351,11 @@
   }
 \makeatother
 
-\newcommand{\nombre}{Álvaro Villar Val} %%% cambio de comando
 
 % Datos de portada
-\title{título del TFG}
-\author{\nombre}
-\tutor{Carlos Cambra Baseca}
+\title{título del TFG \\Documentación Técnica}
+\author{nombre alumno}
+\tutor{nombre tutor}
 \date{\today}
 
 \begin{document}
@@ -365,83 +363,17 @@
 \maketitle
 
 
-\newpage\null\thispagestyle{empty}\newpage
+
+\cleardoublepage
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\thispagestyle{empty}
-
-
-\noindent\includegraphics[width=\textwidth]{cabecera}\vspace{1cm}
-
-\noindent D. Carlos Cambra, profesor del departamento de Digitalización, área de Ciencia de la Computación e Inteligencia Artificial.
-
-\noindent Expone:
-
-\noindent Que el alumno D. \nombre, con DNI 71303408G, ha realizado el Trabajo final de Grado en Ingeniería Informática titulado desarrollo de aplicación de base de datos para central meteorologica. 
-
-\noindent Y que dicho trabajo ha sido realizado por el alumno bajo la dirección del que suscribe, en virtud de lo cual se autoriza su presentación y defensa.
-
-\begin{center} %\large
-En Burgos, {\large \today}
-\end{center}
-
-\vfill\vfill\vfill
-
-% Author and supervisor
-\begin{minipage}{0.45\textwidth}
-\begin{flushleft} %\large
-Vº. Bº. del Tutor:\\[2cm]
-D. Carlos Cambra Baseca
-\end{flushleft}
-\end{minipage}
-\hfill
-\begin{minipage}{0.45\textwidth}
-\begin{flushleft} %\large
-Vº. Bº. del co-tutor:\\[2cm]
-D. Ángel Arroyo Puente
-\end{flushleft}
-\end{minipage}
-\hfill
-
-\vfill
-
-% para casos con solo un tutor comentar lo anterior
-% y descomentar lo siguiente
-%Vº. Bº. del Tutor:\\[2cm]
-%D. nombre tutor
-
-
-\newpage\null\thispagestyle{empty}\newpage
-
 
 
 
 \frontmatter
 
-% Abstract en castellano
-\renewcommand*\abstractname{Resumen}
-\begin{abstract}
-Programar una aplicación que convierta los datos obtenidos de una central meteorológica a una base de datos. Luego la misma aplicación procesara los datos y los almacenara en una nueva base de datos. Para esta segunda base de datos se programará también una interfaz de usuario que permitirá que los usuarios soliciten los datos disponibles en un periodo de tiempo determinado, y los ofrezca en diferentes formatos.
-\end{abstract}
-
-\renewcommand*\abstractname{Descriptores}
-\begin{abstract}
-  Bases de datos, UI, Analisis de datos, Datos meteorologicos, Programación de aplicacion, Python, Postgres, Graficos, Procesado de datos \ldots
-\end{abstract}
-
-\clearpage
-
-% Abstract en inglés
-\renewcommand*\abstractname{Abstract}
-\begin{abstract}
-  Program an application that converts the data obtained from a weather station to a database. Then the same application will process the data and store it in a new database. For this second database we will also program a user interface that will allow users to request the data available in a given period of time, and offer them in different formats.
-\end{abstract}
-
-\renewcommand*\abstractname{Keywords}
-\begin{abstract}
-  Databases, UI, Data Analysis, Meteorological Data, Application Programming, Python, Postgres, Graphics, Data Processing, Data Processing
-\end{abstract}
 
 \clearpage
 
@@ -455,19 +387,22 @@ Programar una aplicación que convierta los datos obtenidos de una central meteo
 \clearpage
 
 \listoftables
+
 \clearpage
 
 \mainmatter
-\include{./tex/1_Introduccion}
-\include{./tex/2_Objetivos_del_proyecto}
-\include{./tex/3_Conceptos_teoricos}
-\include{./tex/4_Tecnicas_y_herramientas}
-\include{./tex/5_Aspectos_relevantes_del_desarrollo_del_proyecto}
-\include{./tex/6_Trabajos_relacionados}
-\include{./tex/7_Conclusiones_Lineas_de_trabajo_futuras}
+
+\appendix
+
+\include{./tex/A_Plan_proyecto}
+\include{./tex/B_Requisitos}
+\include{./tex/C_Diseno}
+\include{./tex/D_Manual_programador}
+\include{./tex/E_Manual_usuario}
+\include{./tex/F_ODS}
 
 
 \bibliographystyle{plain}
-\bibliography{bibliografia}
+\bibliography{bibliografiaAnexos}
 
 \end{document}

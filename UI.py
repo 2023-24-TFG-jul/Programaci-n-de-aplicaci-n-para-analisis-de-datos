@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.4
+#Versión:0.4.5
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -104,22 +104,31 @@ class Desc(page):
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
+
+    def get_dates(self):
+        self.fechain = self.textboxIni.get('1.0', 'end').strip()
+        self.fechafi = self.textboxFin.get('1.0', 'end').strip()
+
 #TODO: hacer una función que devuelva las fechas pasadas por el usuario, y que lleguen hasta la variación 2
 class DescBase(Desc):
     def __init__(self, master,titulo,tabla):
         self.tabla=tabla
         Desc.__init__(self, master,titulo)
         self.bd2=BaseDatosLvl2()
-        self.fechaini=Desc.textboxIni
-        self.fechafin=Desc.textboxFin
+
+
+   
     ###########################################################################################################################################
       
-    
+    #23-11-12
     def descDat(self):
-        self.fechaini=self.fechaini.replace('\n','')
-        self.fechafin=self.fechafin.replace('\n','')
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
         try:
-            Desc.bd2.descdat("*",self.tabla,self.fechaini,self.fechafin)
+            self.bd2.descdat("*",self.tabla,self.fechaini,self.fechafin)
+
+    
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
@@ -152,8 +161,10 @@ class DescVar1(DescBase):
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
-        self.fechaini=self.fechaini.replace('\n','')
-        self.fechafin=self.fechafin.replace('\n','')
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
+
         checked_columns = [column for column, var in self.vars.items() if var.get()]
         columnas=",".join(checked_columns)
         print(columnas)
@@ -175,11 +186,12 @@ class DescVar2(DescVar1):
     ###########################################################################################################################################
     def graficar(self):
         checked_columns = [column for column, var in self.vars.items() if var.get()]
-        fechaini=DescVar1.fechaini
-        fechaini=fechaini.replace('\n','')
-        fechafin=DescVar1.fechafin
-        fechafin=fechafin.replace('\n','')
-        dataframe=self.bd2.obtenerdat("*",self.tabla,fechaini,fechafin)
+
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
+        dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
+
         plt.figure(figsize=(10, 6))  # Create a new figure with custom size
         for column in checked_columns:
             plt.plot(dataframe[column], label=column)  # Plot each column
@@ -219,7 +231,9 @@ class DescSkyscanner(DescBase):
     ###########################################################################################################################################
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla Skyscanner","skyscanner")
-        tk.Button(self, text="Descargar", font=('Arial', 18), command=DescBase.descDat).pack(padx=10, pady=10)
+
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
     ###########################################################################################################################################
 #########################################################################################################################
@@ -231,7 +245,9 @@ class DescSkyscannerProc(DescBase):
     ###########################################################################################################################################
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla SkyScannerProc","skyscannerproc")
-        tk.Button(self, text="Descargar", font=('Arial', 18), command=DescBase.descDat).pack(padx=10, pady=10)
+
+        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
     ###########################################################################################################################################
 #########################################################################################################################
@@ -334,4 +350,3 @@ if __name__ == "__main__":
     app = UI()
     app.mainloop()
 #########################################################################################################################
-
