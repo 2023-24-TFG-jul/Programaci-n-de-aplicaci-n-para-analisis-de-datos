@@ -10,3 +10,13 @@ myenv
 .coverage
 coverage.xml
 Como Funciona la validación continiua.txt
+
+TFG
+
+TFG\TFG.aux
+TFG\TFG.fdb_latexmk
+TFG\TFG.fls
+TFG\TFG.log
+TFG\TFG.out
+TFG\TFG.synctex.gz
+TFG.toc
