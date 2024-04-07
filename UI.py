@@ -162,7 +162,6 @@ class DescVar1(DescBase):
         self.fechafin = self.fechafi.replace('\n','')
         checked_columns = [column for column, var in self.vars.items() if var.get()]
         columnas=",".join(checked_columns)
-        print(columnas)
         try:
             self.bd2.descdat(columnas,self.tabla,self.fechaini,self.fechafin)
         except sqlalchemy.exc.ProgrammingError:
