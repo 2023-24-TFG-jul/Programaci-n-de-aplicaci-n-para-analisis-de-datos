@@ -1,13 +1,15 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.4.4
+#Versión:0.5.0
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
 from BaseDatosLvl1 import BaseDatosLvl1
 import sqlalchemy #import para pasar los datos en bulk
 from sqlalchemy import create_engine #Import para pasar los datos en bulk
+import pandas as pd #Import para pasar los datos en bulk
+from Calculadora import Calculadora #Importamos la calculadora para poder hacer operaciones con los datos
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl2:
 
@@ -28,6 +30,7 @@ class BaseDatosLvl2:
         self.dataport=5432        #Puerto al que se conecta la base de datos
         self.conn=self.db1.conn #guardamos la connexión del primer nivel de datos ya que vamos a usar la misma base de datos
         self.cur=self.db1.cur   #guardamos a su vez el cursor de la base de datos
+        self.calc=Calculadora() #Inicializamos la calculadora para poder hacer operaciones con los datos
         #inicializamdos la conexopn que usara sqlAlchemy para operar en la base de datos
         conn_string = f'postgresql://{self.datauser}:{self.datapass}@{self.datahost}:{self.dataport}/{self.dataname}'
         self.engine = create_engine(conn_string)
@@ -125,11 +128,34 @@ class BaseDatosLvl2:
         return contrad,contcamera,contscanner
     ###########################################################################################################################################
     
+    #Definimos una función que procese los datos de la radio
+    ##########################################################################################################################################################
+    def procdatos(self,date,gHI,dHI,dNI,gHIL,dHIL,dNIL,gHP,dHP,dNP,gHUV,dHUV,dNUV):
+       
+        result="{}".format(self.calc.comprobarghi(gHI,dHI,dNI,date))
+        result=result+"{}".format(self.calc.comprobardhi(gHI,dHI,dNI,date))
+        result=result+"{}".format(self.calc.comprobardni(gHI,dHI,dNI,date))
+        result=result+"{}".format(self.calc.comprobarghil(gHIL,dHIL,dNIL,date))
+        result=result+"{}".format(self.calc.comprobardhil(gHIL,dHIL,dNIL,date))
+        result=result+"{}".format(self.calc.comprobardnil(gHIL,dHIL,dNIL,date))
+        result=result+"{}".format(self.calc.comprobarghp(gHP,dHP,dNP,date))
+        result=result+"{}".format(self.calc.comprobardhp(gHP,dHP,dNP,date))
+        result=result+"{}".format(self.calc.comprobardnp(gHP,dHP,dNP,date))
+        result=result+"{}".format(self.calc.comprobarghuv(gHUV,dHUV,dNUV,date))
+        result=result+"{}".format(self.calc.comprobardhuv(gHUV,dHUV,dNUV,date))
+        result=result+"{}".format(self.calc.comprobardnuv(gHUV,dHUV,dNUV,date))
+        return result
+    ##########################################################################################################################################################
+
     #Definimos la operación que añadira los nuevos datos procesados a la base de datos
     ##########################################################################################################################################################
     def actualizarRadio(self,df):
-        df['fallo']='0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
+        df['fallo']=df[['TIMESTAMP','BuRaGH_Avg', 'BuRaDH_Avg','BuRaB_Avg','BuLxGH_Avg','BuLxDH_Avg','BuLxB_Avg','BuPaGH_Avg','BuPaDH_Avg','BuPaB_Avg','BuUvGH_Avg',
+                        'BuUvDH_Avg','BuUvB_Avg']].apply(lambda row: self.procdatos(row['TIMESTAMP'],row['BuRaGH_Avg'], row['BuRaDH_Avg'], row['BuRaB_Avg'], row['BuLxGH_Avg'],
+                         row['BuLxDH_Avg'], row['BuLxB_Avg'], row['BuPaGH_Avg'], row['BuPaDH_Avg'], row['BuPaB_Avg'], row['BuUvGH_Avg'], row['BuUvDH_Avg'], row['BuUvB_Avg']), axis=1)
+        
         try:
+
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior)
             #,y el index a False que no recuerdo para que sirve pero ponlo
             df.to_sql('radioproc', con=self.engine, if_exists='append',index=False)

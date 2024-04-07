@@ -264,7 +264,7 @@ class DescImg(Desc):
     def __init__(self, master):
         Desc.__init__(self, master,"Descarga de imagenes")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descImg).pack(padx=10, pady=10)
-        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
         self.bd2=BaseDatosLvl2()
     ########################################################################################################################################
         
