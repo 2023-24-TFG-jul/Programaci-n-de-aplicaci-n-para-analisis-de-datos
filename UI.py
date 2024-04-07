@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.4
+#Versión:0.4.5
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -94,9 +94,8 @@ class DescDatos(page):
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
         self.bd2=BaseDatosLvl2()
 #########################################################################################################################
-class DescBase(page):
-    def __init__(self, master,titulo,tabla):
-        self.tabla=tabla
+class Desc(page):
+    def __init__(self, master,titulo):
         self.bd2=BaseDatosLvl2()
         page.__init__(self, master,titulo)
         tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
@@ -105,7 +104,33 @@ class DescBase(page):
         tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = tk.Text(self, height=1, width=20)
         self.textboxFin.pack()
-        
+
+    def get_dates(self):
+        self.fechain = self.textboxIni.get('1.0', 'end').strip()
+        self.fechafi = self.textboxFin.get('1.0', 'end').strip()
+#TODO: hacer una función que devuelva las fechas pasadas por el usuario, y que lleguen hasta la variación 2
+class DescBase(Desc):
+    def __init__(self, master,titulo,tabla):
+        self.tabla=tabla
+        Desc.__init__(self, master,titulo)
+        self.bd2=BaseDatosLvl2()
+        self.fechaini=""
+        self.fechafin=""
+
+   
+    ###########################################################################################################################################
+      
+    #23-11-12
+    def descDat(self):
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
+        try:
+            self.bd2.descdat("*",self.tabla,self.fechaini,self.fechafin)
+        except sqlalchemy.exc.ProgrammingError:
+            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
+                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+            
 
 class DescVar1(DescBase):
     def __init__(self, master,titulo,tabla):
@@ -125,36 +150,41 @@ class DescVar1(DescBase):
                 frame.pack(side="top")
             tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
 
-        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        
     ###########################################################################################################################################
 
     #Definimos una función para descargar datos
     ###########################################################################################################################################
     def descDat(self):
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
         checked_columns = [column for column, var in self.vars.items() if var.get()]
         columnas=",".join(checked_columns)
         print(columnas)
         try:
-            self.bd2.descdat(columnas,self.tabla,fechaini,fechafin)
+            self.bd2.descdat(columnas,self.tabla,self.fechaini,self.fechafin)
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
+    
+class DescVar2(DescVar1):
+    def __init__(self, master,titulo,tabla):
+        self.tabla=tabla
+        self.bd2=BaseDatosLvl2()
+        DescVar1.__init__(self, master,titulo,tabla)
+        tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
+        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()  
     #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
         checked_columns = [column for column, var in self.vars.items() if var.get()]
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        dataframe=self.bd2.obtenerdat("*",self.tabla,fechaini,fechafin)
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
+        dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
         plt.figure(figsize=(10, 6))  # Create a new figure with custom size
         for column in checked_columns:
             plt.plot(dataframe[column], label=column)  # Plot each column
@@ -168,224 +198,76 @@ class DescVar1(DescBase):
         
 #Definimos la clase de la pagina de descarga de datos de la tabla radio
 #########################################################################################################################
-class DescRadio(DescVar1):
+class DescRadio(DescVar2):
 
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        DescVar1.__init__(self, master,"Tabla Radio","radio")
+        DescVar2.__init__(self, master,"Tabla Radio","radio")
     ###########################################################################################################################################
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos de la tabla radio procesada
 #########################################################################################################################
-class DescRadioProc(DescVar1):
+class DescRadioProc(DescVar2):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        DescVar1.__init__(self, master,"Tabla RadioProc","radioproc")
+        DescVar2.__init__(self, master,"Tabla RadioProc","radioproc")
     ###########################################################################################################################################
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos de la tabla skyscanner
 #############################################################################################################################################
-class DescSkyscanner(tk.Frame):
+class DescSkyscanner(DescBase):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        self.bd2=BaseDatosLvl2()
-        tk.Frame.__init__(self, master)
-        tk.Label(self,text="Tabla Skyscanner", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxIni = tk.Text(self, height=1, width=20)
-        self.textboxIni.pack()
-        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxFin = tk.Text(self, height=1, width=20)
-        self.textboxFin.pack()
+        DescBase.__init__(self, master,"Tabla Skyscanner","skyscanner")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-    ###########################################################################################################################################
-    
-    #Definimos una función para descargar datos
-    ###########################################################################################################################################
-    def descDat(self):
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        try:
-            self.bd2.descdat("*","skyscanner",fechaini,fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos de la tabla skyscanner procesada
 ###########################################################################################################################################
-class DescSkyscannerProc(tk.Frame):
+class DescSkyscannerProc(DescBase):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        self.bd2=BaseDatosLvl2()
-        tk.Frame.__init__(self, master)
-        tk.Label(self,text="Tabla SkyScannerProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxIni = tk.Text(self, height=1, width=20)
-        self.textboxIni.pack()
-        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxFin = tk.Text(self, height=1, width=20)
-        self.textboxFin.pack()
+        DescBase.__init__(self, master,"Tabla SkyScannerProc","skyscannerproc")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-    ###########################################################################################################################################
-    
-    #Definimos una función para descargar datos
-    ###########################################################################################################################################
-    def descDat(self):
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        try:
-            self.bd2.descdat("*","skyscannerproc",fechaini,fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
     ###########################################################################################################################################
 #########################################################################################################################
             
 #Definimos la clase de la pagina de descarga de datos de la tabla skycamera
 ###########################################################################################################################################
-class DescSkyCammera(tk.Frame):
+class DescSkyCammera(DescVar1):
 
     def __init__(self, master):
-        self.bd2=BaseDatosLvl2()
-        tk.Frame.__init__(self, master)
-        tk.Label(self,text="Tabla Skycamera", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxIni = tk.Text(self, height=1, width=20)
-        self.textboxIni.pack()
-        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxFin = tk.Text(self, height=1, width=20)
-        self.textboxFin.pack()
-        # Make a check mark to select each possible column in radio
-        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
-        self.bd2.cur.execute(colum, ("skycamera",))
-        columns = [column[0] for column in self.bd2.cur.fetchall()]
-        # Make a check mark to select each possible column in radio
-        num_columns = 4
-        self.vars = {column: tk.BooleanVar() for column in columns}
-        for i, column in enumerate(columns):
-            if i % num_columns == 0:
-                frame = tk.Frame(self)
-                frame.pack(side="top")
-            tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
-        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        DescVar1.__init__(self, master,"Tabla Skycamera","skycamera")
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
     ###########################################################################################################################################
-    
-    #Definimos una función para descargar datos
-    ###########################################################################################################################################
-    def descDat(self):
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        checked_columns = [column for column, var in self.vars.items() if var.get()]
-        columnas=",".join(checked_columns)
-        try:
-            self.bd2.descdat(columnas,"skycamera",fechaini,fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
-    ##########################################################################################################################################
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos de la tabla skycamera procesada
 ###########################################################################################################################################
-class DescSkyCammeraProc(tk.Frame):
+class DescSkyCammeraProc(DescVar2):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        self.bd2=BaseDatosLvl2()
-        tk.Frame.__init__(self, master)
-        tk.Label(self,text="Tabla SkyCameraProc", font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxIni = tk.Text(self, height=1, width=20)
-        self.textboxIni.pack()
-        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxFin = tk.Text(self, height=1, width=20)
-        self.textboxFin.pack()
-        # Make a check mark to select each possible column in radio
-        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
-        self.bd2.cur.execute(colum, ("skycameraproc",))
-        columns = [column[0] for column in self.bd2.cur.fetchall()]
-        # Make a check mark to select each possible column in radio
-        num_columns = 3
-        self.vars = {column: tk.BooleanVar() for column in columns}
-        for i, column in enumerate(columns):
-            if i % num_columns == 0:
-                frame = tk.Frame(self)
-                frame.pack(side="top")
-            tk.Checkbutton(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
-        tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        tk.Button(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
-        tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
-    ###########################################################################################################################################
-    
-    #Definimos una función para descargar datos
-    ###########################################################################################################################################
-    def descDat(self):
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        checked_columns = [column for column, var in self.vars.items() if var.get()]
-        columnas=",".join(checked_columns)
-        try:
-            self.bd2.descdat(columnas,"skycameraproc",fechaini,fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
-    ##########################################################################################################################################º
-
-    #Definimos una función para graficar los datos
-    ###########################################################################################################################################       
-    def graficar(self):
-        checked_columns = [column for column, var in self.vars.items() if var.get()]
-        fechaini=self.textboxIni.get('1.0',tk.END)
-        fechaini=fechaini.replace('\n','')
-        fechafin=self.textboxFin.get('1.0',tk.END)
-        fechafin=fechafin.replace('\n','')
-        dataframe=self.bd2.obtenerdat("*","skycameraproc",fechaini,fechafin)
-        plt.figure(figsize=(10, 6))  # Create a new figure with custom size
-        for column in checked_columns:
-            plt.plot(dataframe[column], label=column)  # Plot each column
-        plt.xlabel('X-axis')
-        plt.ylabel('Y-axis')
-        plt.title('Graph of Columns')
-        plt.legend()  # Show legend with column names
-        plt.show()  # Display the graph
+        DescVar2.__init__(self, master,"Tabla SkyCameraProc","skycameraproc")
     ###########################################################################################################################################
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de imagenes
 #########################################################################################################################
-class DescImg(tk.Frame):
+class DescImg(Desc):
     #Definimos el constructor de la clase
     ########################################################################################################################################
     def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        tk.Label(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
-        tk.Label(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxIni = tk.Text(self, height=1, width=20)
-        self.textboxIni.pack()
-        tk.Label(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
-        self.textboxFin = tk.Text(self, height=1, width=20)
-        self.textboxFin.pack()
+        Desc.__init__(self, master,"Descarga de imagenes")
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descImg).pack(padx=10, pady=10)
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
         self.bd2=BaseDatosLvl2()
