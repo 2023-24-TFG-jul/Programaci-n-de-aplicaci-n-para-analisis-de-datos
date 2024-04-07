@@ -108,14 +108,14 @@ class Desc(page):
     def get_dates(self):
         self.fechain = self.textboxIni.get('1.0', 'end').strip()
         self.fechafi = self.textboxFin.get('1.0', 'end').strip()
+
 #TODO: hacer una función que devuelva las fechas pasadas por el usuario, y que lleguen hasta la variación 2
 class DescBase(Desc):
     def __init__(self, master,titulo,tabla):
         self.tabla=tabla
         Desc.__init__(self, master,titulo)
         self.bd2=BaseDatosLvl2()
-        self.fechaini=""
-        self.fechafin=""
+
 
    
     ###########################################################################################################################################
@@ -127,6 +127,8 @@ class DescBase(Desc):
         self.fechafin = self.fechafi.replace('\n','')
         try:
             self.bd2.descdat("*",self.tabla,self.fechaini,self.fechafin)
+
+    
         except sqlalchemy.exc.ProgrammingError:
             messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
                                 Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
@@ -137,6 +139,8 @@ class DescVar1(DescBase):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
         DescBase.__init__(self, master,titulo,tabla)
+        self.fechaini=DescBase.fechaini
+        self.fechafin=DescBase.fechafin
         # Make a check mark to select each possible column in radio
         colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
         self.bd2.cur.execute(colum, (tabla,))
@@ -160,6 +164,7 @@ class DescVar1(DescBase):
         self.get_dates()
         self.fechaini = self.fechain.replace('\n','')
         self.fechafin = self.fechafi.replace('\n','')
+
         checked_columns = [column for column, var in self.vars.items() if var.get()]
         columnas=",".join(checked_columns)
         print(columnas)
@@ -181,10 +186,12 @@ class DescVar2(DescVar1):
     ###########################################################################################################################################
     def graficar(self):
         checked_columns = [column for column, var in self.vars.items() if var.get()]
+
         self.get_dates()
         self.fechaini = self.fechain.replace('\n','')
         self.fechafin = self.fechafi.replace('\n','')
         dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
+
         plt.figure(figsize=(10, 6))  # Create a new figure with custom size
         for column in checked_columns:
             plt.plot(dataframe[column], label=column)  # Plot each column
@@ -224,7 +231,9 @@ class DescSkyscanner(DescBase):
     ###########################################################################################################################################
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla Skyscanner","skyscanner")
+
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
     ###########################################################################################################################################
 #########################################################################################################################
@@ -236,7 +245,9 @@ class DescSkyscannerProc(DescBase):
     ###########################################################################################################################################
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla SkyScannerProc","skyscannerproc")
+
         tk.Button(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
         tk.Button(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
     ###########################################################################################################################################
 #########################################################################################################################
