@@ -38,7 +38,8 @@ class Calculadora:
     ########################################################################################################################## 
     def physGen1(self,value,altitude,numFin,dn0,numIni,min):
         max=dn0*numIni*(math.cos(altitude)**1.2)+numFin
-        if value>-min and value<=max:
+        print(altitude)
+        if value>min and value<=max:
              return 1
         elif value>min:
             return 2
@@ -85,6 +86,7 @@ class Calculadora:
     #Metodo de comprabacion de los criterios de calidad generico que todos los metodos de comprobacion llaman
     ##########################################################################################################################
     def comprobar (self,valuePrin,funPhys,funSky,cohe1,cohe2,cohe3,cohe4,valueGH,valueDH,valueDN,fecha):
+        return 7 #ELIMINAR PARA QUE FUNCIONE 
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
         if grado>85:
