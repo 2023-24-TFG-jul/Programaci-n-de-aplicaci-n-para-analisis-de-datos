@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.3
+#Versión:0.2.4
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -29,7 +29,7 @@ class Calculadora:
         año=int(str(fecha)[0:4])
         mes=int(str(fecha)[5:7])
         dia=int(str(fecha)[8:10])
-        hora=int(str(fecha)[11:13])+1
+        hora=int(str(fecha)[11:13])
         minuto=int(str(fecha)[14:16])
         return datetime.datetime(año, mes, dia, hora, minuto, tzinfo=datetime.timezone.utc)
     ##########################################################################################################################
@@ -37,7 +37,8 @@ class Calculadora:
     #1º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de GH o DH fisicos llaman
     ########################################################################################################################## 
     def physGen1(self,value,altitude,numFin,dn0,numIni,min):
-        max=dn0*numIni*(math.cos(altitude)**1.2)+numFin
+        nuevaAlt=((90-altitude)/180)*math.pi
+        max=dn0*numIni*(math.cos(nuevaAlt)**1.2)+numFin
         print(altitude)
         if value>min and value<=max:
              return 1
@@ -62,9 +63,10 @@ class Calculadora:
     #1º Metodo de coherencia generico que los metodos de coherencia 1 o 2 llaman 
     ##########################################################################################################################   
     def coheGen1(self,gh,dh,dn,angle,max,min,valueMin):
+        newAngle=((90-angle)/180)*math.pi
         if gh<valueMin:
             return False
-        value=gh/((dh+dn*math.cos(angle) ) )
+        value=gh/((dh+dn*math.cos(newAngle) ) )
         if value>min and value<max:
             return  True
         else:
@@ -89,13 +91,13 @@ class Calculadora:
         return 7 #ELIMINAR PARA QUE FUNCIONE 
         date = self.dates(fecha)
         grado=get_altitude(self.latitude, self.longitude, date)
-        if grado>85:
+        if 90-grado>85:
             return 0
         else:
             resultado=funPhys(valuePrin,grado)
             if resultado==1:
                 if funSky(valuePrin):
-                    if grado<75:
+                    if 90-grado<75:
                         if cohe1(valueGH,valueDH,valueDN,grado):
                             if cohe3(valueGH,valueDH):
                                 return 1
@@ -103,7 +105,7 @@ class Calculadora:
                                 return 6
                         else:
                             return 5
-                    elif grado<93:
+                    elif 90-grado<93:
                             if cohe2(valueGH,valueDH,valueDN,grado):
                                 if cohe4(valueGH,valueDH):
                                     return 1
