@@ -24,3 +24,7 @@ Preguntar sobre la segunda tanda de medidas de el  clean and dry clear sky condi
 Añadir a la representación grafica las fechas con las horas incluidas
 Añadir la libreria del sol
 avanzar poco a poco todo :) animo
+
+Archivo para guardar los archivos que se actualizan
+Podibilidad de cambair de idiomas, cambiando los nombres de los botones a variables
+Acesso directoa a la carpeta de descargas
