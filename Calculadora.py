@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.4
+#Versión:0.2.5
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -37,9 +37,8 @@ class Calculadora:
     #1º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de GH o DH fisicos llaman
     ########################################################################################################################## 
     def physGen1(self,value,altitude,numFin,dn0,numIni,min):
-        nuevaAlt=((90-altitude)/180)*math.pi
+        nuevaAlt=((altitude)/180)*math.pi
         max=dn0*numIni*(math.cos(nuevaAlt)**1.2)+numFin
-        print(altitude)
         if value>min and value<=max:
              return 1
         elif value>min:
@@ -63,7 +62,7 @@ class Calculadora:
     #1º Metodo de coherencia generico que los metodos de coherencia 1 o 2 llaman 
     ##########################################################################################################################   
     def coheGen1(self,gh,dh,dn,angle,max,min,valueMin):
-        newAngle=((90-angle)/180)*math.pi
+        newAngle=((angle)/180)*math.pi
         if gh<valueMin:
             return False
         value=gh/((dh+dn*math.cos(newAngle) ) )
@@ -88,16 +87,19 @@ class Calculadora:
     #Metodo de comprabacion de los criterios de calidad generico que todos los metodos de comprobacion llaman
     ##########################################################################################################################
     def comprobar (self,valuePrin,funPhys,funSky,cohe1,cohe2,cohe3,cohe4,valueGH,valueDH,valueDN,fecha):
-        return 7 #ELIMINAR PARA QUE FUNCIONE 
+        valuePrin=float(valuePrin)
+        valueGH=float(valueGH)
+        valueDH=float(valueDH)
+        valueDN=float(valueDN)
         date = self.dates(fecha)
-        grado=get_altitude(self.latitude, self.longitude, date)
-        if 90-grado>85:
+        grado=90-get_altitude(self.latitude, self.longitude, date)
+        if grado>85:
             return 0
         else:
             resultado=funPhys(valuePrin,grado)
             if resultado==1:
                 if funSky(valuePrin):
-                    if 90-grado<75:
+                    if grado<75:
                         if cohe1(valueGH,valueDH,valueDN,grado):
                             if cohe3(valueGH,valueDH):
                                 return 1
@@ -105,7 +107,7 @@ class Calculadora:
                                 return 6
                         else:
                             return 5
-                    elif 90-grado<93:
+                    elif grado<93:
                             if cohe2(valueGH,valueDH,valueDN,grado):
                                 if cohe4(valueGH,valueDH):
                                     return 1
@@ -133,6 +135,7 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghiSky(self,value):
+        
         if value<=self.ghiclear:
              return True
         else:
@@ -147,10 +150,12 @@ class Calculadora:
     ##########################################################################################################################
     #Physical limits
     def dhiPhys(self,value,grado):
+        
         return self.physGen1(value,grado,50,self.dni0,0.95,-4)
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhiSky(self,value):
+        
         if value<=self.ghiclear:
              return True
         else:
@@ -161,14 +166,17 @@ class Calculadora:
     ##########################################################################################################################
     #Comprobacion de los criterios de calidad de la irradiancia
     def comprobardni(self,valueGhi,valueDHi,valueDNi,fecha):
+    
         return self.comprobar(valueDNi,self.dniPhys,self.dniSky,self.coheI1,self.coheI2,self.coheI3,self.coheI4,valueGhi,valueDHi,valueDNi,fecha)
     ##########################################################################################################################
     #Physical limits
-    def dniPhys(self,value):
+    def dniPhys(self,value,grado):
+        
         return self.physGen2(value,self.dni0,-4)
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dniSky(self,value):
+        
         if value<=self.dniclear:
              return True
         else:
@@ -231,7 +239,7 @@ class Calculadora:
         return self.comprobar(valueDNil,self.dnilPhys,self.dnilSky,self.coheIl1,self.coheIl2,self.coheIl3,self.coheIl4,valueGhil,valueDHil,valueDNil,fecha)
     ##########################################################################################################################
     #Physical limits
-    def dnilPhys(self,value):
+    def dnilPhys(self,value,grado):
         return self.physGen2(value,self.dnil0,0)
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
@@ -303,7 +311,7 @@ class Calculadora:
         return self.comprobar(valueDNp,self.dnpPhys,self.dnpSky,self.coheP1,self.coheP2,self.coheP3,self.coheP4,valueGhp,valueDHp,valueDNp,fecha)
     ##########################################################################################################################
     #Physical limits
-    def dnpPhys(self,value):
+    def dnpPhys(self,value,grado):
         return self.physGen2(value,self.dnp0,0)
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
@@ -345,7 +353,7 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghuvSky(self,value):
-        max=(1.78513*self.m^2+177.076*self.m+2594.06)/(13.8072*self.m**2+25.6894*self.m+1)
+        max=(1.78513*self.m**2+177.076*self.m+2594.06)/(13.8072*self.m**2+25.6894*self.m+1)
         if  value<=max:
              return True
         else:
@@ -379,7 +387,7 @@ class Calculadora:
         return self.comprobar(valueDNuv,self.dnuvPhys,self.dnuvSky,self.coheUv1,self.coheUv2,self.coheUv3,self.coheUv4,valueGhuv,valueDHuv,valueDNuv,fecha)
     ##########################################################################################################################
     #Physical limits
-    def dnuvPhys(self,value):
+    def dnuvPhys(self,value,grado):
         return self.physGen2(value,self.dnuv0,0)
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)

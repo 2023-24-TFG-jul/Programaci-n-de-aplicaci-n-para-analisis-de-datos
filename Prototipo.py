@@ -24,9 +24,7 @@ import math
 
 
 date="2023-08-30 18:00:00"
-fecha=calc.dates(date)
-result=get_altitude(42.3515619402223, -3.6879829504876676, fecha)
-#result = calc.comprobarghi(-2,-2,-2,date)
+result = calc.comprobarghi(-2,-2,-2,date)
 print(result)
 
 
