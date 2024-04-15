@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.5
+#Versión:0.2.6
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -15,11 +15,11 @@ class Calculadora:
     dnil0=133334 #lux
     dnp0=531.81 #W/m2
     dnuv0=102.15 #W/m2
-    ghiclear=0 #TODO encontrar ghi clear
+    ghiclear=0 
     dniclear=0 #TODO encontrar dni clear
     latitude=42.3515619402223
     longitude=-3.6879829504876676
-    m=1#TODO encontrar relative optical air mass 
+    m=0
 
     ##########################################################################################################################
 
@@ -32,6 +32,15 @@ class Calculadora:
         hora=int(str(fecha)[11:13])
         minuto=int(str(fecha)[14:16])
         return datetime.datetime(año, mes, dia, hora, minuto, tzinfo=datetime.timezone.utc)
+    ##########################################################################################################################
+
+    #Metodo que calcula el ghi clear el dni clear y el m
+    ##########################################################################################################################
+    def calcular(self, angulo):
+        angle=((90-angulo)/180)*math.pi
+        self.ghiclear=(0.5528+0.8785*angle-0.01322*(angle**2)+0.0003434*(angle**3))*(6.9731+0.042496*angle-(8.5275*(10**-4)*(angle**2))-(8.6088*(10**-5)*(angle**3))+(1.984*(10**-6)*(angle**4))-(1.6222*(10**-8)*(angle**5))+(4.7823*(10**-11)*(angle**6)))
+        self.m=1/(math.sin(angle)+0.1500(angle+3.885)**(-1.253))
+        self.dniclear=0#(0.271-0.294*angle+0.03258*(angle**2)-0.000719*(angle**3))*(0.675+0.233*angle-0.00115*(angle**2)-0.00713*(angle**3)+0.000395*(angle**4)-0.000484*(angle**5))
     ##########################################################################################################################
 
     #1º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de GH o DH fisicos llaman
@@ -214,7 +223,12 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghilSky(self,value):
-        return True
+        max=130*self.ghiclear
+        if value<=max:
+             return True
+        else:
+            return False
+
     ##########################################################################################################################
 
     #DHIL:	diffuse horizontal illuminance.
@@ -229,7 +243,12 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhilSky(self,value):
-        return True
+        max=130*self.ghiclear
+        if value<=max:
+             return True
+        else:
+            return False
+
     ##########################################################################################################################
 
     #DNIL:	direct normal illuminance.
@@ -244,7 +263,12 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dnilSky(self,value):
-        return 0
+        max=100*self.dniclear
+        if value<=max:
+             return True
+        else:
+            return False
+
     ##########################################################################################################################
 
     #Coherence between measurements of the illuminance
