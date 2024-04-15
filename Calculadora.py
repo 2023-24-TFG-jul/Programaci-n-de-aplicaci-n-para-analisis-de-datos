@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.6
+#Versión:0.2.7
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -37,10 +37,10 @@ class Calculadora:
     #Metodo que calcula el ghi clear el dni clear y el m
     ##########################################################################################################################
     def calcular(self, angulo):
-        angle=((90-angulo)/180)*math.pi
+        angle=((angulo)/180)*math.pi
         self.ghiclear=(0.5528+0.8785*angle-0.01322*(angle**2)+0.0003434*(angle**3))*(6.9731+0.042496*angle-(8.5275*(10**-4)*(angle**2))-(8.6088*(10**-5)*(angle**3))+(1.984*(10**-6)*(angle**4))-(1.6222*(10**-8)*(angle**5))+(4.7823*(10**-11)*(angle**6)))
-        self.m=1/(math.sin(angle)+0.1500(angle+3.885)**(-1.253))
-        self.dniclear=0#(0.271-0.294*angle+0.03258*(angle**2)-0.000719*(angle**3))*(0.675+0.233*angle-0.00115*(angle**2)-0.00713*(angle**3)+0.000395*(angle**4)-0.000484*(angle**5))
+        self.m=1/(math.sin(angle)+0.1500*(angle+3.885)**(-1.253))
+        self.dniclear=0.9662
     ##########################################################################################################################
 
     #1º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de GH o DH fisicos llaman
@@ -102,6 +102,7 @@ class Calculadora:
         valueDN=float(valueDN)
         date = self.dates(fecha)
         grado=90-get_altitude(self.latitude, self.longitude, date)
+        self.calcular(grado)
         if grado>85:
             return 0
         else:
