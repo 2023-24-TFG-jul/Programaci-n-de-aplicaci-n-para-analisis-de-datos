@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.5.0
+#Versión:0.6.0
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -153,7 +153,8 @@ class BaseDatosLvl2:
         df['fallo']=df[['TIMESTAMP','BuRaGH_Avg', 'BuRaDH_Avg','BuRaB_Avg','BuLxGH_Avg','BuLxDH_Avg','BuLxB_Avg','BuPaGH_Avg','BuPaDH_Avg','BuPaB_Avg','BuUvGH_Avg',
                         'BuUvDH_Avg','BuUvB_Avg']].apply(lambda row: self.procdatos(row['TIMESTAMP'],row['BuRaGH_Avg'], row['BuRaDH_Avg'], row['BuRaB_Avg'], row['BuLxGH_Avg'],
                          row['BuLxDH_Avg'], row['BuLxB_Avg'], row['BuPaGH_Avg'], row['BuPaDH_Avg'], row['BuPaB_Avg'], row['BuUvGH_Avg'], row['BuUvDH_Avg'], row['BuUvB_Avg']), axis=1)
-        
+        self.db1.comprNuevaCol(df,"radioproc")
+        self.db1.comprTodasColumnas(df,"radioproc")
         try:
 
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior)
