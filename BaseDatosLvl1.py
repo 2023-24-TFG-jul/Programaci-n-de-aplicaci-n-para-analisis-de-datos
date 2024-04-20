@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.1.0
+#Versión:1.1.1
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -372,8 +372,10 @@ class BaseDatosLvl1:
         if base in tablas:
             for i in columnas:
                 if i not in columnastot:
-                    orden="ALTER TABLE %s ADD COLUMN %s decimal"
-                    self.cur.execute(orden,(base,i))
+                    nuevCol=""" " """+i+""" " """
+                    nuevCol=nuevCol.replace(" ", "")
+                    orden = f"ALTER TABLE {base} ADD COLUMN {nuevCol} decimal"
+                    self.cur.execute(orden)
                     self.conn.commit() 
     #################################################################################################################################################
 
