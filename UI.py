@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.5
+#Versión:0.4.6
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -120,7 +120,7 @@ class DescBase(Desc):
    
     ###########################################################################################################################################
       
-    #23-11-12
+    
     def descDat(self):
         self.get_dates()
         self.fechaini = self.fechain.replace('\n','')
@@ -141,7 +141,15 @@ class DescVar1(DescBase):
         colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
         self.bd2.cur.execute(colum, (tabla,))
         columns = [column[0] for column in self.bd2.cur.fetchall()]
+        columElim=["TIMESTAMP","Year","Month","Dia","YearDay","Hour","Minute","date"]
+        numcol=[]
+        for i in range(len(columns)):
+            if columns[i] in columElim:
+                numcol.append(i)
+        for i in reversed(numcol):
+            columns.pop(i)
         # Make a check mark to select each possible column in radio
+
         num_columns = 4
         self.vars = {column: tk.BooleanVar() for column in columns}
         for i, column in enumerate(columns):

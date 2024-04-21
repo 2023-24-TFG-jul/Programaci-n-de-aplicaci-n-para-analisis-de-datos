@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.0.7
+#Versión:1.1.1
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -285,12 +285,16 @@ class BaseDatosLvl1:
     def injectarCsvRadio(self, route):
         #lee el datalogger saltandose las filas que no nos interesan, como el titulo(0), las unidades(2), las avrg(3)
         df=pd.read_csv(route,skiprows=[0,2,3])
+
         #eliminamos la columna record ya que no nos interesa
         df.drop("RECORD",inplace=True,axis=1)
+
         #establecemos una nueva columna llamada date para tener una manera facil y estandarizada de acceso a los datos
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
         df['date']=df['TIMESTAMP'].str.slice(2,10)
         df['date']= df['date'].str.replace('-', '')
+        self.comprNuevaCol(df,"radio")
+        self.comprTodasColumnas(df,"radio")
         #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
         #y el index a False que no recuerdo para que sirve pero ponlo
         df.to_sql('radio', con=self.engine, if_exists='append',index=False)
@@ -352,7 +356,39 @@ class BaseDatosLvl1:
         df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
         return df
     ################################################################################################################################################
+   
+   #Definimos una función que en caso de un csv tiene una columna nueva la añada a la base de datos
+   #################################################################################################################################################
+    def comprNuevaCol(self,df,base):
+        #comprobamos si hay nuevas columnas en el csv que no esten en la base de datos
+        #Conseguimos todos los nombres de las columnas de la tabla que se pasa por base
+        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+        self.cur.execute(colum, (base,))
+        columnastot = [column[0] for column in self.cur.fetchall()]
+        columnas = df.columns
+        tables="SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+        self.cur.execute(tables)
+        tablas = [column[0] for column in self.cur.fetchall()]
+        if base in tablas:
+            for i in columnas:
+                if i not in columnastot:
+                    nuevCol=""" " """+i+""" " """
+                    nuevCol=nuevCol.replace(" ", "")
+                    orden = f"ALTER TABLE {base} ADD COLUMN {nuevCol} decimal"
+                    self.cur.execute(orden)
+                    self.conn.commit() 
+    #################################################################################################################################################
 
+    #def
+    #################################################################################################################################################
+    def comprTodasColumnas(self,df,base):
+        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
+        self.cur.execute(colum, (base,))
+        columnastot = [column[0] for column in self.cur.fetchall()]
+        columnas = df.columns
+        for i in columnastot:
+            if i not in columnas:
+                df[i]=0
 ###################################################################################################################################################
 #Zona de Finalizaión de la aplicación
 
@@ -362,4 +398,5 @@ class BaseDatosLvl1:
         #Cerramos el cursor que vamos a utilizar y la conexión para que no nos de errores cuando los queramos volver a usar
         self.cur.close()
         self.conn.close()
+
 ####################################################################################################################################################
