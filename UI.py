@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.7
+#Versión:0.4.8
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -131,6 +131,9 @@ class DescBase(Desc):
         except DataError as e:
             messagebox.showinfo(title="Error",message="""Has introducido mal las fechas\n"""+
                             """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
+        except Exception as e:
+            print(e)
+            messagebox.showinfo(title="Error",message="""Ha ocurrido un error inesperado\n {e} \n""")
     ###########################################################################################################################################
 class DescVar1(DescBase):
     def __init__(self, master,titulo,tabla):
@@ -177,6 +180,9 @@ class DescVar1(DescBase):
         except DataError as e:
             messagebox.showinfo(title="Error",message="""Has introducido mal las fechas\n"""+
                                 """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
+        except Exception as e:
+            print(e)
+            messagebox.showinfo(title="Error",message="""Ha ocurrido un error inesperado\n {e} \n""")
     ###########################################################################################################################################
     
 class DescVar2(DescVar1):
