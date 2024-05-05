@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.4.6
+#Versión:0.4.7
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -9,6 +9,7 @@ import tkinter as tk
 import psycopg2
 import matplotlib.pyplot as plt
 import sqlalchemy
+from sqlalchemy.exc import DataError
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
 
@@ -127,11 +128,10 @@ class DescBase(Desc):
         self.fechafin = self.fechafi.replace('\n','')
         try:
             self.bd2.descdat("*",self.tabla,self.fechaini,self.fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
-            
-
+        except DataError as e:
+            messagebox.showinfo(title="Error",message="""Has introducido mal las fechas\n"""+
+                            """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
+    ###########################################################################################################################################
 class DescVar1(DescBase):
     def __init__(self, master,titulo,tabla):
         self.tabla=tabla
@@ -172,9 +172,11 @@ class DescVar1(DescBase):
         columnas=",".join(checked_columns)
         try:
             self.bd2.descdat(columnas,self.tabla,self.fechaini,self.fechafin)
-        except sqlalchemy.exc.ProgrammingError:
-            messagebox.showinfo(title="Error",message="""Has introducido mal la tabla o las fechas\n
-                                Recuerda introducir las fechas en formato 'YY-MM-DD' \ny la tabla en minúsculas""")
+        except ValueError as e:
+            messagebox.showinfo(title="Error",message="""No has escogido ninguna tabla\n""")
+        except DataError as e:
+            messagebox.showinfo(title="Error",message="""Has introducido mal las fechas\n"""+
+                                """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
     ###########################################################################################################################################
     
 class DescVar2(DescVar1):
