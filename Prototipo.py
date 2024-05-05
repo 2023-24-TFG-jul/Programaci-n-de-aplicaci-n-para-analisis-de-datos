@@ -23,9 +23,26 @@ import datetime
 import math
 
 
-date="2023-08-30 18:00:00"
-result = calc.comprobarghi(-2,-2,-2,date)
-print(result)
+date="2023-10-04 09:45:00"
+date2="2023-10-03 09:45:00"
+fecha2=calc.dates(date2)
+fecha=calc.dates(date)
+angulo2=math.radians(90-get_altitude(calc.latitude, calc.longitude, fecha2))
+angulo=math.radians(90-get_altitude(calc.latitude, calc.longitude, fecha))
+print(angulo)
+print(angulo2)
+result1=calc.comprobarghi(561.8912,85.17175,847.6087,date)
+result2 = calc.comprobarghp(1045.093,202.8543,1473.9,date)
+result3=calc.comprobardhp(1045.093,202.8543,1473.9,date)
+result4=calc.comprobarghuv(28.45955,14.27135,21.02866,date)
+result5=calc.comprobarghuv(28.65848,16.08272,19.09732,date2)
+print(angulo2)
+print(calc.m)
+print(result1)
+print(result2)
+print(result3)
+print(result4)
+print(result5)
 
 
 
