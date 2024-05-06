@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.7
+#Versión:0.2.10
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -36,17 +36,27 @@ class Calculadora:
 
     #Metodo que calcula el ghi clear el dni clear y el m
     ##########################################################################################################################
-    def calcular(self, angulo):
-        angle=((angulo)/180)*math.pi
-        self.ghiclear=(0.5528+0.8785*angle-0.01322*(angle**2)+0.0003434*(angle**3))*(6.9731+0.042496*angle-(8.5275*(10**-4)*(angle**2))-(8.6088*(10**-5)*(angle**3))+(1.984*(10**-6)*(angle**4))-(1.6222*(10**-8)*(angle**5))+(4.7823*(10**-11)*(angle**6)))
-        self.m=1/(math.sin(angle)+0.1500*(angle+3.885)**(-1.253))
-        self.dniclear=0.9662
+    def calcular(self, angulo,dni):
+        dni=float(dni)
+        angle=math.radians(angulo)
+        h=865 #No definitico placeholder por que no sabemos cuanto es 1
+        pground=0.2
+        psky=0.0685
+        self.m=(math.exp(-h/8446))/(math.cos(angle)+0.15*(93-angulo)**-1.253)
+        tray=math.exp(-0.0903*(self.m**0.84)*(1+self.m-(self.m**1.01)))
+        self.dniclear=0.9751*tray*self.dni0
+        dhiray=0.79*self.dni0*math.cos(angle)*((0.5*(1-tray))/(1-self.m+(self.m**1.02)))
+        dhimultrefl=(dni*math.cos(angle)+dhiray)*((pground*psky)/(1-pground*psky))
+        dhiclear=dhiray+dhimultrefl
+        self.ghiclear=self.dniclear*math.cos(angle)+dhiclear
+        
+        
     ##########################################################################################################################
 
     #1º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de GH o DH fisicos llaman
     ########################################################################################################################## 
     def physGen1(self,value,altitude,numFin,dn0,numIni,min):
-        nuevaAlt=((altitude)/180)*math.pi
+        nuevaAlt=math.radians(altitude)
         max=dn0*numIni*(math.cos(nuevaAlt)**1.2)+numFin
         if value>min and value<=max:
              return 1
@@ -71,7 +81,7 @@ class Calculadora:
     #1º Metodo de coherencia generico que los metodos de coherencia 1 o 2 llaman 
     ##########################################################################################################################   
     def coheGen1(self,gh,dh,dn,angle,max,min,valueMin):
-        newAngle=((angle)/180)*math.pi
+        newAngle=math.radians(angle)
         if gh<valueMin:
             return False
         value=gh/((dh+dn*math.cos(newAngle) ) )
@@ -96,13 +106,15 @@ class Calculadora:
     #Metodo de comprabacion de los criterios de calidad generico que todos los metodos de comprobacion llaman
     ##########################################################################################################################
     def comprobar (self,valuePrin,funPhys,funSky,cohe1,cohe2,cohe3,cohe4,valueGH,valueDH,valueDN,fecha):
+
+        if any(value is None for value in [valueGH, valueDH, valueDN, valuePrin]):
+            return -1
         valuePrin=float(valuePrin)
         valueGH=float(valueGH)
         valueDH=float(valueDH)
         valueDN=float(valueDN)
         date = self.dates(fecha)
         grado=90-get_altitude(self.latitude, self.longitude, date)
-        self.calcular(grado)
         if grado>85:
             return 0
         else:
@@ -137,10 +149,15 @@ class Calculadora:
     ##########################################################################################################################
     #Comprobacion de los criterios de calidad de la irradiancia
     def comprobarghi(self,valueGhi,valueDHi,valueDNi,fecha):
+        date = self.dates(fecha)
+        angulo=90-get_altitude(self.latitude, self.longitude, date)
+        if angulo < 93: 
+            self.calcular(angulo,valueDNi)
         return self.comprobar(valueGhi,self.ghiPhys,self.ghiSky,self.coheI1,self.coheI2,self.coheI3,self.coheI4,valueGhi,valueDHi,valueDNi,fecha)
     ##########################################################################################################################        
     #Physical limits
     def ghiPhys(self,value,altitude):
+    
        return self.physGen1(value,altitude,100,self.dni0,1.5,-4)
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
@@ -322,7 +339,7 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhpSky(self,value):
-        max=(-0.489631*self.m**2+17.4211*self.m+51.858)/(0.0575636*self.m**2+0.671139*self.m+1)
+        max=((-0.489631*(self.m**2))+(17.4211*self.m)+51.858)/((0.0575636*(self.m**2))+(0.671139*self.m)+1)
         if value<=max:
              return True
         else:
@@ -428,7 +445,7 @@ class Calculadora:
     ##########################################################################################################################
     #1º Metodo de coherencia entre las medidas de la irradiancia si el angulo es menor que 75º
     def coheUv1(self,ghuv,dhuv,dnuv,angle):
-        return self.coheGen1(ghuv,dhuv,dnuv,angle,1.08,0.92,2)#Comprobar que es 2
+        return self.coheGen1(ghuv,dhuv,dnuv,angle,1.08,0.92,20)
     ##########################################################################################################################
     #1º Metodo de coherencia entre las medidas de la irradiancia si el angulo es mayor que 75º y menor que 93º       
     def coheUv2(self,ghuv,dhuv,dnuv,angle):
