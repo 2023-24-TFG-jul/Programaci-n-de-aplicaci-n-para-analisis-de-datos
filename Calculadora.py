@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.10
+#Versión:0.2.11
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -42,10 +42,11 @@ class Calculadora:
         h=865 #No definitico placeholder por que no sabemos cuanto es 1
         pground=0.2
         psky=0.0685
-        self.m=(math.exp(-h/8446))/(math.cos(angle)+0.15*(93-angulo)**-1.253)
-        tray=math.exp(-0.0903*(self.m**0.84)*(1+self.m-(self.m**1.01)))
+        ma=(math.exp(-h/8446))/(math.cos(angle)+0.15*(93-angulo)**-1.253)
+        self.m=(1)/(math.cos(angle)+0.15*(93-angulo)**-1.253)
+        tray=math.exp(-0.0903*(ma**0.84)*(1+ma-(ma**1.01)))
         self.dniclear=0.9751*tray*self.dni0
-        dhiray=0.79*self.dni0*math.cos(angle)*((0.5*(1-tray))/(1-self.m+(self.m**1.02)))
+        dhiray=0.79*self.dni0*math.cos(angle)*((0.5*(1-tray))/(1-ma+(ma**1.02)))
         dhimultrefl=(dni*math.cos(angle)+dhiray)*((pground*psky)/(1-pground*psky))
         dhiclear=dhiray+dhimultrefl
         self.ghiclear=self.dniclear*math.cos(angle)+dhiclear
