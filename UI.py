@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.2
+#Versión:0.5.3
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -291,9 +291,8 @@ class DescVar2(DescVar1):
             raise e
         plt.figure(figsize=(10, 6))  # Create a new figure with custom size
         for column in columnasres:
-            plt.plot(dataframe[column], label=column)  # Plot each column
-        plt.xlabel('X-axis')
-        plt.ylabel('Y-axis')
+            plt.plot(dataframe["date"],dataframe[column], label=column)  # Plot each column
+        plt.xlabel('Fecha')
         plt.title('Graph of Columns')
         plt.legend()  # Show legend with column names
         plt.show()  # Display the graph
@@ -310,7 +309,7 @@ class DescRadio(DescVar2):
         varIr={"Global vertical Irradiance North":"BuRaGVN_Avg","Global Vertical irradiance South":"BuRaGVS_Avg","Global Vertical irradiance East":"BuRaGVE_Avg",
                "Global Vertical irradiance West":"BuRaGVW_Avg","global horizontal irradiance":"BuRaGH_Avg","diffuse horizontal irradiance":"BuRaDH_Avg",
                "direct normal irradiance":"BuRaB_Avg","Diffuse Vertical irradiance North":"BuRaDVN_Avg","Diffuse Vertical irradiance South":"BuRaDVS_Avg",
-               "Diffuse Vertical irradiance East":"BuRaDVEAvg","Diffuse Vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up (mirando up)":"BuRaAlUp_Avg",
+               "Diffuse Vertical irradiance East":"BuRaDVE_Avg","Diffuse Vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up (mirando up)":"BuRaAlUp_Avg",
                "Irradiancia del albedómetro Down (mirando down)":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
         varIl={"Global Vertical illuminance North":"BuLxGVN_Avg","Global Vertical illuminance South":"BuLxGVS_Avg","Global Vertical illuminance East":"BuLxGVE_Avg","Global Vertical illuminance West":"BuLxGVW_Avg",
                "global horizontal illuminance":"BuLxGH_Avg","diffuse horizontal illuminance":"BuLxDH_Avg","direct normal illuminance":"BuLxB_Avg","Illuminancia Reflejada":"BuLxR_Avg"}
