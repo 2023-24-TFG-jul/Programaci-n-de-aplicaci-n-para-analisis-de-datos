@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.1.1
+#Versión:1.1.2
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -50,7 +50,7 @@ class BaseDatosLvl1:
     def crear(self):
         #Creación de la tabla en caso de que no exista del skyscaner,
         #Sidedatehour tiene un formato de side,date(al estilo año-mes-día),horaini,horafin
-        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (side VARCHAR, hour time,date integer,sect1 decimal,sect2 decimal,
+        orden=""" CREATE TABLE IF NOT EXISTS skyscanner (side VARCHAR, hour time,date bigint,sect1 decimal,sect2 decimal,
         sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
         sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
         sect22 decimal,sect23 decimal,sect24 decimal,sect25 decimal,sect26 decimal,sect27 decimal,sect28 decimal,sect29 decimal,sect30 decimal,sect31 decimal,
@@ -74,7 +74,7 @@ class BaseDatosLvl1:
         #La primary key de esta tabla es time que se divide en: año-mes-día hora
         orden=""" CREATE TABLE IF NOT EXISTS skycamera("GAIN" VARCHAR,"SHUTTER" VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
-        thumbnail VARCHAR,time VARCHAR PRIMARY KEY,date integer); """
+        thumbnail VARCHAR,time VARCHAR PRIMARY KEY,date bigint); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -89,12 +89,12 @@ class BaseDatosLvl1:
         "BuUvGVW_Avg" decimal,"BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,
         "BuUvBGH_Avg" decimal,"BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,
         "BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,"BuRaDVS_Avg" decimal,"BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,
-        "BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,date integer)"""
+        "BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,date bigint)"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
         #Creación de la base de datos de las imagenes
-        orden=""" CREATE TABLE IF NOT EXISTS imagescam1 (name VARCHAR PRIMARY KEY,date integer,image1_data bytea);"""
+        orden=""" CREATE TABLE IF NOT EXISTS imagescam1 (name VARCHAR PRIMARY KEY,date bigint,image1_data bytea);"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
@@ -139,6 +139,8 @@ class BaseDatosLvl1:
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
         cond1=cond1.replace('-', '')
         cond2=cond2.replace('-', '')
+        cond1=cond1+"0000"
+        cond2=cond2+"2359"
         columnas=columnas.replace(" ", "")
         query="SELECT {} FROM {} WHERE date BETWEEN %s AND %s".format(columnas, base)
         #Recogemos los datos en un data frame
@@ -291,8 +293,9 @@ class BaseDatosLvl1:
 
         #establecemos una nueva columna llamada date para tener una manera facil y estandarizada de acceso a los datos
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
-        df['date']=df['TIMESTAMP'].str.slice(2,10)
+        df['date']=df['TIMESTAMP'].str.slice(2,10)+df['TIMESTAMP'].str.slice(11,16)
         df['date']= df['date'].str.replace('-', '')
+        df['date']= df['date'].str.replace(':', '')
         self.comprNuevaCol(df,"radio")
         self.comprTodasColumnas(df,"radio")
         #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
@@ -333,7 +336,9 @@ class BaseDatosLvl1:
         #Cambiamos la columna sidedatehour para que sea lo que su nombre indica y no solo el lado
         df['sidedatehour']=df['side']+","+fechatip+","+df['hour']+","+df['date']
         #Modificamos la columna date para que contenga la fecha de las mediciones
-        df['date']=fechatip
+        df['date']=fechatip+df['hour'].str.slice(0,5)
+        df['date']= df['date'].str.replace('-', '')
+        df['date']= df['date'].str.replace(':', '')
         #Como en este csv hay espacios en blancos donde debria haber nulos, sustituimos estos espacios por nulos
         df=df.replace('  ',np.nan)
 
@@ -349,8 +354,9 @@ class BaseDatosLvl1:
         df=pd.read_csv(route)
         #establecemos una nueva columna llamada date para tener una manera facil y estandarizada de acceso a los datos
         #Para ello tomamos la fecha de time y nos quedamos con la fecha de días y la tipamos a AñoMesDía
-        df['date']=df['time'].str.slice(2,10)
+        df['date']=df['time'].str.slice(2,10)+df['time'].str.slice(11,16)
         df['date']= df['date'].str.replace('-', '')
+        df['date']= df['date'].str.replace(':', '')
         #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
         #y el index a False que no recuerdo para que sirve pero ponlo
         df.to_sql('skycamera', con=self.engine, if_exists='append',index=False)
