@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.0
+#Versión:0.5.1
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -9,7 +9,6 @@ import tkinter as tk
 import customtkinter as ctk
 import psycopg2
 import matplotlib.pyplot as plt
-import sqlalchemy
 from sqlalchemy.exc import DataError
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
@@ -33,6 +32,9 @@ class UI(ctk.CTk):
         ctk.CTk.__init__(self)
         self._frame = None
         self.switch_frame(LoginPage)
+        self.overrideredirect(False)  # Esto asegura que la barra de título y los controles de la ventana sigan visibles
+        self.geometry("{0}x{1}+0+0".format(self.winfo_screenwidth(), self.winfo_screenheight()))
+
     #########################################################################################################################
     
     #Definimos una función para cambiar de frame
@@ -43,7 +45,7 @@ class UI(ctk.CTk):
         if self._frame is not None:
             self._frame.destroy()
         self._frame = new_frame
-        self._frame.pack()
+        self._frame.pack(expand=True, fill='both')
     #########################################################################################################################
         
 #########################################################################################################################
@@ -153,31 +155,38 @@ class DescBase(Desc):
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
     ###########################################################################################################################################
 class DescVar1(DescBase):
-    def __init__(self, master,titulo,tabla):
+    columnas={}
+    columnasres=[]
+    def __init__(self, master,titulo,tabla,columnas):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
         DescBase.__init__(self, master,titulo,tabla)
-        # Make a check mark to select each possible column in radio
-        colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
-        self.bd2.cur.execute(colum, (tabla,))
-        columns = [column[0] for column in self.bd2.cur.fetchall()]
-        columElim=["TIMESTAMP","Year","Month","Dia","YearDay","Hour","Minute","date"]
-        numcol=[]
-        for i in range(len(columns)):
-            if columns[i] in columElim:
-                numcol.append(i)
-        for i in reversed(numcol):
-            columns.pop(i)
+        self.columnas=columnas
+        if columnas.get("Titulo")=="SkyCamera":
+            columns=columnas.get("Columnas").keys()
+            num_columns = 4
+            self.vars = {column: ctk.BooleanVar() for column in columns}
+            for i, column in enumerate(columns):
+                if i % num_columns == 0:
+                    frame = ctk.CTkFrame(self)
+                    frame.pack(side="top")
+                ctk.CTkCheckBox(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
+            
+        else:
+            columns=columnas.get("Columnas")
+            self.option_menu = ctk.CTkOptionMenu(self, values=["Irradiancia", "Iluminancia", "Par", "UV","Miscelanea"], command=self.update_checkboxes)
+            self.option_menu.pack(pady=20)
+            self.checkboxes_frame = ctk.CTkFrame(self)
+            self.checkboxes_frame.pack(fill="both", expand=True)
+
+        # Dictionary to hold checkbox variables
+            self.checkbox_vars = {}
+        ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+
+
         # Make a check mark to select each possible column in radio
 
-        num_columns = 4
-        self.vars = {column: ctk.BooleanVar() for column in columns}
-        for i, column in enumerate(columns):
-            if i % num_columns == 0:
-                frame = ctk.CTkFrame(self)
-                frame.pack(side="top")
-            ctk.CTkCheckBox(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
-        ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
+        
 
         
     ###########################################################################################################################################
@@ -188,25 +197,62 @@ class DescVar1(DescBase):
         self.get_dates()
         self.fechaini = self.fechain.replace('\n','')
         self.fechafin = self.fechafi.replace('\n','')
-        checked_columns = [column for column, var in self.vars.items() if var.get()]
-        columnas=",".join(checked_columns)
+        self.update_checkboxes(self.option_menu.get())
+        columnasres=[]
+        if len(self.columnas.get("Columnas")) ==5:
+            for col in self.columnasres:
+                index=self.columnas.get("Columnas")
+                for key in index.keys():
+                    if col in index.get(key).keys():
+                        columnasres.append(index.get(key).get(col))
+        else:
+            checked_columns = [column for column, var in self.vars.items() if var.get()]
+            for col in checked_columns:
+                columnasres.append(self.columnas.get("Columnas").get(col))
+        print(columnasres)
+        columna=",".join(columnasres)
         try:
-            self.bd2.descdat(columnas,self.tabla,self.fechaini,self.fechafin)
+            self.bd2.descdat(columna,self.tabla,self.fechaini,self.fechafin)
         except ValueError as e:
             self.crearPopUp("""No has escogido ninguna tabla\n""")
+            
         except DataError as e:
             self.crearPopUp("""Has introducido mal las fechas\n"""+
                                 """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
         except Exception as e:
             print(e)
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
+    
+    def update_checkboxes(self, choice):
+        # Clear current checkboxes
+        for widget in self.checkboxes_frame.winfo_children():
+            if widget.cget("text") in self.columnasres:
+                 if(not widget.get()):
+                     self.columnasres.remove(widget.cget("text"))
+            else:    
+                if(widget.get()):
+                    self.columnasres.append(widget.cget("text"))
+            widget.destroy()
+        print(self.columnasres)
+        # Options for checkboxes
+        options =self.columnas.get("Columnas")
+        print(len(options))
+        # Create new checkboxes based on the choice
+        self.checkbox_vars[choice] = []
+        for option in options.get(choice, []).keys():
+            var = ctk.BooleanVar()
+            if(option in self.columnasres):
+                var.set(True)
+            checkbox = ctk.CTkCheckBox(self.checkboxes_frame, text=option, variable=var)
+            checkbox.pack()
+            self.checkbox_vars[choice].append((checkbox, var))
     ###########################################################################################################################################
     
 class DescVar2(DescVar1):
-    def __init__(self, master,titulo,tabla):
+    def __init__(self, master,titulo,tabla,columnas):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
-        DescVar1.__init__(self, master,titulo,tabla)
+        DescVar1.__init__(self, master,titulo,tabla,columnas)
         ctk.CTkButton(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()  
     #Definimos una función para graficar los datos
@@ -216,7 +262,19 @@ class DescVar2(DescVar1):
         self.get_dates()
         self.fechaini = self.fechain.replace('\n','')
         self.fechafin = self.fechafi.replace('\n','')
-        dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
+        try:
+            dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
+        except ValueError as e:
+            self.crearPopUp("""No has escogido ninguna tabla\n""")
+            raise e
+        except DataError as e:
+            self.crearPopUp("""Has introducido mal las fechas\n"""+
+                                """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
+            raise e
+        except Exception as e:
+            print(e)
+            self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
+            raise e
         plt.figure(figsize=(10, 6))  # Create a new figure with custom size
         for column in checked_columns:
             plt.plot(dataframe[column], label=column)  # Plot each column
@@ -235,7 +293,22 @@ class DescRadio(DescVar2):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        DescVar2.__init__(self, master,"Tabla Radio","radio")
+        varIr={"Global vertical Irradiance North":"BuRaGVN_Avg","Global Vertical irradiance South":"BuRaGVS_Avg","Global Vertical irradiance East":"BuRaGVE_Avg",
+               "Global Vertical irradiance West":"BuRaGVW_Avg","global horizontal irradiance":"BuRaGH_Avg","diffuse horizontal irradiance":"BuRaDH_Avg",
+               "direct normal irradiance":"BuRaB_Avg","Diffuse Vertical irradiance North":"BuRaDVN_Avg","Diffuse Vertical irradiance South":"BuRaDVS_Avg",
+               "Diffuse Vertical irradiance East":"BuRaDVEAvg","Diffuse Vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up (mirando up)":"BuRaAlUp_Avg",
+               "Irradiancia del albedómetro Down (mirando down)":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
+        varIl={"Global Vertical illuminance North":"BuLxGVN_Avg","Global Vertical illuminance South":"BuLxGVS_Avg","Global Vertical illuminance East":"BuLxGVE_Avg","Global Vertical illuminance West":"BuLxGVW_Avg",
+               "global horizontal illuminance":"BuLxGH_Avg","diffuse horizontal illuminance":"BuLxDH_Avg","direct normal illuminance":"BuLxB_Avg","Illuminancia Reflejada":"BuLxR_Avg"}
+        varmisc={"Temperature":"BuTemp_Avg","Relative Humidity":"BuRH_Avg","Pressure":"BuPres_Avg","Wind Speed":"BuWS_Avg","Wind Direction":"BuWD_Avg","Pluv Cantidad de lluvia":"BuRain_Tot"}
+        varPar={"Global Vertical PAR North":"BuPaGVN_Avg","Global Vertical PAR South":"BuPaGVS_Avg","Global Vertical PAR East":"BuPaGVE_Avg","Global Vertical PAR West":"BuPaGVW_Avg",
+                "global horizontal PAR irradiance":"BuPaGH_Avg","diffuse horizontal PAR irradiance":"BuPaDH_Avg","direct normal PAR irradiance":"BuPaB_Avg","PAR reflejada":"BuPaR_Avg"}
+        varUv={"Global Vertical UV North":"BuUvGVN_Avg","Global Vertical UV South":"BuUvGVS_Avg","Global Vertical UV East":"BuUvGVE_Avg","Global Vertical UV West":"BuUvGVW_Avg",
+               "global horizontal UV irradiance":"BuUvGH_Avg","diffuse horizontal UV irradiance":"BuUvDH_Avg","direct normal UV irradiance":"BuUvB_Avg","Ultravioleta A Global horizontal":"BuUvAGH_Avg",
+               "Ultravioleta A Difusa horizontal":"BuUvADH_Avg","Ultravioleta A Global vertical sur":"BuUvAV_Avg","Ultravioleta B Global horizontal":"BuUvBGH_Avg","Ultravioleta B Difusa horizontal":"BuUvBDH_Avg",
+               "Ultravioleta B Global vertical sur":"BuUvBV_Avg","Ultravioleta E Global horizontal":"BuUvEGH_Avg","Ultravioleta E Difusa horizontal":"BuUvEDH_Avg","Ultravioleta E Global vertical sur":"BuUvEV_Avg"}
+        columnas={"Titulo":"Radio","Columnas":{"Irradiancia":varIr,"Iluminancia":varIl,"Par":varPar,"UV":varUv,"Miscelanea":varmisc}}
+        DescVar2.__init__(self, master,"Tabla Radio","radio",columnas)
     ###########################################################################################################################################
 #########################################################################################################################
 
@@ -278,7 +351,10 @@ class DescSkyscannerProc(DescBase):
 class DescSkyCammera(DescVar1):
 
     def __init__(self, master):
-        DescVar1.__init__(self, master,"Tabla Skycamera","skycamera")
+        columnas={"Titulo":"SkyCamera","Columnas":{"Azimuth":"azimuth","Bloqueado":"blocked","Covertura de nubes":"cloud_cover",
+                    "Mensaje de covertura de nubes":"cloud_cover_msg","Imagen de covertura de nubes":"cloudimg","Polvo":"dust",
+                    "Elevación":"elevation","Imagen":"image","Modo":"mode","Temperatura":"temperature"}}
+        DescVar1.__init__(self, master,"Tabla Skycamera","skycamera",columnas)
         ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
     ###########################################################################################################################################
 #########################################################################################################################
