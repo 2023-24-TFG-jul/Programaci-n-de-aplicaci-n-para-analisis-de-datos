@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.1
+#Versión:0.5.2
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -197,9 +197,10 @@ class DescVar1(DescBase):
         self.get_dates()
         self.fechaini = self.fechain.replace('\n','')
         self.fechafin = self.fechafi.replace('\n','')
-        self.update_checkboxes(self.option_menu.get())
+        
         columnasres=[]
         if len(self.columnas.get("Columnas")) ==5:
+            self.update_checkboxes(self.option_menu.get())
             for col in self.columnasres:
                 index=self.columnas.get("Columnas")
                 for key in index.keys():
@@ -258,10 +259,23 @@ class DescVar2(DescVar1):
     #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
-        checked_columns = [column for column, var in self.vars.items() if var.get()]
         self.get_dates()
         self.fechaini = self.fechain.replace('\n','')
         self.fechafin = self.fechafi.replace('\n','')
+        
+        columnasres=[]
+        if len(self.columnas.get("Columnas")) ==5:
+            self.update_checkboxes(self.option_menu.get())
+            for col in self.columnasres:
+                index=self.columnas.get("Columnas")
+                for key in index.keys():
+                    if col in index.get(key).keys():
+                        columnasres.append(index.get(key).get(col))
+        else:
+            checked_columns = [column for column, var in self.vars.items() if var.get()]
+            for col in checked_columns:
+                columnasres.append(self.columnas.get("Columnas").get(col))
+        
         try:
             dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
         except ValueError as e:
@@ -276,7 +290,7 @@ class DescVar2(DescVar1):
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
             raise e
         plt.figure(figsize=(10, 6))  # Create a new figure with custom size
-        for column in checked_columns:
+        for column in columnasres:
             plt.plot(dataframe[column], label=column)  # Plot each column
         plt.xlabel('X-axis')
         plt.ylabel('Y-axis')
@@ -318,7 +332,22 @@ class DescRadioProc(DescVar2):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        DescVar2.__init__(self, master,"Tabla RadioProc","radioproc")
+        varIr={"Global vertical Irradiance North":"BuRaGVN_Avg","Global Vertical irradiance South":"BuRaGVS_Avg","Global Vertical irradiance East":"BuRaGVE_Avg",
+               "Global Vertical irradiance West":"BuRaGVW_Avg","global horizontal irradiance":"BuRaGH_Avg","diffuse horizontal irradiance":"BuRaDH_Avg",
+               "direct normal irradiance":"BuRaB_Avg","Diffuse Vertical irradiance North":"BuRaDVN_Avg","Diffuse Vertical irradiance South":"BuRaDVS_Avg",
+               "Diffuse Vertical irradiance East":"BuRaDVEAvg","Diffuse Vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up (mirando up)":"BuRaAlUp_Avg",
+               "Irradiancia del albedómetro Down (mirando down)":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
+        varIl={"Global Vertical illuminance North":"BuLxGVN_Avg","Global Vertical illuminance South":"BuLxGVS_Avg","Global Vertical illuminance East":"BuLxGVE_Avg","Global Vertical illuminance West":"BuLxGVW_Avg",
+               "global horizontal illuminance":"BuLxGH_Avg","diffuse horizontal illuminance":"BuLxDH_Avg","direct normal illuminance":"BuLxB_Avg","Illuminancia Reflejada":"BuLxR_Avg"}
+        varmisc={"Temperature":"BuTemp_Avg","Relative Humidity":"BuRH_Avg","Pressure":"BuPres_Avg","Wind Speed":"BuWS_Avg","Wind Direction":"BuWD_Avg","Pluv Cantidad de lluvia":"BuRain_Tot","Fallo":"fallo"}
+        varPar={"Global Vertical PAR North":"BuPaGVN_Avg","Global Vertical PAR South":"BuPaGVS_Avg","Global Vertical PAR East":"BuPaGVE_Avg","Global Vertical PAR West":"BuPaGVW_Avg",
+                "global horizontal PAR irradiance":"BuPaGH_Avg","diffuse horizontal PAR irradiance":"BuPaDH_Avg","direct normal PAR irradiance":"BuPaB_Avg","PAR reflejada":"BuPaR_Avg"}
+        varUv={"Global Vertical UV North":"BuUvGVN_Avg","Global Vertical UV South":"BuUvGVS_Avg","Global Vertical UV East":"BuUvGVE_Avg","Global Vertical UV West":"BuUvGVW_Avg",
+               "global horizontal UV irradiance":"BuUvGH_Avg","diffuse horizontal UV irradiance":"BuUvDH_Avg","direct normal UV irradiance":"BuUvB_Avg","Ultravioleta A Global horizontal":"BuUvAGH_Avg",
+               "Ultravioleta A Difusa horizontal":"BuUvADH_Avg","Ultravioleta A Global vertical sur":"BuUvAV_Avg","Ultravioleta B Global horizontal":"BuUvBGH_Avg","Ultravioleta B Difusa horizontal":"BuUvBDH_Avg",
+               "Ultravioleta B Global vertical sur":"BuUvBV_Avg","Ultravioleta E Global horizontal":"BuUvEGH_Avg","Ultravioleta E Difusa horizontal":"BuUvEDH_Avg","Ultravioleta E Global vertical sur":"BuUvEV_Avg"}
+        columnas={"Titulo":"Radio","Columnas":{"Irradiancia":varIr,"Iluminancia":varIl,"Par":varPar,"UV":varUv,"Miscelanea":varmisc}}
+        DescVar2.__init__(self, master,"Tabla RadioProc","radioproc",columnas)
     ###########################################################################################################################################
 #########################################################################################################################
 
@@ -365,7 +394,10 @@ class DescSkyCammeraProc(DescVar2):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        DescVar2.__init__(self, master,"Tabla SkyCameraProc","skycameraproc")
+        columnas={"Titulo":"SkyCamera","Columnas":{"Azimuth":"azimuth","Bloqueado":"blocked","Covertura de nubes":"cloud_cover",
+                    "Mensaje de covertura de nubes":"cloud_cover_msg","Imagen de covertura de nubes":"cloudimg","Polvo":"dust",
+                    "Elevación":"elevation","Imagen":"image","Modo":"mode","Temperatura":"temperature"}}
+        DescVar2.__init__(self, master,"Tabla SkyCameraProc","skycameraproc",columnas)
     ###########################################################################################################################################
 #########################################################################################################################
 
