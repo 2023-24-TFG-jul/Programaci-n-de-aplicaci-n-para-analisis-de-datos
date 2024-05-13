@@ -43,7 +43,7 @@ class BaseDatosLvl2:
     def crear(self):#No hace falta crear la de scanner ya que la de base esta bien
         #Creación de la tabla en caso de que no exista del skyscaner,
         #Sidedatehour tiene un formato de side,date(al estilo año-mes-día),horaini,horafin
-        orden=""" CREATE TABLE IF NOT EXISTS skyscannerproc (side VARCHAR, hour time,date integer,sect1 decimal,sect2 decimal,
+        orden=""" CREATE TABLE IF NOT EXISTS skyscannerproc (side VARCHAR, hour time,date bigint,sect1 decimal,sect2 decimal,
         sect3 decimal,sect4 decimal,sect5 decimal,sect6 decimal,sect7 decimal,sect8 decimal,sect9 decimal,sect10 decimal,sect11 decimal,sect12 decimal,
         sect13 decimal,sect14 decimal,sect15 decimal,sect16 decimal,sect17 decimal,sect18 decimal,sect19 decimal,sect20 decimal,sect21 decimal,
         sect22 decimal,sect23 decimal,sect24 decimal,sect25 decimal,sect26 decimal,sect27 decimal,sect28 decimal,sect29 decimal,sect30 decimal,sect31 decimal,
@@ -67,7 +67,7 @@ class BaseDatosLvl2:
         #La primary key de esta tabla es time que se dividi en: año-mes-día hora
         orden=""" CREATE TABLE IF NOT EXISTS skycameraproc("GAIN" VARCHAR,"SHUTTER" VARCHAR(255),azimuth decimal,blocked integer,cloud_cover decimal,
         cloud_cover_msg VARCHAR(255),cloudimg VARCHAR(255),dust integer,elevation decimal,image VARCHAR,mode integer,temperature decimal,
-        thumbnail VARCHAR,time VARCHAR PRIMARY KEY,date integer); """
+        thumbnail VARCHAR,time VARCHAR PRIMARY KEY,date bigint); """
         #Enviamos la operación a la base de datos
         self.cur.execute(orden)
         self.conn.commit()
@@ -82,7 +82,7 @@ class BaseDatosLvl2:
         "BuUvGVW_Avg" decimal,"BuUvGH_Avg" decimal,"BuUvDH_Avg" decimal,"BuUvB_Avg" decimal,"BuUvAGH_Avg" decimal,"BuUvADH_Avg" decimal,"BuUvAV_Avg" decimal,
         "BuUvBGH_Avg" decimal,"BuUvBDH_Avg" decimal,"BuUvBV_Avg" decimal,"BuUvEGH_Avg" decimal,"BuUvEDH_Avg" decimal,"BuUvEV_Avg" decimal,
         "BuRaDVN_Avg" decimal,"BuRaDVE_Avg" decimal,"BuRaDVS_Avg" decimal,"BuRaDVW_Avg" decimal,"BuRaAlUp_Avg" decimal,"BuRaAlDo_Avg" decimal,
-        "BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,date integer,fallo varchar(250))"""
+        "BuRaAlbe_Avg" decimal,"BuPaR_Avg" decimal,"BuLxR_Avg" decimal,"BuIrGH_Avg" decimal,date bigint,fallo varchar(250))"""
         #Enviamos la operación a la base de dactos
         self.cur.execute(orden)
         self.conn.commit()
