@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.3
+#Versión:0.5.4
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -33,7 +33,7 @@ class UI(ctk.CTk):
         self._frame = None
         self.switch_frame(LoginPage)
         self.overrideredirect(False)  # Esto asegura que la barra de título y los controles de la ventana sigan visibles
-        self.geometry("{0}x{1}+0+0".format(self.winfo_screenwidth(), self.winfo_screenheight()))
+        self.geometry("{0}x{1}+0+0".format(self.winfo_screenwidth(), self.winfo_screenheight()-70))
 
     #########################################################################################################################
     
