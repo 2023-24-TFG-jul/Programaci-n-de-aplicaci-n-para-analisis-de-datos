@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.5
+#Versión:0.5.6
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -12,7 +12,9 @@ import matplotlib.pyplot as plt
 from sqlalchemy.exc import DataError
 from BaseDatosLvl2 import BaseDatosLvl2
 from tkinter import messagebox
-
+import numpy as np
+import matplotlib.ticker as ticker
+from datetime import datetime
 
 #########################################################################################################################
 class Page(ctk.CTkFrame):
@@ -281,10 +283,12 @@ class DescVar2(DescVar1):
                 for key in index.keys():
                     if col in index.get(key).keys():
                         columnasres.append(index.get(key).get(col))
+            time="TIMESTAMP"
         else:
             checked_columns = [column for column, var in self.vars.items() if var.get()]
             for col in checked_columns:
                 columnasres.append(self.columnas.get("Columnas").get(col))
+            time="time"
         
         try:
             dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
@@ -299,14 +303,30 @@ class DescVar2(DescVar1):
             print(e)
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
             raise e
-        plt.figure(figsize=(10, 6))  # Create a new figure with custom size
+
+
+        plt.figure(figsize=(10, 6))  
         for column in columnasres:
-            plt.plot(dataframe["date"],dataframe[column], label=column)  # Plot each column
+            plt.plot(dataframe[time],dataframe[column], label=column) 
         plt.xlabel('Fecha')
-        plt.title('Graph of Columns')
-        plt.legend()  # Show legend with column names
-        plt.show()  # Display the graph
-    ###########################################################################################################################################
+
+        plt.xticks(np.arange(0, len(dataframe[time]), step=len(dataframe[time])/10))  
+        plt.title('Grafico de las columnas')
+
+        plt.legend()  
+        plt.draw()  
+
+        
+        labels = [item.get_text() for item in plt.gca().get_xticklabels()]
+
+      
+        labels = [label[2:10] for label in labels]
+
+       
+        plt.gca().set_xticklabels(labels)
+
+        plt.show()  
+
 #########################################################################################################################
         
 #Definimos la clase de la pagina de descarga de datos de la tabla radio
