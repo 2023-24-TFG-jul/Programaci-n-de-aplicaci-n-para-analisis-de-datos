@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.6
+#Versión:0.5.7
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -11,16 +11,17 @@ import psycopg2
 import matplotlib.pyplot as plt
 from sqlalchemy.exc import DataError
 from BaseDatosLvl2 import BaseDatosLvl2
-from tkinter import messagebox
 import numpy as np
-import matplotlib.ticker as ticker
-from datetime import datetime
+
 
 #########################################################################################################################
 class Page(ctk.CTkFrame):
     def __init__(self, master,titulo):
         ctk.CTkFrame.__init__(self, master)
         ctk.CTkLabel(self,text=titulo, font=('Helvetica', 30, "bold")).pack(side="top", fill="x", pady=5)
+        if(titulo!="Login Page"):
+            logout_button = ctk.CTkButton(self, text="Cerrar Sesion",command=lambda: master.switch_frame(LoginPage))
+            logout_button.place(relx=1.0, rely=0.0, anchor='ne')
 
     def crearPopUp(self,mensaje):
         # Crea una ventana de diálogo
