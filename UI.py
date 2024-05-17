@@ -1,11 +1,10 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.7
+#Versión:0.5.8
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
-import tkinter as tk
 import customtkinter as ctk
 import psycopg2
 import matplotlib.pyplot as plt
@@ -234,7 +233,6 @@ class DescVar1(DescBase):
             self.crearPopUp("""Has introducido mal las fechas\n"""+
                                 """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
         except Exception as e:
-            print(e)
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
     
     def update_checkboxes(self, choice):
@@ -267,8 +265,8 @@ class DescVar2(DescVar1):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
         DescVar1.__init__(self, master,titulo,tabla,columnas)
-        ctk.CTkButton(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)  
+        ctk.CTkButton(self, text="Graficar", font=('Arial', 18), command=self.graficar).place(relx=0.75, rely=0.50, anchor='ne')
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).place(relx=0.75, rely=0.59, anchor='ne')  
     #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
@@ -447,7 +445,7 @@ class DescImg(Desc):
     ########################################################################################################################################
     def descImg(self):
         try:
-            self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
+            self.bd2.descImg(self.textboxIni.get('1.0',ctk.END),self.textboxFin.get('1.0',ctk.END))
         except psycopg2.errors.SyntaxError:
             self.crearPopUp("Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
     ########################################################################################################################################
@@ -463,21 +461,30 @@ class Actualizaciones(ctk.CTkFrame):
         ctk.CTkLabel(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18), command=self.actualizardatos).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Actualizar imagenes", font=('Arial', 18), command=self.actualizarimagenes).pack(padx=10, pady=10)
+        logout_button = ctk.CTkButton(self, text="Cerrar Sesion",command=lambda: master.switch_frame(LoginPage))
+        logout_button.place(relx=1.0, rely=0.0, anchor='ne')
         ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)    
         self.bd2=BaseDatosLvl2() 
     ########################################################################################################################################
 
     #Definimos una función para crear un pop up
     ########################################################################################################################################
-    def crearPopUp(self,mensaje):
+    def crearPopUp(self,mensaje,titulo):
         # Crea una ventana de diálogo
         dialog = ctk.CTkToplevel(self)
-        dialog.title("Error")
-        dialog.geometry("200x100")
+        dialog.title(titulo)
+        dialog.geometry("200x200")
+
+        dialog.attributes('-topmost', True)  # Esta línea hace que la ventana emergente permanezca en primer plano
+    
+        # Bloquea la interacción con la ventana de la que proviene
+        dialog.grab_set()
 
         # Mensaje de error
         label = ctk.CTkLabel(dialog, text=mensaje, wraplength=180)
         label.pack(pady=10)
+
+        
 
         # Botón para cerrar el diálogo
         close_button = ctk.CTkButton(dialog, text="Cerrar", command=dialog.destroy)
@@ -500,9 +507,9 @@ class Actualizaciones(ctk.CTkFrame):
             messkyscan="Has intentado introducir {} archivos repetidos en skyscanner\n".format(skyscanerr)
         mensaje=mesradio+messkycam+messkyscan #Creamos el mensaje completo uniendo todos
         if (mensaje!=""): #Si ha habido algun dato repetido mostramos por pantalla los que haya habido
-           self.crearPopUp(mensaje)#Sacamops por pantalla el mensaje
+           self.crearPopUp(mensaje,"Error")#Sacamops por pantalla el mensaje
         else:
-            self.crearPopUp("Has actualizado los datos con exito")#Sacamops por pantalla el mensaje
+            self.crearPopUp("Has actualizado los datos con exito","Existo")#Sacamops por pantalla el mensaje
     ##########################################################################################################################################
 
     #Definimos una función para actualizar las imagenes y que devuelva por pantalla si se incluyen imagenes repetidas
@@ -513,10 +520,10 @@ class Actualizaciones(ctk.CTkFrame):
         
         if (cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
-            self.crearPopUp(messkyscan)
+            self.crearPopUp(messkyscan,"Error")
         else:
             #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
-            self.crearPopUp("Has actualizado todas las imagenes con exito")
+            self.crearPopUp("Has actualizado todas las imagenes con exito","Existo")
     ###########################################################################################################################################
 #########################################################################################################################
 
