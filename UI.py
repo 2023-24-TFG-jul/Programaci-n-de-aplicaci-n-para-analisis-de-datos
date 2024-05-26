@@ -1,25 +1,44 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.3
+#Versión:0.5.8
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
-import tkinter as tk
 import customtkinter as ctk
 import psycopg2
 import matplotlib.pyplot as plt
 from sqlalchemy.exc import DataError
 from BaseDatosLvl2 import BaseDatosLvl2
-from tkinter import messagebox
+import numpy as np
 
 
 #########################################################################################################################
 class Page(ctk.CTkFrame):
     def __init__(self, master,titulo):
         ctk.CTkFrame.__init__(self, master)
-        ctk.CTkLabel(self,text=titulo, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        ctk.CTkLabel(self,text=titulo, font=('Helvetica', 30, "bold")).pack(side="top", fill="x", pady=5)
+        if(titulo!="Login Page"):
+            logout_button = ctk.CTkButton(self, text="Cerrar Sesion",command=lambda: master.switch_frame(LoginPage))
+            logout_button.place(relx=1.0, rely=0.0, anchor='ne')
 
+    def crearPopUp(self,mensaje):
+        # Crea una ventana de diálogo
+        dialog = ctk.CTkToplevel(self)
+        dialog.title("Error")
+        dialog.geometry("200x100")
+        dialog.attributes('-topmost', True)  # Esta línea hace que la ventana emergente permanezca en primer plano
+    
+        # Bloquea la interacción con la ventana de la que proviene
+        dialog.grab_set()
+    
+        # Mensaje de error
+        label = ctk.CTkLabel(dialog, text=mensaje, wraplength=180)
+        label.pack(pady=10)
+    
+        # Botón para cerrar el diálogo
+        close_button = ctk.CTkButton(dialog, text="Cerrar", command=dialog.destroy)
+        close_button.pack()
 
 
 
@@ -33,7 +52,7 @@ class UI(ctk.CTk):
         self._frame = None
         self.switch_frame(LoginPage)
         self.overrideredirect(False)  # Esto asegura que la barra de título y los controles de la ventana sigan visibles
-        self.geometry("{0}x{1}+0+0".format(self.winfo_screenwidth(), self.winfo_screenheight()))
+        self.geometry("{0}x{1}+0+0".format(self.winfo_screenwidth(), self.winfo_screenheight()-70))
 
     #########################################################################################################################
     
@@ -57,8 +76,19 @@ class LoginPage(Page):
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Login Page")
-        ctk.CTkButton(self, text="Login",
-                  command=lambda: master.switch_frame(MainPage)).pack()
+        self.user=ctk.CTkEntry(self, height=1, width=200,placeholder_text="Usuario")
+        self.user.pack(padx=10, pady=10)
+        self.password=ctk.CTkEntry(self, height=1, width=200,placeholder_text="Contraseña",show="*")
+        self.password.pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Login",command=lambda: self.login(master)).pack(padx=10, pady=10)
+    
+    def login(self,master):
+        user=self.user.get()
+        password=self.password.get()
+        if user=="admin" and password=="admin":
+            master.switch_frame(MainPage)
+        else:
+            self.crearPopUp("Usuario o contraseña incorrectos")
 #########################################################################################################################
 
 #Definimos la clase de la pagina principal
@@ -79,9 +109,9 @@ class Descargas(Page):
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Descargas")
-        ctk.CTkButton(self, text="Descarga de datos", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack()
-        ctk.CTkButton(self, text="Descarga de imagenes", font=('Arial', 18), command=lambda: master.switch_frame(DescImg)).pack()
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack()
+        ctk.CTkButton(self, text="Descarga de datos", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Descarga de imagenes", font=('Arial', 18), command=lambda: master.switch_frame(DescImg)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos
@@ -97,7 +127,7 @@ class DescDatos(Page):
         ctk.CTkButton(self, text="SkyscannerProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscannerProc)).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Skycamera", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammera)).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="SkycameraProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2()
 #########################################################################################################################
 class Desc(Page):
@@ -106,28 +136,15 @@ class Desc(Page):
         Page.__init__(self, master,titulo)
         ctk.CTkLabel(self, text="Introduce la fecha de inicio", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxIni = ctk.CTkEntry(self, height=1, width=200,placeholder_text="Fecha de inicio YY-MM-DD")
-        self.textboxIni.pack()
+        self.textboxIni.pack(padx=10, pady=10)
         ctk.CTkLabel(self, text="Introduce la fecha de fin", font=('Arial', 18)).pack(padx=10, pady=10)
         self.textboxFin = ctk.CTkEntry(self, height=1, width=200,placeholder_text="Fecha de final YY-MM-DD")
-        self.textboxFin.pack()
+        self.textboxFin.pack(padx=10, pady=10)
 
     def get_dates(self):
         self.fechain = self.textboxIni.get().strip()
         self.fechafi = self.textboxFin.get().strip()
     
-    def crearPopUp(self,mensaje):
-        # Crea una ventana de diálogo
-        dialog = ctk.CTkToplevel(self)
-        dialog.title("Error")
-        dialog.geometry("200x100")
-
-        # Mensaje de error
-        label = ctk.CTkLabel(dialog, text=mensaje, wraplength=180)
-        label.pack(pady=10)
-
-        # Botón para cerrar el diálogo
-        close_button = ctk.CTkButton(dialog, text="Cerrar", command=dialog.destroy)
-        close_button.pack()
 #TODO: hacer una función que devuelva las fechas pasadas por el usuario, y que lleguen hasta la variación 2
 class DescBase(Desc):
     def __init__(self, master,titulo,tabla):
@@ -175,18 +192,13 @@ class DescVar1(DescBase):
         else:
             columns=columnas.get("Columnas")
             self.option_menu = ctk.CTkOptionMenu(self, values=["Irradiancia", "Iluminancia", "Par", "UV","Miscelanea"], command=self.update_checkboxes)
-            self.option_menu.pack(pady=20)
+            self.option_menu.pack(padx=10, pady=10)
             self.checkboxes_frame = ctk.CTkFrame(self)
             self.checkboxes_frame.pack(fill="both", expand=True)
 
         # Dictionary to hold checkbox variables
             self.checkbox_vars = {}
-        ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-
-
-        # Make a check mark to select each possible column in radio
-
-        
+        ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)       
 
         
     ###########################################################################################################################################
@@ -221,7 +233,6 @@ class DescVar1(DescBase):
             self.crearPopUp("""Has introducido mal las fechas\n"""+
                                 """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
         except Exception as e:
-            print(e)
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
     
     def update_checkboxes(self, choice):
@@ -245,7 +256,7 @@ class DescVar1(DescBase):
             if(option in self.columnasres):
                 var.set(True)
             checkbox = ctk.CTkCheckBox(self.checkboxes_frame, text=option, variable=var)
-            checkbox.pack()
+            checkbox.pack(padx=10, pady=5)
             self.checkbox_vars[choice].append((checkbox, var))
     ###########################################################################################################################################
     
@@ -254,8 +265,8 @@ class DescVar2(DescVar1):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
         DescVar1.__init__(self, master,titulo,tabla,columnas)
-        ctk.CTkButton(self, text="Graficar", font=('Arial', 18), command=self.graficar).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()  
+        ctk.CTkButton(self, text="Graficar", font=('Arial', 18), command=self.graficar).place(relx=0.75, rely=0.50, anchor='ne')
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).place(relx=0.75, rely=0.59, anchor='ne')  
     #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
@@ -271,10 +282,12 @@ class DescVar2(DescVar1):
                 for key in index.keys():
                     if col in index.get(key).keys():
                         columnasres.append(index.get(key).get(col))
+            time="TIMESTAMP"
         else:
             checked_columns = [column for column, var in self.vars.items() if var.get()]
             for col in checked_columns:
                 columnasres.append(self.columnas.get("Columnas").get(col))
+            time="time"
         
         try:
             dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
@@ -289,14 +302,30 @@ class DescVar2(DescVar1):
             print(e)
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
             raise e
-        plt.figure(figsize=(10, 6))  # Create a new figure with custom size
+
+
+        plt.figure(figsize=(10, 6))  
         for column in columnasres:
-            plt.plot(dataframe["date"],dataframe[column], label=column)  # Plot each column
+            plt.plot(dataframe[time],dataframe[column], label=column) 
         plt.xlabel('Fecha')
-        plt.title('Graph of Columns')
-        plt.legend()  # Show legend with column names
-        plt.show()  # Display the graph
-    ###########################################################################################################################################
+
+        plt.xticks(np.arange(0, len(dataframe[time]), step=len(dataframe[time])/10))  
+        plt.title('Grafico de las columnas')
+
+        plt.legend()  
+        plt.draw()  
+
+        
+        labels = [item.get_text() for item in plt.gca().get_xticklabels()]
+
+      
+        labels = [label[2:10] for label in labels]
+
+       
+        plt.gca().set_xticklabels(labels)
+
+        plt.show()  
+
 #########################################################################################################################
         
 #Definimos la clase de la pagina de descarga de datos de la tabla radio
@@ -358,7 +387,7 @@ class DescSkyscanner(DescBase):
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla Skyscanner","skyscanner")
         ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
     ###########################################################################################################################################
 #########################################################################################################################
 
@@ -370,7 +399,7 @@ class DescSkyscannerProc(DescBase):
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla SkyScannerProc","skyscannerproc")
         ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
     ###########################################################################################################################################
 #########################################################################################################################
             
@@ -383,7 +412,7 @@ class DescSkyCammera(DescVar1):
                     "Mensaje de covertura de nubes":"cloud_cover_msg","Imagen de covertura de nubes":"cloudimg","Polvo":"dust",
                     "Elevación":"elevation","Imagen":"image","Modo":"mode","Temperatura":"temperature"}}
         DescVar1.__init__(self, master,"Tabla Skycamera","skycamera",columnas)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack()
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
     ###########################################################################################################################################
 #########################################################################################################################
 
@@ -408,7 +437,7 @@ class DescImg(Desc):
     def __init__(self, master):
         Desc.__init__(self, master,"Descarga de imagenes")
         ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descImg).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack()
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2()
     ########################################################################################################################################
         
@@ -416,7 +445,7 @@ class DescImg(Desc):
     ########################################################################################################################################
     def descImg(self):
         try:
-            self.bd2.descImg(self.textboxIni.get('1.0',tk.END),self.textboxFin.get('1.0',tk.END))
+            self.bd2.descImg(self.textboxIni.get('1.0',ctk.END),self.textboxFin.get('1.0',ctk.END))
         except psycopg2.errors.SyntaxError:
             self.crearPopUp("Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
     ########################################################################################################################################
@@ -432,21 +461,30 @@ class Actualizaciones(ctk.CTkFrame):
         ctk.CTkLabel(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
         ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18), command=self.actualizardatos).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Actualizar imagenes", font=('Arial', 18), command=self.actualizarimagenes).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack()    
+        logout_button = ctk.CTkButton(self, text="Cerrar Sesion",command=lambda: master.switch_frame(LoginPage))
+        logout_button.place(relx=1.0, rely=0.0, anchor='ne')
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)    
         self.bd2=BaseDatosLvl2() 
     ########################################################################################################################################
 
     #Definimos una función para crear un pop up
     ########################################################################################################################################
-    def crearPopUp(self,mensaje):
+    def crearPopUp(self,mensaje,titulo):
         # Crea una ventana de diálogo
         dialog = ctk.CTkToplevel(self)
-        dialog.title("Error")
-        dialog.geometry("200x100")
+        dialog.title(titulo)
+        dialog.geometry("200x200")
+
+        dialog.attributes('-topmost', True)  # Esta línea hace que la ventana emergente permanezca en primer plano
+    
+        # Bloquea la interacción con la ventana de la que proviene
+        dialog.grab_set()
 
         # Mensaje de error
         label = ctk.CTkLabel(dialog, text=mensaje, wraplength=180)
         label.pack(pady=10)
+
+        
 
         # Botón para cerrar el diálogo
         close_button = ctk.CTkButton(dialog, text="Cerrar", command=dialog.destroy)
@@ -469,9 +507,9 @@ class Actualizaciones(ctk.CTkFrame):
             messkyscan="Has intentado introducir {} archivos repetidos en skyscanner\n".format(skyscanerr)
         mensaje=mesradio+messkycam+messkyscan #Creamos el mensaje completo uniendo todos
         if (mensaje!=""): #Si ha habido algun dato repetido mostramos por pantalla los que haya habido
-           self.crearPopUp(mensaje)#Sacamops por pantalla el mensaje
+           self.crearPopUp(mensaje,"Error")#Sacamops por pantalla el mensaje
         else:
-            self.crearPopUp("Has actualizado los datos con exito")#Sacamops por pantalla el mensaje
+            self.crearPopUp("Has actualizado los datos con exito","Existo")#Sacamops por pantalla el mensaje
     ##########################################################################################################################################
 
     #Definimos una función para actualizar las imagenes y que devuelva por pantalla si se incluyen imagenes repetidas
@@ -482,10 +520,10 @@ class Actualizaciones(ctk.CTkFrame):
         
         if (cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
-            self.crearPopUp(messkyscan)
+            self.crearPopUp(messkyscan,"Error")
         else:
             #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
-            self.crearPopUp("Has actualizado todas las imagenes con exito")
+            self.crearPopUp("Has actualizado todas las imagenes con exito","Existo")
     ###########################################################################################################################################
 #########################################################################################################################
 
