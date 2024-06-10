@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.3.0
+#Versión:0.3.1
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -22,9 +22,10 @@ class AnalisisIA:
     fechaini="00-00-0000"
     fechafin="01-01-3000"
 
-    def __init__(self, base_datos):
-        self.base_datos = base_datos
+    def __init__(self):
+        self.base_datos =BaseDatosLvl2()
         self.calc=Calculadora()
+    
         with open('setting.txt', 'r') as file:
               self.fechaUltimAct = float(file.read())
         self.longitude=-3.6879829504876676
@@ -135,7 +136,3 @@ class AnalisisIA:
         self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6)
     def analisiUv(self):
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9)
-
-base=BaseDatosLvl2()
-ana=AnalisisIA(base)
-ana.analisiIrra()
