@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.2.0
+#Versión:0.3.0
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -25,9 +25,8 @@ class AnalisisIA:
     def __init__(self, base_datos):
         self.base_datos = base_datos
         self.calc=Calculadora()
-        #with open('setting.txt', 'r') as file:
-        #       self.fechaUltimAct = float(file.read())
-        self.fechaUltimAct=2311110000
+        with open('setting.txt', 'r') as file:
+              self.fechaUltimAct = float(file.read())
         self.longitude=-3.6879829504876676
         self.latitude=42.3515619402223
               
@@ -39,6 +38,9 @@ class AnalisisIA:
         
         #Obtenemos los datos de la base de datos partiendo del inicio de los tiempos hasta el siglo 31
         dataAll=self.base_datos.obtenerdat(col,"radioproc",self.fechaini,self.fechafin)
+        max_date = dataAll['date'].max()
+        with open('setting.txt', 'w') as file:
+              file.write(str(max_date))
         #nos quedamos con las parte del fallo que nos interesa
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
         dataAll = dataAll[dataAll["fallo"] != "000"]
@@ -85,8 +87,8 @@ class AnalisisIA:
 
         # Graficar resultados
         plt.figure(figsize=(12, 6))
-        plt.plot(y_test.values, label='Actual')
-        plt.plot(preds_test, label='Predicted')
+        plt.plot(y_test.values,X_test[:,0],'o', label='Actual')
+        plt.plot(preds_test,X_test[:,0],'o', label='Predicted')
         plt.legend()
         plt.show()
 
@@ -113,12 +115,12 @@ class AnalisisIA:
         # Evaluar el modelo retrain
         combined_test_loss = mean_squared_error(y_test, preds_combined_test)
         print(f"Combined Test Loss: {combined_test_loss}")
-
+        
         # Graficar resultados después del retrain
         plt.figure(figsize=(12, 6))
-        plt.plot(y_test.values, label='Actual')
-        plt.plot(preds_test, label='Original Predicted')
-        plt.plot(preds_combined_test, label='Combined Predicted')
+        plt.plot(y_test.values,X_test[:,0],'o', label='Actual')
+        plt.plot(preds_test,X_test[:,0], 'o',label='Original Predicted')
+        plt.plot(preds_combined_test,X_test[:,0], 'o',label='Combined Predicted')
         plt.legend()
         plt.show()
 
