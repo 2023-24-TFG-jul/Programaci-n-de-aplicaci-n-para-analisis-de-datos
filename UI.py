@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.5.8
+#Versión:0.6.0
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from sqlalchemy.exc import DataError
 from BaseDatosLvl2 import BaseDatosLvl2
 import numpy as np
+from AnalisisIA import AnalisisIA
 
 
 #########################################################################################################################
@@ -99,6 +100,7 @@ class MainPage(Page):
     def __init__(self, master):
         Page.__init__(self, master,"Main Page")
         ctk.CTkButton(self, text="Descargas", font=('Arial', 18), command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de los datos",font=('Arial', 18), command=lambda: master.switch_frame(Analisis)).pack(padx=10, pady=10)  
         ctk.CTkButton(self, text="Actualizaciones", font=('Arial', 18), command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
 #########################################################################################################################
 
@@ -453,17 +455,13 @@ class DescImg(Desc):
 
 #Definimos la clase de la pagina de actualizaciones
 #########################################################################################################################
-class Actualizaciones(ctk.CTkFrame):
+class Actualizaciones(Page):
     #Definimos el constructor de la clase
     ########################################################################################################################################
     def __init__(self, master):
-        ctk.CTkFrame.__init__(self, master)
-        ctk.CTkLabel(self, font=('Helvetica', 18, "bold")).pack(side="top", fill="x", pady=5)
+        Page.__init__(self, master,"Actualizaciones")
         ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18), command=self.actualizardatos).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Actualizar imagenes", font=('Arial', 18), command=self.actualizarimagenes).pack(padx=10, pady=10)
-        logout_button = ctk.CTkButton(self, text="Cerrar Sesion",command=lambda: master.switch_frame(LoginPage))
-        logout_button.place(relx=1.0, rely=0.0, anchor='ne')
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)    
         self.bd2=BaseDatosLvl2() 
     ########################################################################################################################################
 
@@ -526,7 +524,15 @@ class Actualizaciones(ctk.CTkFrame):
             self.crearPopUp("Has actualizado todas las imagenes con exito","Existo")
     ###########################################################################################################################################
 #########################################################################################################################
-
+class Analisis(Page):
+    def __init__(self, master):
+        analisis=AnalisisIA()
+        Page.__init__(self, master,"Analisis de los datos")
+        ctk.CTkButton(self, text="Analisis de la Irradiancia", font=('Arial', 18), command=lambda:analisis.analisiIrra()).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de la Iluminancia", font=('Arial', 18), command=lambda:analisis.analisiIlum()).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de la Par", font=('Arial', 18), command=lambda:analisis.analsisPar()).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de la UV", font=('Arial', 18), command=lambda:analisis.analisiUv()).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)
 #Ejecutamos la interfaz de usuario     
 #########################################################################################################################   
 if __name__ == "__main__":
