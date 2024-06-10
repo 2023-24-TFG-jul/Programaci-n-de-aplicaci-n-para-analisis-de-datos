@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.1.0
+#Versión:0.2.0
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -19,12 +19,15 @@ import math
 
 class AnalisisIA:
 
+    fechaini="00-00-0000"
+    fechafin="01-01-3000"
+
     def __init__(self, base_datos):
         self.base_datos = base_datos
         self.calc=Calculadora()
         #with open('setting.txt', 'r') as file:
         #       self.fechaUltimAct = float(file.read())
-        self.fechaUltimAct="11-11-2023"
+        self.fechaUltimAct=2311110000
         self.longitude=-3.6879829504876676
         self.latitude=42.3515619402223
               
@@ -32,18 +35,22 @@ class AnalisisIA:
     def analisis(self,colum,numin):
         # Supongamos que tus datos están en un archivo CSV
 
-        col="TIMESTAMP,"+colum[0]+","+colum[1]+","+colum[2]+",fallo"
+        col="TIMESTAMP,"+colum[0]+","+colum[1]+","+colum[2]+",fallo,date"
         
         #Obtenemos los datos de la base de datos partiendo del inicio de los tiempos hasta el siglo 31
-        data=self.base_datos.obtenerdat(col,"radioproc","00-00-0000",self.fechaUltimAct)
+        dataAll=self.base_datos.obtenerdat(col,"radioproc",self.fechaini,self.fechafin)
         #nos quedamos con las parte del fallo que nos interesa
-        data['fallo'] = data['fallo'].str.slice(numin, numin+3)
-        data = data[data["fallo"] != "000"]
-        data=data.dropna()
+        dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
+        dataAll = dataAll[dataAll["fallo"] != "000"]
+        dataAll=dataAll.dropna()
+        
         #Calculamos la fecha de manera que se pueda introducir en la función de pysolar
-        data["TIMESTAMP"] =data[["TIMESTAMP"]].apply(lambda row :self.calc.dates(row["TIMESTAMP"]),axis=1)
+        dataAll["TIMESTAMP"] =dataAll[["TIMESTAMP"]].apply(lambda row :self.calc.dates(row["TIMESTAMP"]),axis=1)
         #Calculamos la suma de la irradiancia difusa y directa multiplicada por el coseno del angulo de incidencia
-        data["Suma Difusa y directa"] = data[[colum[1],colum[2],"TIMESTAMP"]].apply(lambda row :row[colum[1]]+row[colum[2]]*math.cos(math.radians(90-get_altitude(self.latitude, self.longitude, row["TIMESTAMP"]))),axis=1)
+        dataAll["Suma Difusa y directa"] = dataAll[[colum[1],colum[2],"TIMESTAMP"]].apply(lambda row :row[colum[1]]+row[colum[2]]*math.cos(math.radians(90-get_altitude(self.latitude, self.longitude, row["TIMESTAMP"]))),axis=1)
+
+        data = dataAll[dataAll['date'] < self.fechaUltimAct]
+        new_data=dataAll[dataAll['date'] > self.fechaUltimAct]
 
 
        
@@ -64,6 +71,7 @@ class AnalisisIA:
         # Entrenar el modelo
         model.fit(X_train, y_train)
 
+
         # Hacer predicciones
         preds_train = model.predict(X_train)
         preds_test = model.predict(X_test)
@@ -82,12 +90,14 @@ class AnalisisIA:
         plt.legend()
         plt.show()
 
-        # Supongamos que los nuevos datos también están en un CSV
-        new_data = pd.read_csv('nuevos_datos.csv')
+
+
+
+
 
         # Preprocesar nuevos datos
         X_new = new_data[[colum[0],colum[1],colum[2]]]
-        y_new = new_data["Suma Difusa y directa"]  # Esta es tu variable objetivo en los nuevos datos
+        y_new = new_data["Suma Difusa y directa"]
         X_new_scaled = scaler.transform(X_new)
 
         # Combinar datos antiguos y nuevos
@@ -111,6 +121,7 @@ class AnalisisIA:
         plt.plot(preds_combined_test, label='Combined Predicted')
         plt.legend()
         plt.show()
+
 
     def analisiIrra(self):
         self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0)
