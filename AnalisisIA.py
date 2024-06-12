@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.5.0
+#Versión:0.5.1
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -44,24 +44,24 @@ class AnalisisIA:
               #file.write(str(max_date))
         # Filtrar las filas de 'fallo' que contienen los flags
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
+        print(dataAll.shape)
         for flag in flags:
             dataAll = dataAll[~dataAll['fallo'].str.contains(flag)]
-        
+        print(dataAll.shape)
         dataAll = dataAll.dropna()
-        
+        print(dataAll.shape)
         # Calculamos la fecha de manera que se pueda introducir en la función de pysolar
         dataAll["TIMESTAMP"] = dataAll[["TIMESTAMP"]].apply(lambda row: self.calc.dates(row["TIMESTAMP"]), axis=1)
         # Calculamos la suma de la irradiancia difusa y directa multiplicada por el coseno del ángulo de incidencia
         dataAll["Suma Difusa y directa"] = dataAll[[colum[1], colum[2], "TIMESTAMP"]].apply(
             lambda row: row[colum[1]] + row[colum[2]] * math.cos(math.radians(90 - get_altitude(self.latitude, self.longitude, row["TIMESTAMP"]))), axis=1)
-
+        dataAll["angle"] = dataAll[["TIMESTAMP"]].apply(lambda row: 90 - get_altitude(self.latitude, self.longitude, row["TIMESTAMP"]), axis=1)
         data = dataAll[dataAll['date'] < self.fechaUltimAct]
         new_data = dataAll[dataAll['date'] > self.fechaUltimAct]
 
         # Separar características y la variable objetivo
         X = data[[colum[1], colum[2]]]
-        y = data[[colum[0],"Suma Difusa y directa"]]
-        print(y)
+        y = data[[colum[0],"Suma Difusa y directa","angle"]]
         # Normalizar los datos
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
@@ -73,9 +73,9 @@ class AnalisisIA:
         # Dividir los datos en entrenamiento y prueba
         X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
         y_train = y_train[colum[0]]
-        ysuma=y_test["Suma Difusa y directa"]
+        ysuma=y_test[["Suma Difusa y directa","angle"]]
         y_test = y_test[colum[0]]
-        print(y_train)
+        
         # Definir el modelo
         model = MLPRegressor(hidden_layer_sizes=(64, 64), activation='relu', solver='adam', max_iter=1000, random_state=42)
 
@@ -99,7 +99,6 @@ class AnalisisIA:
         X_new_scaled = scaler.transform(X_new)
         # Aplicar PCA a los nuevos datos
         X_new_pca = pca.transform(X_new_scaled)
-        print(y_new)
 
         # Combinar datos antiguos y nuevos
         X_combined = np.vstack((X_train, X_new_pca))
@@ -114,12 +113,26 @@ class AnalisisIA:
         # Evaluar el modelo retrain
         combined_test_loss = mean_squared_error(y_test, preds_combined_test)
         print(f"Combined Test Loss: {combined_test_loss}")
-        
+        y_tests = ysuma[["Suma Difusa y directa","angle"]]
+        y_tests[colum[0]] = y_test.values
+        preds_tests = ysuma[["Suma Difusa y directa","angle"]]
+        preds_tests[colum[0]] = preds_test
+        preds_combined_tests = ysuma[["Suma Difusa y directa","angle"]]
+        preds_combined_tests[colum[0]] = preds_combined_test
+        y_test_AmanAtar=y_tests[y_tests['angle']>60]
+        y_test_gen=y_tests[y_tests['angle']<60]
+        preds_test_AmanAtar=preds_tests[preds_tests['angle']>60]
+        preds_test_gen=preds_tests[preds_tests['angle']<60]
+        preds_combined_test_AmanAtar=preds_combined_tests[preds_combined_tests['angle']>60]
+        preds_combined_test_gen=preds_combined_tests[preds_combined_tests['angle']<60]
         # Graficar resultados después del retrain
         plt.figure(figsize=(12, 6))
-        plt.plot(y_test.values,ysuma, 'o', label='Medida')
-        plt.plot(preds_test,ysuma, 'o', label='Predicción Antigua')
-        plt.plot(preds_combined_test,ysuma, 'o', label='Nueva Predicción')
+        plt.plot(y_test_AmanAtar[colum[0]],y_test_AmanAtar["Suma Difusa y directa"], 'o',color='#EB1515', label='Medida Amanecer/Atardecer')
+        plt.plot(y_test_gen[colum[0]],y_test_gen["Suma Difusa y directa"], 'o',color='#A91C00', label='Medida Normal')
+        plt.plot(preds_test_AmanAtar[colum[0]],preds_test_AmanAtar["Suma Difusa y directa"], 'o',color='#5CEC0F', label='Predicción antigua Amanecer/Atardecer')
+        plt.plot(preds_test_gen[colum[0]],preds_test_gen["Suma Difusa y directa"], 'o',color='#0A6E0A',  label='Predicción antigua Normal')
+        plt.plot(preds_combined_test_AmanAtar[colum[0]],preds_combined_test_AmanAtar["Suma Difusa y directa"], 'o',color='#0D49F7', label='Nueva Predicción Amanecer/Atardecer')
+        plt.plot(preds_combined_test_gen[colum[0]],preds_combined_test_gen["Suma Difusa y directa"], 'o',color='#051F68', label='Nueva Predicción Normal')
         plt.xlabel('Global Horizontal (W/m^2)')
         plt.ylabel('Suma de la difusa y la directa (W/m^2)')
         plt.legend()
