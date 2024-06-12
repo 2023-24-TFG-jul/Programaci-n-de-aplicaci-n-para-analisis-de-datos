@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.3.1
+#Versión:0.4.0
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -32,7 +32,7 @@ class AnalisisIA:
         self.latitude=42.3515619402223
               
 
-    def analisis(self,colum,numin):
+    def analisis(self,colum,numin,titulo):
         # Supongamos que tus datos están en un archivo CSV
 
         col="TIMESTAMP,"+colum[0]+","+colum[1]+","+colum[2]+",fallo,date"
@@ -40,13 +40,14 @@ class AnalisisIA:
         #Obtenemos los datos de la base de datos partiendo del inicio de los tiempos hasta el siglo 31
         dataAll=self.base_datos.obtenerdat(col,"radioproc",self.fechaini,self.fechafin)
         max_date = dataAll['date'].max()
-        with open('setting.txt', 'w') as file:
-              file.write(str(max_date))
+        #with open('setting.txt', 'w') as file:
+              #file.write(str(max_date))
         #nos quedamos con las parte del fallo que nos interesa
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
+        print(dataAll.shape)
         dataAll = dataAll[dataAll["fallo"] != "000"]
         dataAll=dataAll.dropna()
-        
+        print(dataAll.shape)
         #Calculamos la fecha de manera que se pueda introducir en la función de pysolar
         dataAll["TIMESTAMP"] =dataAll[["TIMESTAMP"]].apply(lambda row :self.calc.dates(row["TIMESTAMP"]),axis=1)
         #Calculamos la suma de la irradiancia difusa y directa multiplicada por el coseno del angulo de incidencia
@@ -58,19 +59,23 @@ class AnalisisIA:
 
        
         # Separar características y la variable objetivo
-        X = data[[colum[0],colum[1],colum[2]]]
-        y = data["Suma Difusa y directa"]  
+        X = data[[colum[1],colum[2],"Suma Difusa y directa"]]
+        y = data[colum[0]]  
 
         # Normalizar los datos
         scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
+        
 
         # Dividir los datos en entrenamiento y prueba
-        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
         # Definir el modelo
         model = MLPRegressor(hidden_layer_sizes=(64, 64), activation='relu', solver='adam', max_iter=500)
-
+        X_train = X_train.drop(columns=["Suma Difusa y directa"])
+        x_Timestamp=X_test["Suma Difusa y directa"]
+        X_test=X_test[[colum[1],colum[2]]]
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
         # Entrenar el modelo
         model.fit(X_train, y_train)
 
@@ -86,22 +91,13 @@ class AnalisisIA:
         print(f"Train Loss: {train_loss}")
         print(f"Test Loss: {test_loss}")
 
-        # Graficar resultados
-        plt.figure(figsize=(12, 6))
-        plt.plot(y_test.values,X_test[:,0],'o', label='Actual')
-        plt.plot(preds_test,X_test[:,0],'o', label='Predicted')
-        plt.legend()
-        plt.show()
-
-
-
 
 
 
         # Preprocesar nuevos datos
-        X_new = new_data[[colum[0],colum[1],colum[2]]]
-        y_new = new_data["Suma Difusa y directa"]
-        X_new_scaled = scaler.transform(X_new)
+        X_new = new_data[[colum[1],colum[2]]]
+        y_new = new_data[colum[0]]
+        X_new_scaled = scaler.fit_transform(X_new)
 
         # Combinar datos antiguos y nuevos
         X_combined = np.vstack((X_train, X_new_scaled))
@@ -119,20 +115,26 @@ class AnalisisIA:
         
         # Graficar resultados después del retrain
         plt.figure(figsize=(12, 6))
-        plt.plot(y_test.values,X_test[:,0],'o', label='Actual')
-        plt.plot(preds_test,X_test[:,0], 'o',label='Original Predicted')
-        plt.plot(preds_combined_test,X_test[:,0], 'o',label='Combined Predicted')
+        plt.plot(y_test.values,x_Timestamp,'o', label='Medida')
+        plt.plot(preds_test,x_Timestamp, 'o',label='Predicción Antigua')
+        plt.plot(preds_combined_test,x_Timestamp, 'o',label='Nueva Predicción')
+
         plt.legend()
+        plt.title(titulo)
         plt.show()
 
 
     def analisiIrra(self):
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0)
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia")
 
     def analisiIlum(self):
-        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3)
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia")
         
     def analsisPar(self):
-        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6)
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par")
     def analisiUv(self):
-        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9)
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv")
+
+
+anal=AnalisisIA()
+anal.analisiIrra()
