@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.4.1
+#Versión:0.5.0
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -16,11 +16,12 @@ from Calculadora import Calculadora
 from BaseDatosLvl2 import BaseDatosLvl2
 from pysolar.solar import *
 import math
+from sklearn.decomposition import PCA
 
 class AnalisisIA:
 
-    fechaini="00-00-0000"
-    fechafin="01-01-3000"
+    fechaini="00-00-00"
+    fechafin="99-01-30"
 
     def __init__(self):
         self.base_datos =BaseDatosLvl2()
@@ -32,55 +33,54 @@ class AnalisisIA:
         self.latitude=42.3515619402223
               
 
-    def analisis(self,colum,numin,titulo,flags):
+    def analisis(self, colum, numin, titulo, flags):
         # Supongamos que tus datos están en un archivo CSV
 
-        col="TIMESTAMP,"+colum[0]+","+colum[1]+","+colum[2]+",fallo,date"
+        col = "TIMESTAMP," + colum[0] + "," + colum[1] + "," + colum[2] + ",fallo,date"
         
-        #Obtenemos los datos de la base de datos partiendo del inicio de los tiempos hasta el siglo 31
-        dataAll=self.base_datos.obtenerdat(col,"radioproc",self.fechaini,self.fechafin)
+        dataAll = self.base_datos.obtenerdat(col, "radioproc", self.fechaini, self.fechafin)
         max_date = dataAll['date'].max()
         #with open('setting.txt', 'w') as file:
               #file.write(str(max_date))
-        #nos quedamos con las parte del fallo que nos interesa
+        # Filtrar las filas de 'fallo' que contienen los flags
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
-        print(dataAll.shape)
         for flag in flags:
-            df = df[~df['fallo'].str.contains(flag)]
+            dataAll = dataAll[~dataAll['fallo'].str.contains(flag)]
         
-        dataAll=dataAll.dropna()
-        print(dataAll.shape)
-        #Calculamos la fecha de manera que se pueda introducir en la función de pysolar
-        dataAll["TIMESTAMP"] =dataAll[["TIMESTAMP"]].apply(lambda row :self.calc.dates(row["TIMESTAMP"]),axis=1)
-        #Calculamos la suma de la irradiancia difusa y directa multiplicada por el coseno del angulo de incidencia
-        dataAll["Suma Difusa y directa"] = dataAll[[colum[1],colum[2],"TIMESTAMP"]].apply(lambda row :row[colum[1]]+row[colum[2]]*math.cos(math.radians(90-get_altitude(self.latitude, self.longitude, row["TIMESTAMP"]))),axis=1)
+        dataAll = dataAll.dropna()
+        
+        # Calculamos la fecha de manera que se pueda introducir en la función de pysolar
+        dataAll["TIMESTAMP"] = dataAll[["TIMESTAMP"]].apply(lambda row: self.calc.dates(row["TIMESTAMP"]), axis=1)
+        # Calculamos la suma de la irradiancia difusa y directa multiplicada por el coseno del ángulo de incidencia
+        dataAll["Suma Difusa y directa"] = dataAll[[colum[1], colum[2], "TIMESTAMP"]].apply(
+            lambda row: row[colum[1]] + row[colum[2]] * math.cos(math.radians(90 - get_altitude(self.latitude, self.longitude, row["TIMESTAMP"]))), axis=1)
 
         data = dataAll[dataAll['date'] < self.fechaUltimAct]
-        new_data=dataAll[dataAll['date'] > self.fechaUltimAct]
+        new_data = dataAll[dataAll['date'] > self.fechaUltimAct]
 
-
-       
         # Separar características y la variable objetivo
-        X = data[[colum[1],colum[2],"Suma Difusa y directa"]]
-        y = data[colum[0]]  
-
+        X = data[[colum[1], colum[2]]]
+        y = data[[colum[0],"Suma Difusa y directa"]]
+        print(y)
         # Normalizar los datos
         scaler = StandardScaler()
-        
+        X_scaled = scaler.fit_transform(X)
+
+        # Aplicar PCA
+        pca = PCA(n_components=2)  # Reducimos a 2 componentes principales
+        X_pca = pca.fit_transform(X_scaled)
 
         # Dividir los datos en entrenamiento y prueba
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
+        X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
+        y_train = y_train[colum[0]]
+        ysuma=y_test["Suma Difusa y directa"]
+        y_test = y_test[colum[0]]
+        print(y_train)
         # Definir el modelo
-        model = MLPRegressor(hidden_layer_sizes=(64, 64), activation='relu', solver='adam', max_iter=500)
-        X_train = X_train.drop(columns=["Suma Difusa y directa"])
-        x_Timestamp=X_test["Suma Difusa y directa"]
-        X_test=X_test[[colum[1],colum[2]]]
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
+        model = MLPRegressor(hidden_layer_sizes=(64, 64), activation='relu', solver='adam', max_iter=1000, random_state=42)
+
         # Entrenar el modelo
         model.fit(X_train, y_train)
-
 
         # Hacer predicciones
         preds_train = model.predict(X_train)
@@ -93,16 +93,16 @@ class AnalisisIA:
         print(f"Train Loss: {train_loss}")
         print(f"Test Loss: {test_loss}")
 
-
-
-
         # Preprocesar nuevos datos
-        X_new = new_data[[colum[1],colum[2]]]
+        X_new = new_data[[colum[1], colum[2]]]
         y_new = new_data[colum[0]]
-        X_new_scaled = scaler.fit_transform(X_new)
+        X_new_scaled = scaler.transform(X_new)
+        # Aplicar PCA a los nuevos datos
+        X_new_pca = pca.transform(X_new_scaled)
+        print(y_new)
 
         # Combinar datos antiguos y nuevos
-        X_combined = np.vstack((X_train, X_new_scaled))
+        X_combined = np.vstack((X_train, X_new_pca))
         y_combined = np.hstack((y_train, y_new))
 
         # Retrain el modelo con datos combinados
@@ -117,36 +117,37 @@ class AnalisisIA:
         
         # Graficar resultados después del retrain
         plt.figure(figsize=(12, 6))
-        plt.plot(y_test.values,x_Timestamp,'o', label='Medida')
-        plt.plot(preds_test,x_Timestamp, 'o',label='Predicción Antigua')
-        plt.plot(preds_combined_test,x_Timestamp, 'o',label='Nueva Predicción')
-
+        plt.plot(y_test.values,ysuma, 'o', label='Medida')
+        plt.plot(preds_test,ysuma, 'o', label='Predicción Antigua')
+        plt.plot(preds_combined_test,ysuma, 'o', label='Nueva Predicción')
+        plt.xlabel('Global Horizontal (W/m^2)')
+        plt.ylabel('Suma de la difusa y la directa (W/m^2)')
         plt.legend()
         plt.title(titulo)
         plt.show()
 
     def analisiIrra(self):
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Todo",[0])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Fisico",[2])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia ClearSky",[3,4])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Coherencia",[5,6])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Todo",['0'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Fisico",['0','2'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia ClearSky",['0','2''3','4'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Coherencia",['0','2','3','4','5','6'])
 
     def analisiIlum(self):
-        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Todo",[0])
-        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Fisico",[2])
-        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia ClearSky",[3,4])
-        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Coherencia",[5,6])
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Todo",['0'])
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Fisico",['0','2'])
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia ClearSky",['0','2''3','4'])
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Coherencia",['0','2','3','4','5','6'])
         
     def analsisPar(self):
-        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Todo",[0])
-        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Fisico",[2])
-        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par ClearSky",[3,4])
-        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Coherencia",[5,6])
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Todo",['0'])
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Fisico",['0','2'])
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par ClearSky",['0','2','3','4'])
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Coherencia",['0','2','3','4','5','6'])
     def analisiUv(self):
-        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Todo",[0])
-        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Fisico",[2])
-        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv ClearSky",[3,4])
-        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Coherencia",[5,6])
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Todo",['0'])
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Fisico",['2'])
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv ClearSky",['0','2','3','4'])
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Coherencia",['0','2','3','4','5','6'])
 
 
 anal=AnalisisIA()
