@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.4.0
+#Versión:0.4.1
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -32,7 +32,7 @@ class AnalisisIA:
         self.latitude=42.3515619402223
               
 
-    def analisis(self,colum,numin,titulo):
+    def analisis(self,colum,numin,titulo,flags):
         # Supongamos que tus datos están en un archivo CSV
 
         col="TIMESTAMP,"+colum[0]+","+colum[1]+","+colum[2]+",fallo,date"
@@ -45,7 +45,9 @@ class AnalisisIA:
         #nos quedamos con las parte del fallo que nos interesa
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
         print(dataAll.shape)
-        dataAll = dataAll[dataAll["fallo"] != "000"]
+        for flag in flags:
+            df = df[~df['fallo'].str.contains(flag)]
+        
         dataAll=dataAll.dropna()
         print(dataAll.shape)
         #Calculamos la fecha de manera que se pueda introducir en la función de pysolar
@@ -123,17 +125,28 @@ class AnalisisIA:
         plt.title(titulo)
         plt.show()
 
-
     def analisiIrra(self):
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia")
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Todo",[0])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Fisico",[2])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia ClearSky",[3,4])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Coherencia",[5,6])
 
     def analisiIlum(self):
-        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia")
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Todo",[0])
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Fisico",[2])
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia ClearSky",[3,4])
+        self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Coherencia",[5,6])
         
     def analsisPar(self):
-        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par")
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Todo",[0])
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Fisico",[2])
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par ClearSky",[3,4])
+        self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Coherencia",[5,6])
     def analisiUv(self):
-        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv")
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Todo",[0])
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Fisico",[2])
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv ClearSky",[3,4])
+        self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Coherencia",[5,6])
 
 
 anal=AnalisisIA()
