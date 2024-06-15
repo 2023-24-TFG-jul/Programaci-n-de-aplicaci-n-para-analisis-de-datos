@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.6.0
+#Versión:0.6.1
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -81,7 +81,7 @@ class LoginPage(Page):
         self.user.pack(padx=10, pady=10)
         self.password=ctk.CTkEntry(self, height=1, width=200,placeholder_text="Contraseña",show="*")
         self.password.pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Login",command=lambda: self.login(master)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Login",font=('Arial', 18),command=lambda: self.login(master)).pack(padx=10, pady=10)
     
     def login(self,master):
         user=self.user.get()
@@ -99,9 +99,9 @@ class MainPage(Page):
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Main Page")
-        ctk.CTkButton(self, text="Descargas", font=('Arial', 18), command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="        Descargas        ", font=('Arial', 18), command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Analisis de los datos",font=('Arial', 18), command=lambda: master.switch_frame(Analisis)).pack(padx=10, pady=10)  
-        ctk.CTkButton(self, text="Actualizaciones", font=('Arial', 18), command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="    Actualizaciones    ", font=('Arial', 18), command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descargas
@@ -111,9 +111,9 @@ class Descargas(Page):
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Descargas")
-        ctk.CTkButton(self, text="Descarga de datos", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="    Descarga de datos   ", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Descarga de imagenes", font=('Arial', 18), command=lambda: master.switch_frame(DescImg)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="            Atras           ", font=('Arial', 18),command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos
@@ -129,7 +129,7 @@ class DescDatos(Page):
         ctk.CTkButton(self, text="SkyscannerProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscannerProc)).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Skycamera", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammera)).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="SkycameraProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18),command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2()
 #########################################################################################################################
 class Desc(Page):
@@ -253,13 +253,22 @@ class DescVar1(DescBase):
         print(len(options))
         # Create new checkboxes based on the choice
         self.checkbox_vars[choice] = []
-        for option in options.get(choice, []).keys():
+        options_keys = options.get(choice, []).keys()
+        for i, option in enumerate(options_keys):
             var = ctk.BooleanVar()
             if(option in self.columnasres):
                 var.set(True)
             checkbox = ctk.CTkCheckBox(self.checkboxes_frame, text=option, variable=var)
-            checkbox.pack(padx=10, pady=5)
+            
+            # Use grid instead of pack and calculate row and column based on index
+            row = i % 10
+            column = i // 10
+            checkbox.grid(row=row, column=column, padx=10, pady=10)
+            
             self.checkbox_vars[choice].append((checkbox, var))
+
+        # Center the checkboxes_frame on the screen
+        self.checkboxes_frame.place(relx=0.5, rely=0.5, anchor='center')
     ###########################################################################################################################################
     
 class DescVar2(DescVar1):
@@ -337,9 +346,9 @@ class DescRadio(DescVar2):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        varIr={"Global vertical Irradiance North":"BuRaGVN_Avg","Global Vertical irradiance South":"BuRaGVS_Avg","Global Vertical irradiance East":"BuRaGVE_Avg",
-               "Global Vertical irradiance West":"BuRaGVW_Avg","global horizontal irradiance":"BuRaGH_Avg","diffuse horizontal irradiance":"BuRaDH_Avg",
-               "direct normal irradiance":"BuRaB_Avg","Diffuse Vertical irradiance North":"BuRaDVN_Avg","Diffuse Vertical irradiance South":"BuRaDVS_Avg",
+        varIr={"Global vertical irradiance North":"BuRaGVN_Avg","Global vertical irradiance South":"BuRaGVS_Avg","Global vertical irradiance East ":"BuRaGVE_Avg",
+               "Global vertical irradiance West ":"BuRaGVW_Avg","Global horizontal irradiance   ":"BuRaGH_Avg","Diffuse horizontal irradiance    ":"BuRaDH_Avg",
+               "Direct normal irradiance         ":"BuRaB_Avg","Diffuse Vertical irradiance North":"BuRaDVN_Avg","Diffuse Vertical irradiance South":"BuRaDVS_Avg",
                "Diffuse Vertical irradiance East":"BuRaDVE_Avg","Diffuse Vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up (mirando up)":"BuRaAlUp_Avg",
                "Irradiancia del albedómetro Down (mirando down)":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
         varIl={"Global Vertical illuminance North":"BuLxGVN_Avg","Global Vertical illuminance South":"BuLxGVS_Avg","Global Vertical illuminance East":"BuLxGVE_Avg","Global Vertical illuminance West":"BuLxGVW_Avg",
