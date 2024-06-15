@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.7.0
+#Versión:0.7.1
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -193,7 +193,7 @@ class DescVar1(DescBase):
             
                 checkbox=ctk.CTkCheckBox(frame, text=column,variable=self.vars[column],width=250, font=('Arial', 12))
                 checkbox.grid(row=i, column=1, padx=10, pady=10)
-            frame.place(relx=0.5, rely=0.5, anchor='center')
+            frame.place(relx=0.5, rely=0.60, anchor='center')
             ctk.CTkButton(self, text="Descargar", font=('Arial', 18),width=200, command=self.descDat).place(relx=0.8, rely=0.46, anchor='center')
         else:
             columns=columnas.get("Columnas")
@@ -272,7 +272,7 @@ class DescVar1(DescBase):
             self.checkbox_vars[choice].append((checkbox, var))
 
         # Center the checkboxes_frame on the screen
-        self.checkboxes_frame.place(relx=0.5, rely=0.6, anchor='center')
+        self.checkboxes_frame.place(relx=0.5, rely=0.65, anchor='center')
     ###########################################################################################################################################
     
 class DescVar2(DescVar1):
