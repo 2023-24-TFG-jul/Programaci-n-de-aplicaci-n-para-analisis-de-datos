@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.5.1
+#Versión:0.5.2
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -40,8 +40,8 @@ class AnalisisIA:
         
         dataAll = self.base_datos.obtenerdat(col, "radioproc", self.fechaini, self.fechafin)
         max_date = dataAll['date'].max()
-        #with open('setting.txt', 'w') as file:
-              #file.write(str(max_date))
+        with open('setting.txt', 'w') as file:
+              file.write(str(max_date))
         # Filtrar las filas de 'fallo' que contienen los flags
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
         print(dataAll.shape)
@@ -71,7 +71,7 @@ class AnalisisIA:
         X_pca = pca.fit_transform(X_scaled)
 
         # Dividir los datos en entrenamiento y prueba
-        X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2)
         y_train = y_train[colum[0]]
         ysuma=y_test[["Suma Difusa y directa","angle"]]
         y_test = y_test[colum[0]]
@@ -161,7 +161,3 @@ class AnalisisIA:
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Fisico",['2'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv ClearSky",['0','2','3','4'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Coherencia",['0','2','3','4','5','6'])
-
-
-anal=AnalisisIA()
-anal.analisiIrra()
