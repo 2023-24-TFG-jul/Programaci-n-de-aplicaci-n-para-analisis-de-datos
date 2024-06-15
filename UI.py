@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.6.1
+#Versión:0.7.0
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -20,8 +20,8 @@ class Page(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, master)
         ctk.CTkLabel(self,text=titulo, font=('Helvetica', 30, "bold")).pack(side="top", fill="x", pady=5)
         if(titulo!="Login Page"):
-            logout_button = ctk.CTkButton(self, text="Cerrar Sesion",command=lambda: master.switch_frame(LoginPage))
-            logout_button.place(relx=1.0, rely=0.0, anchor='ne')
+            logout_button = ctk.CTkButton(self, text="Cerrar Sesion",fg_color="#8B0000", hover_color="#A52A2A", font=('Arial', 18),command=lambda: master.switch_frame(LoginPage))
+            logout_button.place(relx=0.99, rely=0.01, anchor='ne')
 
     def crearPopUp(self,mensaje):
         # Crea una ventana de diálogo
@@ -82,7 +82,8 @@ class LoginPage(Page):
         self.password=ctk.CTkEntry(self, height=1, width=200,placeholder_text="Contraseña",show="*")
         self.password.pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Login",font=('Arial', 18),command=lambda: self.login(master)).pack(padx=10, pady=10)
-    
+        self.user.bind("<Return>", self.login_event)
+        self.password.bind("<Return>", self.login_event)
     def login(self,master):
         user=self.user.get()
         password=self.password.get()
@@ -90,6 +91,9 @@ class LoginPage(Page):
             master.switch_frame(MainPage)
         else:
             self.crearPopUp("Usuario o contraseña incorrectos")
+
+    def login_event(self, event):
+        self.login(self.master)
 #########################################################################################################################
 
 #Definimos la clase de la pagina principal
@@ -99,9 +103,9 @@ class MainPage(Page):
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Main Page")
-        ctk.CTkButton(self, text="        Descargas        ", font=('Arial', 18), command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de los datos",font=('Arial', 18), command=lambda: master.switch_frame(Analisis)).pack(padx=10, pady=10)  
-        ctk.CTkButton(self, text="    Actualizaciones    ", font=('Arial', 18), command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Descargas", font=('Arial', 18),width=190, command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de los datos",font=('Arial', 18),width=190, command=lambda: master.switch_frame(Analisis)).pack(padx=10, pady=10)  
+        ctk.CTkButton(self, text="Actualizaciones", font=('Arial', 18),width=190, command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descargas
@@ -111,9 +115,9 @@ class Descargas(Page):
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Descargas")
-        ctk.CTkButton(self, text="    Descarga de datos   ", font=('Arial', 18), command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Descarga de imagenes", font=('Arial', 18), command=lambda: master.switch_frame(DescImg)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="            Atras           ", font=('Arial', 18),command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Descarga de datos", font=('Arial', 18),width=210, command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Descarga de imagenes", font=('Arial', 18),width=210, command=lambda: master.switch_frame(DescImg)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=160,command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos
@@ -123,13 +127,13 @@ class DescDatos(Page):
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Descarga de datos")
-        ctk.CTkButton(self, text="Radio", font=('Arial', 18), command=lambda:master.switch_frame(DescRadio)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="RadioProc", font=('Arial', 18), command=lambda:master.switch_frame(DescRadioProc)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Skyscanner", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscanner)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="SkyscannerProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyscannerProc)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Skycamera", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammera)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="SkycameraProc", font=('Arial', 18), command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", font=('Arial', 18),command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Radio", font=('Arial', 18),width=200, command=lambda:master.switch_frame(DescRadio)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="RadioProc", font=('Arial', 18),width=200, command=lambda:master.switch_frame(DescRadioProc)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Skyscanner", font=('Arial', 18),width=200, command=lambda:master.switch_frame(DescSkyscanner)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="SkyscannerProc", font=('Arial', 18),width=200, command=lambda:master.switch_frame(DescSkyscannerProc)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Skycamera", font=('Arial', 18),width=200, command=lambda:master.switch_frame(DescSkyCammera)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="SkycameraProc", font=('Arial', 18),width=200, command=lambda:master.switch_frame(DescSkyCammeraProc)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(Descargas),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2()
 #########################################################################################################################
 class Desc(Page):
@@ -180,27 +184,29 @@ class DescVar1(DescBase):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
         DescBase.__init__(self, master,titulo,tabla)
-        self.columnas=columnas
+        self.columnas=columnas   
         if columnas.get("Titulo")=="SkyCamera":
             columns=columnas.get("Columnas").keys()
-            num_columns = 4
             self.vars = {column: ctk.BooleanVar() for column in columns}
+            frame = ctk.CTkFrame(self)
             for i, column in enumerate(columns):
-                if i % num_columns == 0:
-                    frame = ctk.CTkFrame(self)
-                    frame.pack(side="top")
-                ctk.CTkCheckBox(frame, text=column,variable=self.vars[column], font=('Arial', 12)).pack(side="left")
             
+                checkbox=ctk.CTkCheckBox(frame, text=column,variable=self.vars[column],width=250, font=('Arial', 12))
+                checkbox.grid(row=i, column=1, padx=10, pady=10)
+            frame.place(relx=0.5, rely=0.5, anchor='center')
+            ctk.CTkButton(self, text="Descargar", font=('Arial', 18),width=200, command=self.descDat).place(relx=0.8, rely=0.46, anchor='center')
         else:
             columns=columnas.get("Columnas")
             self.option_menu = ctk.CTkOptionMenu(self, values=["Irradiancia", "Iluminancia", "Par", "UV","Miscelanea"], command=self.update_checkboxes)
             self.option_menu.pack(padx=10, pady=10)
             self.checkboxes_frame = ctk.CTkFrame(self)
             self.checkboxes_frame.pack(fill="both", expand=True)
-
-        # Dictionary to hold checkbox variables
+            
+            # Dictionary to hold checkbox variables
             self.checkbox_vars = {}
-        ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)       
+            self.update_checkboxes("Irradiancia")
+            ctk.CTkButton(self, text="Descargar", font=('Arial', 18),width=200, command=self.descDat).place(relx=0.8, rely=0.46, anchor='center')
+        
 
         
     ###########################################################################################################################################
@@ -247,10 +253,8 @@ class DescVar1(DescBase):
                 if(widget.get()):
                     self.columnasres.append(widget.cget("text"))
             widget.destroy()
-        print(self.columnasres)
         # Options for checkboxes
         options =self.columnas.get("Columnas")
-        print(len(options))
         # Create new checkboxes based on the choice
         self.checkbox_vars[choice] = []
         options_keys = options.get(choice, []).keys()
@@ -258,7 +262,7 @@ class DescVar1(DescBase):
             var = ctk.BooleanVar()
             if(option in self.columnasres):
                 var.set(True)
-            checkbox = ctk.CTkCheckBox(self.checkboxes_frame, text=option, variable=var)
+            checkbox = ctk.CTkCheckBox(self.checkboxes_frame, text=option,width=300, variable=var)
             
             # Use grid instead of pack and calculate row and column based on index
             row = i % 10
@@ -268,7 +272,7 @@ class DescVar1(DescBase):
             self.checkbox_vars[choice].append((checkbox, var))
 
         # Center the checkboxes_frame on the screen
-        self.checkboxes_frame.place(relx=0.5, rely=0.5, anchor='center')
+        self.checkboxes_frame.place(relx=0.5, rely=0.6, anchor='center')
     ###########################################################################################################################################
     
 class DescVar2(DescVar1):
@@ -276,8 +280,8 @@ class DescVar2(DescVar1):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
         DescVar1.__init__(self, master,titulo,tabla,columnas)
-        ctk.CTkButton(self, text="Graficar", font=('Arial', 18), command=self.graficar).place(relx=0.75, rely=0.50, anchor='ne')
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).place(relx=0.75, rely=0.59, anchor='ne')  
+        ctk.CTkButton(self, text="Graficar", font=('Arial', 18),width=200, command=self.graficar).place(relx=0.8, rely=0.5, anchor='center')
+        ctk.CTkButton(self, text="Atras",font=('Arial', 18),width=150, command=lambda: master.switch_frame(DescDatos),fg_color="#1E3A8A", hover_color="#1E40AF").place(relx=0.8, rely=0.54, anchor='center')  
     #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
@@ -347,19 +351,19 @@ class DescRadio(DescVar2):
     ###########################################################################################################################################
     def __init__(self, master):
         varIr={"Global vertical irradiance North":"BuRaGVN_Avg","Global vertical irradiance South":"BuRaGVS_Avg","Global vertical irradiance East ":"BuRaGVE_Avg",
-               "Global vertical irradiance West ":"BuRaGVW_Avg","Global horizontal irradiance   ":"BuRaGH_Avg","Diffuse horizontal irradiance    ":"BuRaDH_Avg",
-               "Direct normal irradiance         ":"BuRaB_Avg","Diffuse Vertical irradiance North":"BuRaDVN_Avg","Diffuse Vertical irradiance South":"BuRaDVS_Avg",
-               "Diffuse Vertical irradiance East":"BuRaDVE_Avg","Diffuse Vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up (mirando up)":"BuRaAlUp_Avg",
-               "Irradiancia del albedómetro Down (mirando down)":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
-        varIl={"Global Vertical illuminance North":"BuLxGVN_Avg","Global Vertical illuminance South":"BuLxGVS_Avg","Global Vertical illuminance East":"BuLxGVE_Avg","Global Vertical illuminance West":"BuLxGVW_Avg",
-               "global horizontal illuminance":"BuLxGH_Avg","diffuse horizontal illuminance":"BuLxDH_Avg","direct normal illuminance":"BuLxB_Avg","Illuminancia Reflejada":"BuLxR_Avg"}
-        varmisc={"Temperature":"BuTemp_Avg","Relative Humidity":"BuRH_Avg","Pressure":"BuPres_Avg","Wind Speed":"BuWS_Avg","Wind Direction":"BuWD_Avg","Pluv Cantidad de lluvia":"BuRain_Tot"}
-        varPar={"Global Vertical PAR North":"BuPaGVN_Avg","Global Vertical PAR South":"BuPaGVS_Avg","Global Vertical PAR East":"BuPaGVE_Avg","Global Vertical PAR West":"BuPaGVW_Avg",
-                "global horizontal PAR irradiance":"BuPaGH_Avg","diffuse horizontal PAR irradiance":"BuPaDH_Avg","direct normal PAR irradiance":"BuPaB_Avg","PAR reflejada":"BuPaR_Avg"}
-        varUv={"Global Vertical UV North":"BuUvGVN_Avg","Global Vertical UV South":"BuUvGVS_Avg","Global Vertical UV East":"BuUvGVE_Avg","Global Vertical UV West":"BuUvGVW_Avg",
-               "global horizontal UV irradiance":"BuUvGH_Avg","diffuse horizontal UV irradiance":"BuUvDH_Avg","direct normal UV irradiance":"BuUvB_Avg","Ultravioleta A Global horizontal":"BuUvAGH_Avg",
-               "Ultravioleta A Difusa horizontal":"BuUvADH_Avg","Ultravioleta A Global vertical sur":"BuUvAV_Avg","Ultravioleta B Global horizontal":"BuUvBGH_Avg","Ultravioleta B Difusa horizontal":"BuUvBDH_Avg",
-               "Ultravioleta B Global vertical sur":"BuUvBV_Avg","Ultravioleta E Global horizontal":"BuUvEGH_Avg","Ultravioleta E Difusa horizontal":"BuUvEDH_Avg","Ultravioleta E Global vertical sur":"BuUvEV_Avg"}
+               "Global vertical irradiance West ":"BuRaGVW_Avg","Global horizontal irradiance":"BuRaGH_Avg","Diffuse horizontal irradiance":"BuRaDH_Avg",
+               "Direct normal irradiance":"BuRaB_Avg","Diffuse vertical irradiance North":"BuRaDVN_Avg","Diffuse vertical irradiance South":"BuRaDVS_Avg",
+               "Diffuse vertical irradiance East":"BuRaDVE_Avg","Diffuse vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up":"BuRaAlUp_Avg",
+               "Irradiancia del albedómetro Down":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
+        varIl={"Global vertical illuminance North":"BuLxGVN_Avg","Global vertical illuminance South":"BuLxGVS_Avg","Global vertical illuminance East":"BuLxGVE_Avg","Global vertical illuminance West":"BuLxGVW_Avg",
+               "Global horizontal illuminance":"BuLxGH_Avg","Diffuse horizontal illuminance":"BuLxDH_Avg","Direct normal illuminance":"BuLxB_Avg","Illuminancia reflejada":"BuLxR_Avg"}
+        varmisc={"Temperature":"BuTemp_Avg","Relative humidity":"BuRH_Avg","Pressure":"BuPres_Avg","Wind speed":"BuWS_Avg","Wind direction":"BuWD_Avg","Pluv cantidad de lluvia":"BuRain_Tot"}
+        varPar={"Global vertical PAR North":"BuPaGVN_Avg","Global vertical PAR South":"BuPaGVS_Avg","Global vertical PAR East":"BuPaGVE_Avg","Global vertical PAR West":"BuPaGVW_Avg",
+                "Global horizontal PAR irradiance":"BuPaGH_Avg","Diffuse horizontal PAR irradiance":"BuPaDH_Avg","Direct normal PAR irradiance":"BuPaB_Avg","PAR reflejada":"BuPaR_Avg"}
+        varUv={"Global vertical UV North":"BuUvGVN_Avg","Global vertical UV South":"BuUvGVS_Avg","Global vertical UV East":"BuUvGVE_Avg","Global vertical UV West":"BuUvGVW_Avg",
+               "Global horizontal UV irradiance":"BuUvGH_Avg","Diffuse horizontal UV irradiance":"BuUvDH_Avg","Direct normal UV irradiance":"BuUvB_Avg","Ultravioleta A global horizontal":"BuUvAGH_Avg",
+               "Ultravioleta A difusa horizontal":"BuUvADH_Avg","Ultravioleta A global vertical sur":"BuUvAV_Avg","Ultravioleta B global horizontal":"BuUvBGH_Avg","Ultravioleta B difusa horizontal":"BuUvBDH_Avg",
+               "Ultravioleta B global vertical sur":"BuUvBV_Avg","Ultravioleta E global horizontal":"BuUvEGH_Avg","Ultravioleta E difusa horizontal":"BuUvEDH_Avg","Ultravioleta E global vertical sur":"BuUvEV_Avg"}
         columnas={"Titulo":"Radio","Columnas":{"Irradiancia":varIr,"Iluminancia":varIl,"Par":varPar,"UV":varUv,"Miscelanea":varmisc}}
         DescVar2.__init__(self, master,"Tabla Radio","radio",columnas)
     ###########################################################################################################################################
@@ -371,20 +375,20 @@ class DescRadioProc(DescVar2):
     #Definimos el constructor de la clase
     ###########################################################################################################################################
     def __init__(self, master):
-        varIr={"Global vertical Irradiance North":"BuRaGVN_Avg","Global Vertical irradiance South":"BuRaGVS_Avg","Global Vertical irradiance East":"BuRaGVE_Avg",
-               "Global Vertical irradiance West":"BuRaGVW_Avg","global horizontal irradiance":"BuRaGH_Avg","diffuse horizontal irradiance":"BuRaDH_Avg",
-               "direct normal irradiance":"BuRaB_Avg","Diffuse Vertical irradiance North":"BuRaDVN_Avg","Diffuse Vertical irradiance South":"BuRaDVS_Avg",
-               "Diffuse Vertical irradiance East":"BuRaDVEAvg","Diffuse Vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up (mirando up)":"BuRaAlUp_Avg",
-               "Irradiancia del albedómetro Down (mirando down)":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
-        varIl={"Global Vertical illuminance North":"BuLxGVN_Avg","Global Vertical illuminance South":"BuLxGVS_Avg","Global Vertical illuminance East":"BuLxGVE_Avg","Global Vertical illuminance West":"BuLxGVW_Avg",
-               "global horizontal illuminance":"BuLxGH_Avg","diffuse horizontal illuminance":"BuLxDH_Avg","direct normal illuminance":"BuLxB_Avg","Illuminancia Reflejada":"BuLxR_Avg"}
-        varmisc={"Temperature":"BuTemp_Avg","Relative Humidity":"BuRH_Avg","Pressure":"BuPres_Avg","Wind Speed":"BuWS_Avg","Wind Direction":"BuWD_Avg","Pluv Cantidad de lluvia":"BuRain_Tot","Fallo":"fallo"}
-        varPar={"Global Vertical PAR North":"BuPaGVN_Avg","Global Vertical PAR South":"BuPaGVS_Avg","Global Vertical PAR East":"BuPaGVE_Avg","Global Vertical PAR West":"BuPaGVW_Avg",
-                "global horizontal PAR irradiance":"BuPaGH_Avg","diffuse horizontal PAR irradiance":"BuPaDH_Avg","direct normal PAR irradiance":"BuPaB_Avg","PAR reflejada":"BuPaR_Avg"}
-        varUv={"Global Vertical UV North":"BuUvGVN_Avg","Global Vertical UV South":"BuUvGVS_Avg","Global Vertical UV East":"BuUvGVE_Avg","Global Vertical UV West":"BuUvGVW_Avg",
-               "global horizontal UV irradiance":"BuUvGH_Avg","diffuse horizontal UV irradiance":"BuUvDH_Avg","direct normal UV irradiance":"BuUvB_Avg","Ultravioleta A Global horizontal":"BuUvAGH_Avg",
-               "Ultravioleta A Difusa horizontal":"BuUvADH_Avg","Ultravioleta A Global vertical sur":"BuUvAV_Avg","Ultravioleta B Global horizontal":"BuUvBGH_Avg","Ultravioleta B Difusa horizontal":"BuUvBDH_Avg",
-               "Ultravioleta B Global vertical sur":"BuUvBV_Avg","Ultravioleta E Global horizontal":"BuUvEGH_Avg","Ultravioleta E Difusa horizontal":"BuUvEDH_Avg","Ultravioleta E Global vertical sur":"BuUvEV_Avg"}
+        varIr={"Global vertical irradiance North":"BuRaGVN_Avg","Global vertical irradiance South":"BuRaGVS_Avg","Global vertical irradiance East ":"BuRaGVE_Avg",
+               "Global vertical irradiance West ":"BuRaGVW_Avg","Global horizontal irradiance":"BuRaGH_Avg","Diffuse horizontal irradiance":"BuRaDH_Avg",
+               "Direct normal irradiance":"BuRaB_Avg","Diffuse vertical irradiance North":"BuRaDVN_Avg","Diffuse vertical irradiance South":"BuRaDVS_Avg",
+               "Diffuse vertical irradiance East":"BuRaDVE_Avg","Diffuse vertical irradiance West":"BuRaDVW_Avg","Irradiancia del albedómetro Up":"BuRaAlUp_Avg",
+               "Irradiancia del albedómetro Down":"BuRaAlDo_Avg","Alb - Albedo":"BuRaAlbe_Avg"}
+        varIl={"Global vertical illuminance North":"BuLxGVN_Avg","Global vertical illuminance South":"BuLxGVS_Avg","Global vertical illuminance East":"BuLxGVE_Avg","Global vertical illuminance West":"BuLxGVW_Avg",
+               "Global horizontal illuminance":"BuLxGH_Avg","Diffuse horizontal illuminance":"BuLxDH_Avg","Direct normal illuminance":"BuLxB_Avg","Illuminancia reflejada":"BuLxR_Avg"}
+        varmisc={"Temperature":"BuTemp_Avg","Relative humidity":"BuRH_Avg","Pressure":"BuPres_Avg","Wind speed":"BuWS_Avg","Wind direction":"BuWD_Avg","Pluv cantidad de lluvia":"BuRain_Tot","Fallo":"fallo"}
+        varPar={"Global vertical PAR North":"BuPaGVN_Avg","Global vertical PAR South":"BuPaGVS_Avg","Global vertical PAR East":"BuPaGVE_Avg","Global vertical PAR West":"BuPaGVW_Avg",
+                "Global horizontal PAR irradiance":"BuPaGH_Avg","Diffuse horizontal PAR irradiance":"BuPaDH_Avg","Direct normal PAR irradiance":"BuPaB_Avg","PAR reflejada":"BuPaR_Avg"}
+        varUv={"Global vertical UV North":"BuUvGVN_Avg","Global vertical UV South":"BuUvGVS_Avg","Global vertical UV East":"BuUvGVE_Avg","Global vertical UV West":"BuUvGVW_Avg",
+               "Global horizontal UV irradiance":"BuUvGH_Avg","Diffuse horizontal UV irradiance":"BuUvDH_Avg","Direct normal UV irradiance":"BuUvB_Avg","Ultravioleta A global horizontal":"BuUvAGH_Avg",
+               "Ultravioleta A difusa horizontal":"BuUvADH_Avg","Ultravioleta A global vertical sur":"BuUvAV_Avg","Ultravioleta B global horizontal":"BuUvBGH_Avg","Ultravioleta B difusa horizontal":"BuUvBDH_Avg",
+               "Ultravioleta B global vertical sur":"BuUvBV_Avg","Ultravioleta E global horizontal":"BuUvEGH_Avg","Ultravioleta E difusa horizontal":"BuUvEDH_Avg","Ultravioleta E global vertical sur":"BuUvEV_Avg"}
         columnas={"Titulo":"Radio","Columnas":{"Irradiancia":varIr,"Iluminancia":varIl,"Par":varPar,"UV":varUv,"Miscelanea":varmisc}}
         DescVar2.__init__(self, master,"Tabla RadioProc","radioproc",columnas)
     ###########################################################################################################################################
@@ -397,8 +401,8 @@ class DescSkyscanner(DescBase):
     ###########################################################################################################################################
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla Skyscanner","skyscanner")
-        ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Descargar", font=('Arial', 18),width=200, command=self.descDat).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(DescDatos),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
     ###########################################################################################################################################
 #########################################################################################################################
 
@@ -409,8 +413,8 @@ class DescSkyscannerProc(DescBase):
     ###########################################################################################################################################
     def __init__(self, master):
         DescBase.__init__(self, master,"Tabla SkyScannerProc","skyscannerproc")
-        ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descDat).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Descargar", font=('Arial', 18),width=200, command=self.descDat).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(DescDatos),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
     ###########################################################################################################################################
 #########################################################################################################################
             
@@ -423,7 +427,7 @@ class DescSkyCammera(DescVar1):
                     "Mensaje de covertura de nubes":"cloud_cover_msg","Imagen de covertura de nubes":"cloudimg","Polvo":"dust",
                     "Elevación":"elevation","Imagen":"image","Modo":"mode","Temperatura":"temperature"}}
         DescVar1.__init__(self, master,"Tabla Skycamera","skycamera",columnas)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(DescDatos)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(DescDatos),fg_color="#1E3A8A", hover_color="#1E40AF").place(relx=0.8, rely=0.50, anchor='center')
     ###########################################################################################################################################
 #########################################################################################################################
 
@@ -448,7 +452,7 @@ class DescImg(Desc):
     def __init__(self, master):
         Desc.__init__(self, master,"Descarga de imagenes")
         ctk.CTkButton(self, text="Descargar", font=('Arial', 18), command=self.descImg).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18), command=lambda: master.switch_frame(Descargas),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2()
     ########################################################################################################################################
         
@@ -469,8 +473,9 @@ class Actualizaciones(Page):
     ########################################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Actualizaciones")
-        ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18), command=self.actualizardatos).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Actualizar imagenes", font=('Arial', 18), command=self.actualizarimagenes).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18),width=200, command=self.actualizardatos).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Actualizar imagenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2() 
     ########################################################################################################################################
 
@@ -535,13 +540,38 @@ class Actualizaciones(Page):
 #########################################################################################################################
 class Analisis(Page):
     def __init__(self, master):
-        analisis=AnalisisIA()
+        self.analisis=AnalisisIA()
         Page.__init__(self, master,"Analisis de los datos")
-        ctk.CTkButton(self, text="Analisis de la Irradiancia", font=('Arial', 18), command=lambda:analisis.analisiIrra()).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la Iluminancia", font=('Arial', 18), command=lambda:analisis.analisiIlum()).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la Par", font=('Arial', 18), command=lambda:analisis.analsisPar()).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la UV", font=('Arial', 18), command=lambda:analisis.analisiUv()).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Atras", command=lambda: master.switch_frame(MainPage)).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de la Irradiancia", font=('Arial', 18),width=300, command=self.analisisIrra).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de la Iluminancia", font=('Arial', 18),width=300, command=self.analisisIlum).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de la Par", font=('Arial', 18),width=300, command=self.analsisPar).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Analisis de la UV", font=('Arial', 18),width=300, command=self.analisiUv).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Atras",font=('Arial', 18),width=200, command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
+    
+    def analisisIrra(self):
+        try:
+            self.analisis.analisiIrra()
+        except Exception as e:
+            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+    #########################################################################################################################
+    def analisisIlum(self):
+        try:
+            self.analisis.analisiIlum()
+        except Exception as e:
+            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+    #########################################################################################################################
+    def analsisPar(self):
+        try:
+            self.analisis.analsisPar()
+        except Exception as e: 
+            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+    #########################################################################################################################
+    def analisiUv(self):
+        try:
+            self.analisis.analisiUv()
+        except Exception as e:
+            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+    #########################################################################################################################
 #Ejecutamos la interfaz de usuario     
 #########################################################################################################################   
 if __name__ == "__main__":
