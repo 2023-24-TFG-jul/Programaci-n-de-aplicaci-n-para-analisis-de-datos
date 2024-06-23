@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.5.2
+#Versión:0.6.0
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -16,7 +16,8 @@ from Calculadora import Calculadora
 from BaseDatosLvl2 import BaseDatosLvl2
 from pysolar.solar import *
 import math
-from sklearn.decomposition import PCA
+from sklearn.preprocessing import MinMaxScaler
+
 
 class AnalisisIA:
 
@@ -40,8 +41,8 @@ class AnalisisIA:
         
         dataAll = self.base_datos.obtenerdat(col, "radioproc", self.fechaini, self.fechafin)
         max_date = dataAll['date'].max()
-        with open('setting.txt', 'w') as file:
-              file.write(str(max_date))
+        #with open('setting.txt', 'w') as file:
+        #      file.write(str(max_date))
         # Filtrar las filas de 'fallo' que contienen los flags
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
         print(dataAll.shape)
@@ -66,18 +67,16 @@ class AnalisisIA:
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        # Aplicar PCA
-        pca = PCA(n_components=2)  # Reducimos a 2 componentes principales
-        X_pca = pca.fit_transform(X_scaled)
+
 
         # Dividir los datos en entrenamiento y prueba
-        X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2)
+        X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
         y_train = y_train[colum[0]]
         ysuma=y_test[["Suma Difusa y directa","angle"]]
         y_test = y_test[colum[0]]
         
         # Definir el modelo
-        model = MLPRegressor(hidden_layer_sizes=(64, 64), activation='relu', solver='adam', max_iter=1000, random_state=42)
+        model = MLPRegressor(hidden_layer_sizes=(64, 64), activation='relu', solver='adam', max_iter=1000,random_state=42)
 
         # Entrenar el modelo
         model.fit(X_train, y_train)
@@ -98,10 +97,10 @@ class AnalisisIA:
         y_new = new_data[colum[0]]
         X_new_scaled = scaler.transform(X_new)
         # Aplicar PCA a los nuevos datos
-        X_new_pca = pca.transform(X_new_scaled)
+    
 
         # Combinar datos antiguos y nuevos
-        X_combined = np.vstack((X_train, X_new_pca))
+        X_combined = np.vstack((X_train, X_new_scaled))
         y_combined = np.hstack((y_train, y_new))
 
         # Retrain el modelo con datos combinados
@@ -125,25 +124,87 @@ class AnalisisIA:
         preds_test_gen=preds_tests[preds_tests['angle']<60]
         preds_combined_test_AmanAtar=preds_combined_tests[preds_combined_tests['angle']>60]
         preds_combined_test_gen=preds_combined_tests[preds_combined_tests['angle']<60]
-        # Graficar resultados después del retrain
-        plt.figure(figsize=(12, 6))
-        plt.plot(y_test_AmanAtar[colum[0]],y_test_AmanAtar["Suma Difusa y directa"], 'o',color='#EB1515', label='Medida Amanecer/Atardecer')
-        plt.plot(y_test_gen[colum[0]],y_test_gen["Suma Difusa y directa"], 'o',color='#A91C00', label='Medida Normal')
-        plt.plot(preds_test_AmanAtar[colum[0]],preds_test_AmanAtar["Suma Difusa y directa"], 'o',color='#5CEC0F', label='Predicción antigua Amanecer/Atardecer')
-        plt.plot(preds_test_gen[colum[0]],preds_test_gen["Suma Difusa y directa"], 'o',color='#0A6E0A',  label='Predicción antigua Normal')
-        plt.plot(preds_combined_test_AmanAtar[colum[0]],preds_combined_test_AmanAtar["Suma Difusa y directa"], 'o',color='#0D49F7', label='Nueva Predicción Amanecer/Atardecer')
-        plt.plot(preds_combined_test_gen[colum[0]],preds_combined_test_gen["Suma Difusa y directa"], 'o',color='#051F68', label='Nueva Predicción Normal')
-        plt.xlabel('Global Horizontal (W/m^2)')
-        plt.ylabel('Suma de la difusa y la directa (W/m^2)')
+        #Graficar resultados después del retrain
+        plt.figure(figsize=(13, 4))
+        plt.plot(y_test_AmanAtar[colum[0]],y_test_AmanAtar["Suma Difusa y directa"], 'o',color='#EB1515', label='Measured Azimuth>60')
+        plt.plot(y_test_gen[colum[0]],y_test_gen["Suma Difusa y directa"], 'o',color='#A91C00', label='Measured Azimiuth<60')
+        plt.plot(preds_test_AmanAtar[colum[0]],preds_test_AmanAtar["Suma Difusa y directa"], 'o',color='#5CEC0F', label='Historic prediction')
+        plt.plot(preds_test_gen[colum[0]],preds_test_gen["Suma Difusa y directa"], 'o',color='#5CEC0F')
+        plt.plot(preds_combined_test_AmanAtar[colum[0]],preds_combined_test_AmanAtar["Suma Difusa y directa"], 'o',color='#0D49F7', label='Recent prediction')
+        plt.plot(preds_combined_test_gen[colum[0]],preds_combined_test_gen["Suma Difusa y directa"], 'o',color='#0D49F7')
+        plt.xlabel('Global Horizontal(W/m^2)')
+        plt.ylabel('Sum of diffuse and direct (W/m^2)')
         plt.legend()
+        
         plt.title(titulo)
         plt.show()
 
+        data=data.copy()
+        # Supongamos que tu DataFrame se llama data y la columna de tiempo se llama 'TIMESTAMP'
+        # Asegúrate de que la columna 'TIMESTAMP' esté en formato de datetime
+        data['TIMESTAMP'] = pd.to_datetime(data['TIMESTAMP'])
+
+        # Extraer la hora del día y el día
+        data['HOUR'] = data['TIMESTAMP'].dt.hour
+        data['DATE'] = data['TIMESTAMP'].dt.date
+
+        # Crear un nuevo DataFrame para almacenar los valores por hora
+        result_df = pd.DataFrame()
+
+        # Iterar sobre cada hora del día (0 a 23) y almacenar los valores en nuevas columnas
+        for hour in range(24):
+            # Filtrar datos para la hora actual
+            hour_values = data[data['HOUR'] == hour].copy()
+            if not hour_values.empty:
+                # Agrupar por fecha para mantener los valores diarios juntos
+                hour_values_grouped = hour_values.groupby('DATE').apply(lambda x: x.reset_index(drop=True)).reset_index(drop=True)
+                # Renombrar la columna de interés
+                hour_values_grouped.rename(columns={colum[0]: f'HOUR_{hour}'}, inplace=True)
+                # Añadir los valores al DataFrame resultante
+                result_df = pd.concat([result_df, hour_values_grouped[[f'HOUR_{hour}']]], axis=1)
+        
+        # Mostrar el resultado
+        result_df.boxplot(figsize=(10, 6))
+        plt.title(titulo+" October 2023")
+        plt.show()
+
+        data=data.copy()
+        # Supongamos que tu DataFrame se llama data y la columna de tiempo se llama 'TIMESTAMP'
+        # Asegúrate de que la columna 'TIMESTAMP' esté en formato de datetime
+        new_data['TIMESTAMP'] = pd.to_datetime(new_data['TIMESTAMP'])
+
+        # Extraer la hora del día y el día
+        new_data['HOUR'] = new_data['TIMESTAMP'].dt.hour
+        new_data['DATE'] = new_data['TIMESTAMP'].dt.date
+
+        # Crear un nuevo DataFrame para almacenar los valores por hora
+        result_df = pd.DataFrame()
+
+        # Iterar sobre cada hora del día (0 a 23) y almacenar los valores en nuevas columnas
+        for hour in range(24):
+            # Filtrar datos para la hora actual
+            hour_values = new_data[new_data['HOUR'] == hour].copy()
+            if not hour_values.empty:
+                # Agrupar por fecha para mantener los valores diarios juntos
+                hour_values_grouped = hour_values.groupby('DATE').apply(lambda x: x.reset_index(drop=True)).reset_index(drop=True)
+                # Renombrar la columna de interés
+                hour_values_grouped.rename(columns={colum[0]: f'HOUR_{hour}'}, inplace=True)
+                # Añadir los valores al DataFrame resultante
+                result_df = pd.concat([result_df, hour_values_grouped[[f'HOUR_{hour}']]], axis=1)
+        
+        # Mostrar el resultado
+        result_df.boxplot(figsize=(10, 6))
+        plt.title(titulo+" November 2023")
+        plt.show()
+
+
+    
+
     def analisiIrra(self):
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Todo",['0'])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Fisico",['0','2'])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia ClearSky",['0','2''3','4'])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la irradiancia Coherencia",['0','2','3','4','5','6'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis Complete",['0'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis Physical Limits",['0','2'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis ClearSky Limits",['0','2''3','4'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis Coherence Limits",['0','2','3','4','5','6'])
 
     def analisiIlum(self):
         self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Todo",['0'])
@@ -161,3 +222,6 @@ class AnalisisIA:
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Fisico",['2'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv ClearSky",['0','2','3','4'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Coherencia",['0','2','3','4','5','6'])
+
+anal=AnalisisIA()
+anal.analisiIrra()
