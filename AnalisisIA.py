@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.6.0
+#Versión:0.7.0
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from Calculadora import Calculadora
 from BaseDatosLvl2 import BaseDatosLvl2
 from pysolar.solar import *
@@ -82,15 +82,25 @@ class AnalisisIA:
         model.fit(X_train, y_train)
 
         # Hacer predicciones
-        preds_train = model.predict(X_train)
         preds_test = model.predict(X_test)
-
+        r2 = r2_score(y_test, preds_test)
+        print("Estudio con datos antinguos\n")
+        print(f"R^2: {r2}")
         # Evaluar el modelo
-        train_loss = mean_squared_error(y_train, preds_train)
-        test_loss = mean_squared_error(y_test, preds_test)
+        rmse = np.sqrt(mean_squared_error(y_test, preds_test))
+        print(f"RMSE: {rmse}")
 
-        print(f"Train Loss: {train_loss}")
-        print(f"Test Loss: {test_loss}")
+        # Calcular el nRMSE (RMSE normalizado)
+        nrmse = rmse / (y_test.max() - y_test.min())
+        print(f"nRMSE: {nrmse}")            
+
+        # Calcular el MBE (Mean Bias Error)
+        mbe = np.mean(preds_test - y_test)
+        print(f"MBE: {mbe}")
+
+        # Calcular el nMBE (MBE normalizado)
+        nmbe = mbe / (y_test.max() - y_test.min())
+        print(f"nMBE: {nmbe}")
 
         # Preprocesar nuevos datos
         X_new = new_data[[colum[1], colum[2]]]
@@ -110,8 +120,28 @@ class AnalisisIA:
         preds_combined_test = model.predict(X_test)
 
         # Evaluar el modelo retrain
-        combined_test_loss = mean_squared_error(y_test, preds_combined_test)
-        print(f"Combined Test Loss: {combined_test_loss}")
+        print("Estudio con todos los datos\n")
+        r2 = r2_score(y_test, preds_combined_test)
+        print(f"R^2: {r2}")
+        # Evaluar el modelo
+        rmse = np.sqrt(mean_squared_error(y_test, preds_combined_test))
+        print(f"RMSE: {rmse}")
+
+        # Calcular el nRMSE (RMSE normalizado)
+        nrmse = rmse / (y_test.max() - y_test.min())
+        print(f"nRMSE: {nrmse}")            
+
+        # Calcular el MBE (Mean Bias Error)
+        mbe = np.mean(preds_combined_test - y_test)
+        print(f"MBE: {mbe}")
+
+        # Calcular el nMBE (MBE normalizado)
+        nmbe = mbe / (y_test.max() - y_test.min())
+        print(f"nMBE: {nmbe}")
+
+
+
+
         y_tests = ysuma[["Suma Difusa y directa","angle"]]
         y_tests[colum[0]] = y_test.values
         preds_tests = ysuma[["Suma Difusa y directa","angle"]]
@@ -139,14 +169,13 @@ class AnalisisIA:
         plt.title(titulo)
         plt.show()
 
-        data=data.copy()
-        # Supongamos que tu DataFrame se llama data y la columna de tiempo se llama 'TIMESTAMP'
+
         # Asegúrate de que la columna 'TIMESTAMP' esté en formato de datetime
-        data['TIMESTAMP'] = pd.to_datetime(data['TIMESTAMP'])
+        dataAll['TIMESTAMP'] = pd.to_datetime(dataAll['TIMESTAMP'])
 
         # Extraer la hora del día y el día
-        data['HOUR'] = data['TIMESTAMP'].dt.hour
-        data['DATE'] = data['TIMESTAMP'].dt.date
+        dataAll['HOUR'] = dataAll['TIMESTAMP'].dt.hour
+        dataAll['DATE'] = dataAll['TIMESTAMP'].dt.date
 
         # Crear un nuevo DataFrame para almacenar los valores por hora
         result_df = pd.DataFrame()
@@ -154,57 +183,33 @@ class AnalisisIA:
         # Iterar sobre cada hora del día (0 a 23) y almacenar los valores en nuevas columnas
         for hour in range(24):
             # Filtrar datos para la hora actual
-            hour_values = data[data['HOUR'] == hour].copy()
+            hour_values = dataAll[dataAll['HOUR'] == hour].copy()
             if not hour_values.empty:
                 # Agrupar por fecha para mantener los valores diarios juntos
                 hour_values_grouped = hour_values.groupby('DATE').apply(lambda x: x.reset_index(drop=True)).reset_index(drop=True)
                 # Renombrar la columna de interés
-                hour_values_grouped.rename(columns={colum[0]: f'HOUR_{hour}'}, inplace=True)
+                col_name = hour
+                hour_values_grouped.rename(columns={colum[0]: col_name}, inplace=True)
                 # Añadir los valores al DataFrame resultante
-                result_df = pd.concat([result_df, hour_values_grouped[[f'HOUR_{hour}']]], axis=1)
-        
-        # Mostrar el resultado
-        result_df.boxplot(figsize=(10, 6))
-        plt.title(titulo+" October 2023")
+                if col_name in hour_values_grouped:
+                    result_df = pd.concat([result_df, hour_values_grouped[[col_name]]], axis=1)
+                else:
+                    # Manejar el caso donde la columna no exista
+                    print(f"Warning: {col_name} not found in hour_values_grouped")
+        print(result_df.shape)
+        result_df.boxplot(figsize=(15, 5))
+        plt.title(titulo)
+        plt.ylabel('GH (W/m^2)')
+        plt.xlabel('Hour of the day')
         plt.show()
-
-        data=data.copy()
-        # Supongamos que tu DataFrame se llama data y la columna de tiempo se llama 'TIMESTAMP'
-        # Asegúrate de que la columna 'TIMESTAMP' esté en formato de datetime
-        new_data['TIMESTAMP'] = pd.to_datetime(new_data['TIMESTAMP'])
-
-        # Extraer la hora del día y el día
-        new_data['HOUR'] = new_data['TIMESTAMP'].dt.hour
-        new_data['DATE'] = new_data['TIMESTAMP'].dt.date
-
-        # Crear un nuevo DataFrame para almacenar los valores por hora
-        result_df = pd.DataFrame()
-
-        # Iterar sobre cada hora del día (0 a 23) y almacenar los valores en nuevas columnas
-        for hour in range(24):
-            # Filtrar datos para la hora actual
-            hour_values = new_data[new_data['HOUR'] == hour].copy()
-            if not hour_values.empty:
-                # Agrupar por fecha para mantener los valores diarios juntos
-                hour_values_grouped = hour_values.groupby('DATE').apply(lambda x: x.reset_index(drop=True)).reset_index(drop=True)
-                # Renombrar la columna de interés
-                hour_values_grouped.rename(columns={colum[0]: f'HOUR_{hour}'}, inplace=True)
-                # Añadir los valores al DataFrame resultante
-                result_df = pd.concat([result_df, hour_values_grouped[[f'HOUR_{hour}']]], axis=1)
-        
-        # Mostrar el resultado
-        result_df.boxplot(figsize=(10, 6))
-        plt.title(titulo+" November 2023")
-        plt.show()
-
 
     
 
     def analisiIrra(self):
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis Complete",['0'])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis Physical Limits",['0','2'])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis ClearSky Limits",['0','2''3','4'])
-        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Irradiance analysis Coherence Limits",['0','2','3','4','5','6'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia Todo",['0'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia Fisico",['0','2'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia ClearSky",['0','2''3','4'])
+        self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia Coherencia",['0','2','3','4','5','6'])
 
     def analisiIlum(self):
         self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Todo",['0'])
@@ -223,5 +228,5 @@ class AnalisisIA:
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv ClearSky",['0','2','3','4'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Coherencia",['0','2','3','4','5','6'])
 
-anal=AnalisisIA()
-anal.analisiIrra()
+#anal=AnalisisIA()
+#anal.analisiIrra()
