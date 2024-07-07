@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.7.3
+#Versión:0.7.4
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -34,7 +34,7 @@ class Page(ctk.CTkFrame):
 
         # Bloquea la interacción con la ventana de la que proviene
         dialog.grab_set()
-    
+
         # Mensaje de error
         label = ctk.CTkLabel(dialog, text=mensaje, wraplength=180)
         label.pack(pady=10)
@@ -123,7 +123,7 @@ class Descargas(Page):
 #########################################################################################################################
 
 #Definimos la clase de la pagina de descarga de datos
-#########################################################################################################################    
+#########################################################################################################################
 class DescDatos(Page):
     #Definimos el constructor de la clase
     #########################################################################################################################
@@ -486,7 +486,7 @@ class Actualizaciones(Page):
         ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18),width=200, command=self.actualizardatos).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Actualizar imáAcgenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
-        self.bd2=BaseDatosLvl2() 
+        self.bd2=BaseDatosLvl2()
     ########################################################################################################################################
 
     #Definimos una función para crear un pop up
@@ -542,10 +542,10 @@ class Actualizaciones(Page):
         
         if (cont!=0): #Si el contador no es 0 se imprimira por pantalla que ha habido almenos una entrada de imagenes repetida
             messkyscan="Has intentado introducir {} imagenes repetidas en imagenes\n".format(cont)
-            self.crearPopUp(messkyscan,"Error")
+            self.crearPopUpVer2(messkyscan,"Error")
         else:
             #Sacamos por pantalla el mensaje de que se han actualizado las imagenes con exito
-            self.crearPopUp("Has actualizado todas las imagenes con exito","Existo")
+            self.crearPopUpVer2("Has actualizado todas las imagenes con exito","Existo")
     ###########################################################################################################################################
 #########################################################################################################################
 class Analisis(Page):
