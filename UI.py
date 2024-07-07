@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.7.1
+#Versión:0.7.2
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -325,7 +325,7 @@ class DescVar2(DescVar1):
         plt.xlabel('Fecha')
 
         plt.xticks(np.arange(0, len(dataframe[time]), step=len(dataframe[time])/10))  
-        plt.title('Grafico de las columnas')
+        plt.title('Grafica de los datos de la tabla '+self.tabla)
 
         plt.legend()  
         plt.draw()  
@@ -459,10 +459,15 @@ class DescImg(Desc):
     #Definimos una función para deascargar las imagenes
     ########################################################################################################################################
     def descImg(self):
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
         try:
-            self.bd2.descImg(self.textboxIni.get('1.0',ctk.END),self.textboxFin.get('1.0',ctk.END))
+            self.bd2.descImg(self.fechaini,self.fechafin)
         except psycopg2.errors.SyntaxError:
             self.crearPopUp("Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
+        except psycopg2.errors.InvalidTextRepresentation:
+            self.crearPopUp("No has introducido ninguna fecha")
     ########################################################################################################################################
 #########################################################################################################################
 
@@ -474,7 +479,7 @@ class Actualizaciones(Page):
     def __init__(self, master):
         Page.__init__(self, master,"Actualizaciones")
         ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18),width=200, command=self.actualizardatos).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Actualizar imagenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Actualizar imáAcgenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2() 
     ########################################################################################################################################
@@ -541,11 +546,11 @@ class Actualizaciones(Page):
 class Analisis(Page):
     def __init__(self, master):
         self.analisis=AnalisisIA()
-        Page.__init__(self, master,"Analisis de los datos")
-        ctk.CTkButton(self, text="Analisis de la Irradiancia", font=('Arial', 18),width=300, command=self.analisisIrra).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la Iluminancia", font=('Arial', 18),width=300, command=self.analisisIlum).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la Par", font=('Arial', 18),width=300, command=self.analsisPar).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la UV", font=('Arial', 18),width=300, command=self.analisiUv).pack(padx=10, pady=10)
+        Page.__init__(self, master,"Análisis de los datos")
+        ctk.CTkButton(self, text="Análisis de la Irradiancia", font=('Arial', 18),width=300, command=self.analisisIrra).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Análisis de la Iluminancia", font=('Arial', 18),width=300, command=self.analisisIlum).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Análisis de la Par", font=('Arial', 18),width=300, command=self.analsisPar).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Análisis de la UV", font=('Arial', 18),width=300, command=self.analisiUv).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Atras",font=('Arial', 18),width=200, command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
     
     def analisisIrra(self):
