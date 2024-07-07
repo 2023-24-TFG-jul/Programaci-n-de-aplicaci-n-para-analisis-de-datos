@@ -6,7 +6,6 @@
 #########################################################################################################################
 #Definimos los imports
 import unittest
-import unittest
 import os
 from BaseDatosLvl2 import BaseDatosLvl2  # Reemplaza 'your_module' con el nombre de tu módulo real
 
