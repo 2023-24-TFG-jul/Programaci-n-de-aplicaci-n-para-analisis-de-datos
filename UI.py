@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.7.1
+#Versión:0.7.3
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -12,11 +12,13 @@ from sqlalchemy.exc import DataError
 from BaseDatosLvl2 import BaseDatosLvl2
 import numpy as np
 from AnalisisIA import AnalisisIA
+from Log import Log
 
 
 #########################################################################################################################
 class Page(ctk.CTkFrame):
     def __init__(self, master,titulo):
+        self.log=Log()
         ctk.CTkFrame.__init__(self, master)
         ctk.CTkLabel(self,text=titulo, font=('Helvetica', 30, "bold")).pack(side="top", fill="x", pady=5)
         if(titulo!="Login Page"):
@@ -29,7 +31,7 @@ class Page(ctk.CTkFrame):
         dialog.title("Error")
         dialog.geometry("200x100")
         dialog.attributes('-topmost', True)  # Esta línea hace que la ventana emergente permanezca en primer plano
-    
+
         # Bloquea la interacción con la ventana de la que proviene
         dialog.grab_set()
     
@@ -70,7 +72,7 @@ class UI(ctk.CTk):
         
 #########################################################################################################################
     
-#Definimos la clase de log in 
+#Definimos la clase de log in
 #########################################################################################################################
 class LoginPage(Page):
     #Definimos el constructor de la clase
@@ -97,14 +99,14 @@ class LoginPage(Page):
 #########################################################################################################################
 
 #Definimos la clase de la pagina principal
-#########################################################################################################################        
+#########################################################################################################################
 class MainPage(Page):
     #Definimos el constructor de la clase
     #########################################################################################################################
     def __init__(self, master):
         Page.__init__(self, master,"Main Page")
         ctk.CTkButton(self, text="Descargas", font=('Arial', 18),width=190, command=lambda: master.switch_frame(Descargas)).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de los datos",font=('Arial', 18),width=190, command=lambda: master.switch_frame(Analisis)).pack(padx=10, pady=10)  
+        ctk.CTkButton(self, text="Analisis de los datos",font=('Arial', 18),width=190, command=lambda: master.switch_frame(Analisis)).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Actualizaciones", font=('Arial', 18),width=190, command=lambda: master.switch_frame(Actualizaciones)).pack(padx=10, pady=10)
 #########################################################################################################################
 
@@ -170,12 +172,13 @@ class DescBase(Desc):
         self.fechafin = self.fechafi.replace('\n','')
         try:
             self.bd2.descdat("*",self.tabla,self.fechaini,self.fechafin)
-        except DataError as e:
+        except DataError as error:
             self.crearPopUp("""Has introducido mal las fechas\n"""+
                             """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
-        except Exception as e:
-            print(e)
-            self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
+            self.log.injeErr(error)
+        except Exception as error:
+            print(error)
+            self.crearPopUp("""Ha ocurrido un error inesperado\n {error} \n""")
     ###########################################################################################################################################
 class DescVar1(DescBase):
     columnas={}
@@ -184,7 +187,7 @@ class DescVar1(DescBase):
         self.tabla=tabla
         self.bd2=BaseDatosLvl2()
         DescBase.__init__(self, master,titulo,tabla)
-        self.columnas=columnas   
+        self.columnas=columnas
         if columnas.get("Titulo")=="SkyCamera":
             columns=columnas.get("Columnas").keys()
             self.vars = {column: ctk.BooleanVar() for column in columns}
@@ -234,14 +237,16 @@ class DescVar1(DescBase):
         columna=",".join(columnasres)
         try:
             self.bd2.descdat(columna,self.tabla,self.fechaini,self.fechafin)
-        except ValueError as e:
+        except ValueError as error:
             self.crearPopUp("""No has escogido ninguna tabla\n""")
-            
-        except DataError as e:
+            self.log.injeErr(error)
+        except DataError as error:
             self.crearPopUp("""Has introducido mal las fechas\n"""+
                                 """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
-        except Exception as e:
-            self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
+            self.log.injeErr(error)
+        except Exception as error:
+            self.crearPopUp("""Ha ocurrido un error inesperado\n {error} \n""")
+            self.log.injeErr(error)
     
     def update_checkboxes(self, choice):
         # Clear current checkboxes
@@ -249,7 +254,7 @@ class DescVar1(DescBase):
             if widget.cget("text") in self.columnasres:
                  if(not widget.get()):
                      self.columnasres.remove(widget.cget("text"))
-            else:    
+            else:
                 if(widget.get()):
                     self.columnasres.append(widget.cget("text"))
             widget.destroy()
@@ -281,7 +286,7 @@ class DescVar2(DescVar1):
         self.bd2=BaseDatosLvl2()
         DescVar1.__init__(self, master,titulo,tabla,columnas)
         ctk.CTkButton(self, text="Graficar", font=('Arial', 18),width=200, command=self.graficar).place(relx=0.8, rely=0.5, anchor='center')
-        ctk.CTkButton(self, text="Atras",font=('Arial', 18),width=150, command=lambda: master.switch_frame(DescDatos),fg_color="#1E3A8A", hover_color="#1E40AF").place(relx=0.8, rely=0.54, anchor='center')  
+        ctk.CTkButton(self, text="Atras",font=('Arial', 18),width=150, command=lambda: master.switch_frame(DescDatos),fg_color="#1E3A8A", hover_color="#1E40AF").place(relx=0.8, rely=0.54, anchor='center')
     #Definimos una función para graficar los datos
     ###########################################################################################################################################
     def graficar(self):
@@ -319,27 +324,27 @@ class DescVar2(DescVar1):
             raise e
 
 
-        plt.figure(figsize=(10, 6))  
+        plt.figure(figsize=(10, 6))
         for column in columnasres:
-            plt.plot(dataframe[time],dataframe[column], label=column) 
+            plt.plot(dataframe[time],dataframe[column], label=column)
         plt.xlabel('Fecha')
 
-        plt.xticks(np.arange(0, len(dataframe[time]), step=len(dataframe[time])/10))  
-        plt.title('Grafico de las columnas')
+        plt.xticks(np.arange(0, len(dataframe[time]), step=len(dataframe[time])/10))
+        plt.title('Grafica de los datos de la tabla '+self.tabla)
 
-        plt.legend()  
-        plt.draw()  
+        plt.legend()
+        plt.draw()
 
-        
+
         labels = [item.get_text() for item in plt.gca().get_xticklabels()]
 
-      
+
         labels = [label[2:10] for label in labels]
 
-       
+
         plt.gca().set_xticklabels(labels)
 
-        plt.show()  
+        plt.show()
 
 #########################################################################################################################
         
@@ -459,10 +464,15 @@ class DescImg(Desc):
     #Definimos una función para deascargar las imagenes
     ########################################################################################################################################
     def descImg(self):
+        self.get_dates()
+        self.fechaini = self.fechain.replace('\n','')
+        self.fechafin = self.fechafi.replace('\n','')
         try:
-            self.bd2.descImg(self.textboxIni.get('1.0',ctk.END),self.textboxFin.get('1.0',ctk.END))
+            self.bd2.descImg(self.fechaini,self.fechafin)
         except psycopg2.errors.SyntaxError:
             self.crearPopUp("Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
+        except psycopg2.errors.InvalidTextRepresentation:
+            self.crearPopUp("No has introducido ninguna fecha")
     ########################################################################################################################################
 #########################################################################################################################
 
@@ -474,14 +484,14 @@ class Actualizaciones(Page):
     def __init__(self, master):
         Page.__init__(self, master,"Actualizaciones")
         ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18),width=200, command=self.actualizardatos).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Actualizar imagenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Actualizar imáAcgenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2() 
     ########################################################################################################################################
 
     #Definimos una función para crear un pop up
     ########################################################################################################################################
-    def crearPopUp(self,mensaje,titulo):
+    def crearPopUpVer2(self,mensaje,titulo):
         # Crea una ventana de diálogo
         dialog = ctk.CTkToplevel(self)
         dialog.title(titulo)
@@ -501,7 +511,7 @@ class Actualizaciones(Page):
         # Botón para cerrar el diálogo
         close_button = ctk.CTkButton(dialog, text="Cerrar", command=dialog.destroy)
         close_button.pack()
-    ########################################################################################################################################    
+    ########################################################################################################################################
 
      #Definimos una función que al pulsar el boton actualice los datos
     ##################################################################################################################################################
@@ -519,9 +529,9 @@ class Actualizaciones(Page):
             messkyscan="Has intentado introducir {} archivos repetidos en skyscanner\n".format(skyscanerr)
         mensaje=mesradio+messkycam+messkyscan #Creamos el mensaje completo uniendo todos
         if (mensaje!=""): #Si ha habido algun dato repetido mostramos por pantalla los que haya habido
-           self.crearPopUp(mensaje,"Error")#Sacamops por pantalla el mensaje
+           self.crearPopUpVer2(mensaje,"Error")#Sacamops por pantalla el mensaje
         else:
-            self.crearPopUp("Has actualizado los datos con exito","Existo")#Sacamops por pantalla el mensaje
+            self.crearPopUpVer2("Has actualizado los datos con exito","Existo")#Sacamops por pantalla el mensaje
     ##########################################################################################################################################
 
     #Definimos una función para actualizar las imagenes y que devuelva por pantalla si se incluyen imagenes repetidas
@@ -541,38 +551,38 @@ class Actualizaciones(Page):
 class Analisis(Page):
     def __init__(self, master):
         self.analisis=AnalisisIA()
-        Page.__init__(self, master,"Analisis de los datos")
-        ctk.CTkButton(self, text="Analisis de la Irradiancia", font=('Arial', 18),width=300, command=self.analisisIrra).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la Iluminancia", font=('Arial', 18),width=300, command=self.analisisIlum).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la Par", font=('Arial', 18),width=300, command=self.analsisPar).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Analisis de la UV", font=('Arial', 18),width=300, command=self.analisiUv).pack(padx=10, pady=10)
+        Page.__init__(self, master,"Análisis de los datos")
+        ctk.CTkButton(self, text="Análisis de la Irradiancia", font=('Arial', 18),width=300, command=self.analisisIrra).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Análisis de la Iluminancia", font=('Arial', 18),width=300, command=self.analisisIlum).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Análisis de la Par", font=('Arial', 18),width=300, command=self.analsisPar).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Análisis de la UV", font=('Arial', 18),width=300, command=self.analisiUv).pack(padx=10, pady=10)
         ctk.CTkButton(self, text="Atras",font=('Arial', 18),width=200, command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
     
     def analisisIrra(self):
         try:
             self.analisis.analisiIrra()
         except Exception as e:
-            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+            self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
     #########################################################################################################################
     def analisisIlum(self):
         try:
             self.analisis.analisiIlum()
         except Exception as e:
-            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+            self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
     #########################################################################################################################
     def analsisPar(self):
         try:
             self.analisis.analsisPar()
-        except Exception as e: 
-            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+        except Exception as e:
+            self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
     #########################################################################################################################
     def analisiUv(self):
         try:
             self.analisis.analisiUv()
         except Exception as e:
-            self.crearPopUp("Ha ocurrido un error inesperado\n {e} \n")
+            self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
     #########################################################################################################################
-#Ejecutamos la interfaz de usuario     
+#Ejecutamos la interfaz de usuario
 #########################################################################################################################   
 if __name__ == "__main__":
     app = UI()

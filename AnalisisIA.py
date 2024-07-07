@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.7.0
+#Versión:0.7.1
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -11,12 +11,11 @@ import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.metrics import r2_score, mean_squared_error
 from Calculadora import Calculadora
 from BaseDatosLvl2 import BaseDatosLvl2
 from pysolar.solar import *
 import math
-from sklearn.preprocessing import MinMaxScaler
 
 
 class AnalisisIA:
@@ -27,7 +26,7 @@ class AnalisisIA:
     def __init__(self):
         self.base_datos =BaseDatosLvl2()
         self.calc=Calculadora()
-    
+
         with open('setting.txt', 'r') as file:
               self.fechaUltimAct = float(file.read())
         self.longitude=-3.6879829504876676
@@ -41,8 +40,8 @@ class AnalisisIA:
         
         dataAll = self.base_datos.obtenerdat(col, "radioproc", self.fechaini, self.fechafin)
         max_date = dataAll['date'].max()
-        #with open('setting.txt', 'w') as file:
-        #      file.write(str(max_date))
+        with open('setting.txt', 'w') as file:
+              file.write(str(max_date))
         # Filtrar las filas de 'fallo' que contienen los flags
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
         print(dataAll.shape)
@@ -92,7 +91,7 @@ class AnalisisIA:
 
         # Calcular el nRMSE (RMSE normalizado)
         nrmse = rmse / (y_test.max() - y_test.min())
-        print(f"nRMSE: {nrmse}")            
+        print(f"nRMSE: {nrmse}")
 
         # Calcular el MBE (Mean Bias Error)
         mbe = np.mean(preds_test - y_test)

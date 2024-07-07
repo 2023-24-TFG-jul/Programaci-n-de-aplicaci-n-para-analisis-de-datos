@@ -1,13 +1,13 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.2.11
+#Versión:0.3.0
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
 from pysolar.solar import *
 import datetime
-import math  
+import math
 ##########################################################################################################################
 class Calculadora:
     #Variables de la clase
@@ -15,8 +15,8 @@ class Calculadora:
     dnil0=133334 #lux
     dnp0=531.81 #W/m2
     dnuv0=102.15 #W/m2
-    ghiclear=0 
-    dniclear=0 #TODO encontrar dni clear
+    ghiclear=0
+    dniclear=0
     latitude=42.3515619402223
     longitude=-3.6879829504876676
     m=0
@@ -50,27 +50,27 @@ class Calculadora:
         dhimultrefl=(dni*math.cos(angle)+dhiray)*((pground*psky)/(1-pground*psky))
         dhiclear=dhiray+dhimultrefl
         self.ghiclear=self.dniclear*math.cos(angle)+dhiclear
-        
+
         
     ##########################################################################################################################
 
     #1º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de GH o DH fisicos llaman
-    ########################################################################################################################## 
-    def physGen1(self,value,altitude,numFin,dn0,numIni,min):
+    ##########################################################################################################################
+    def physGen1(self,value,altitude,numFin,dn0,numIni,mini):
         nuevaAlt=math.radians(altitude)
-        max=dn0*numIni*(math.cos(nuevaAlt)**1.2)+numFin
-        if value>min and value<=max:
+        maxi=dn0*numIni*(math.cos(nuevaAlt)**1.2)+numFin
+        if value>mini and value<=maxi:
              return 1
-        elif value>min:
+        elif value>mini:
             return 2
         else:
             return 3
     ##########################################################################################################################
         
-    #2º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de DN fisicos llaman   
+    #2º Metodo de comprobacion de los criterios fisicos que los metodos de comprobacion de DN fisicos llaman
     ##########################################################################################################################
-    def physGen2(self,value,dn0,min):
-        if value>min:
+    def physGen2(self,value,dn0,mini):
+        if value>mini:
             if value<=dn0:
                 return 1
             else:
@@ -79,14 +79,14 @@ class Calculadora:
             return 2
     ##########################################################################################################################
 
-    #1º Metodo de coherencia generico que los metodos de coherencia 1 o 2 llaman 
+    #1º Metodo de coherencia generico que los metodos de coherencia 1 o 2 llaman
     ##########################################################################################################################   
-    def coheGen1(self,gh,dh,dn,angle,max,min,valueMin):
+    def coheGen1(self,gh,dh,dn,angle,max,mini,valueMin):
         newAngle=math.radians(angle)
         if gh<valueMin:
             return False
         value=gh/((dh+dn*math.cos(newAngle) ) )
-        if value>min and value<max:
+        if value>mini and value<max:
             return  True
         else:
             return False
@@ -94,11 +94,11 @@ class Calculadora:
 
     #2º Metodo de coherencia generico que los metodos de coherencia 3 o 4 llaman
     ##########################################################################################################################
-    def coheGen2(self,gh,dh,max,valueMin):
+    def coheGen2(self,gh,dh,maxi,valueMin):
         if gh<valueMin:
             return False
         value=dh/gh
-        if value<max:
+        if value<maxi:
             return  True
         else:
             return False
@@ -141,18 +141,18 @@ class Calculadora:
                     else:
                         return 0
                 else:
-                    return 4     
+                    return 4
             else:
                 return resultado
     ##########################################################################################################################
 
-    #GHI:	global horizontal irradiance.     
+    #GHI:	global horizontal irradiance.
     ##########################################################################################################################
     #Comprobacion de los criterios de calidad de la irradiancia
     def comprobarghi(self,valueGhi,valueDHi,valueDNi,fecha):
         date = self.dates(fecha)
         angulo=90-get_altitude(self.latitude, self.longitude, date)
-        if angulo < 93: 
+        if angulo < 93:
             self.calcular(angulo,valueDNi)
         return self.comprobar(valueGhi,self.ghiPhys,self.ghiSky,self.coheI1,self.coheI2,self.coheI3,self.coheI4,valueGhi,valueDHi,valueDNi,fecha)
     ##########################################################################################################################        
@@ -217,7 +217,7 @@ class Calculadora:
     def coheI1(self,ghi,dhi,dni,angle):
         return self.coheGen1(ghi,dhi,dni,angle,1.08,0.92,50)
     ##########################################################################################################################    
-    #1º Metodo de coherencia entre las medidas de la irradiancia si el angulo es mayor que 75º y menor que 93º   
+    #1º Metodo de coherencia entre las medidas de la irradiancia si el angulo es mayor que 75º y menor que 93º
     def coheI2(self,ghi,dhi,dni,angle):
         return self.coheGen1(ghi,dhi,dni,angle,1.15,0.85,50)
     ##########################################################################################################################
@@ -225,7 +225,7 @@ class Calculadora:
     def coheI3(self,ghi,dhi):
         return self.coheGen2(ghi,dhi,1.05,50)
     ##########################################################################################################################
-    #2º Metodo de coherencia entre las medidas de la irradiancia si el angulo es mayor que 75º y menor que 93º           
+    #2º Metodo de coherencia entre las medidas de la irradiancia si el angulo es mayor que 75º y menor que 93º
     def coheI4(self,ghi,dhi):
         return self.coheGen2(ghi,dhi,1.1,50)
     ##########################################################################################################################
@@ -242,8 +242,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghilSky(self,value):
-        max=130*self.ghiclear
-        if value<=max:
+        maxi=130*self.ghiclear
+        if value<=maxi:
              return True
         else:
             return False
@@ -282,8 +282,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dnilSky(self,value):
-        max=100*self.dniclear
-        if value<=max:
+        maxi=100*self.dniclear
+        if value<=maxi:
              return True
         else:
             return False
@@ -300,7 +300,7 @@ class Calculadora:
     def coheIl2(self,ghil,dhil,dnil,angle):
         return self.coheGen1(ghil,dhil,dnil,angle,1.15,0.85,5000)
     ##########################################################################################################################
-    #2º Metodo de coherencia entre las medidas de la irradiancia si el angulo es menor que 75º    
+    #2º Metodo de coherencia entre las medidas de la irradiancia si el angulo es menor que 75º
     def coheIl3(self,ghil,dhil):
         return self.coheGen2(ghil,dhil,1.05,5000)
     ##########################################################################################################################
@@ -321,8 +321,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghpSky(self,value):
-        max=(46.5325*self.m**2-1738.11*self.m+48907.2)/(4.78443*self.m**2+89.17*self.m+1)
-        if value<=max:
+        maxi=(46.5325*self.m**2-1738.11*self.m+48907.2)/(4.78443*self.m**2+89.17*self.m+1)
+        if value<=maxi:
              return True
         else:
             return False
@@ -340,8 +340,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhpSky(self,value):
-        max=((-0.489631*(self.m**2))+(17.4211*self.m)+51.858)/((0.0575636*(self.m**2))+(0.671139*self.m)+1)
-        if value<=max:
+        maxi=((-0.489631*(self.m**2))+(17.4211*self.m)+51.858)/((0.0575636*(self.m**2))+(0.671139*self.m)+1)
+        if value<=maxi:
              return True
         else:
             return False
@@ -359,8 +359,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dnpSky(self,value):
-        max=(0.171991*self.m**2-9.88174*self.m+532.694)/(0.00732718*self.m**2+0.13576*self.m+1)
-        if value<=max:
+        maxi=(0.171991*self.m**2-9.88174*self.m+532.694)/(0.00732718*self.m**2+0.13576*self.m+1)
+        if value<=maxi:
              return True
         else:
             return False
@@ -374,7 +374,7 @@ class Calculadora:
     ##########################################################################################################################
      #1º Metodo de coherencia entre las medidas de la irradiancia si el angulo es mayor que 75º y menor que 93º       
     def coheP2(self,ghp,dhp,dnp,angle):
-        return self.coheGen1(ghp,dhp,dnp,angle,1.15,0.85,20)   
+        return self.coheGen1(ghp,dhp,dnp,angle,1.15,0.85,20)
     ##########################################################################################################################
     #2º Metodo de coherencia entre las medidas de la irradiancia si el angulo es menor que 75º
     def coheP3(self,ghp,dhp):
@@ -396,8 +396,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def ghuvSky(self,value):
-        max=(1.78513*self.m**2+177.076*self.m+2594.06)/(13.8072*self.m**2+25.6894*self.m+1)
-        if  value<=max:
+        maxi=(1.78513*self.m**2+177.076*self.m+2594.06)/(13.8072*self.m**2+25.6894*self.m+1)
+        if  value<=maxi:
              return True
         else:
             return False
@@ -416,8 +416,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dhuvSky(self,value):
-        max=(0.0284353*self.m**2-0.773392*self.m+34.2974)/(0.0393782*self.m**2+0.593745*self.m+1)
-        if value<=max:
+        maxi=(0.0284353*self.m**2-0.773392*self.m+34.2974)/(0.0393782*self.m**2+0.593745*self.m+1)
+        if value<=maxi:
              return True
         else:
             return False
@@ -435,8 +435,8 @@ class Calculadora:
     ##########################################################################################################################
     #Limits of a clean and dry clear sky condition (without water vapor and aerosols)
     def dnuvSky(self,value):
-        max=(0.613588*self.m**2-14.0356*self.m+88.664)/(0.0966512*self.m**2+0.474748*self.m+1)
-        if value<=max:
+        maxi=(0.613588*self.m**2-14.0356*self.m+88.664)/(0.0966512*self.m**2+0.474748*self.m+1)
+        if value<=maxi:
              return True
         else:
             return False
@@ -450,7 +450,7 @@ class Calculadora:
     ##########################################################################################################################
     #1º Metodo de coherencia entre las medidas de la irradiancia si el angulo es mayor que 75º y menor que 93º       
     def coheUv2(self,ghuv,dhuv,dnuv,angle):
-        return self.coheGen1(ghuv,dhuv,dnuv,angle,1.15,0.85,20) 
+        return self.coheGen1(ghuv,dhuv,dnuv,angle,1.15,0.85,20)
     ##########################################################################################################################
     #2º Metodo de coherencia entre las medidas de la irradiancia si el angulo es menor que 75º
     def coheUv3(self,ghuv,dhuv):

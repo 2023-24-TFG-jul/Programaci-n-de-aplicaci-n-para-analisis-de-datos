@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.1.2
+#Versión:1.1.3
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -12,6 +12,7 @@ import sqlalchemy #import para pasar los datos en bulk
 import os #import para leer los archivos en un directorio especificado
 import numpy as np #Import para operar con los datos de pandas
 from Log import Log
+from sqlalchemy.exc import DataError
 #Inicializamos la Clase de creación de base de datos
 class BaseDatosLvl1:
 
@@ -137,16 +138,21 @@ class BaseDatosLvl1:
             columnas = "*"
 
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
-        cond1=cond1.replace('-', '')
-        cond2=cond2.replace('-', '')
-        cond1=cond1+"0000"
-        cond2=cond2+"2359"
-        columnas=columnas.replace(" ", "")
-        query="SELECT {} FROM {} WHERE date BETWEEN %s AND %s".format(columnas, base)
-        #Recogemos los datos en un data frame
-        with self.engine.connect() as db_conn:
-            data = pd.read_sql(sql=query, params=(cond1, cond2), con=db_conn)
-            df=pd.DataFrame(data)
+        if cond1!="" and cond2!="":
+            cond1=cond1.replace('-', '')
+            cond2=cond2.replace('-', '')
+            cond1=cond1+"0000"
+            cond2=cond2+"2359"
+            columnas=columnas.replace(" ", "")
+            query="SELECT {} FROM {} WHERE date BETWEEN %s AND %s".format(columnas, base)
+            #Recogemos los datos en un data frame
+            with self.engine.connect() as db_conn:
+                data = pd.read_sql(sql=query, params=(cond1, cond2), con=db_conn)
+                df=pd.DataFrame(data)
+        else:
+            self.log.injeErr("No se ha introducido fechas correctamente")
+            raise DataError("No se ha introducido fechas correctamente")
+        
         #Devolvemos los datos que se encuentran en esa tabla
         return df
     ######################################################################################################################
@@ -170,6 +176,8 @@ class BaseDatosLvl1:
         #usamos replace para eliminar los guiones y que sea igual que la fecha tipada
         date1=date1.replace('-', '')
         date2=date2.replace('-', '')
+        date1=date1+"00"
+        date2=date2+"23"
         #Hacemos la consulta para obtener las filas con la información en bits de las imagenes
         query="SELECT name,image1_data FROM imagescam1 WHERE date BETWEEN %s AND %s"
         #Ejecutamos la consulta
