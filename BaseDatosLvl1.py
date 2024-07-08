@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl1
 #Autor:Álvaro Villar Val
 #Fecha:25/01/24
-#Versión:1.1.3
+#Versión:1.1.4
 #Descripción: Base de datos de primer nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -304,6 +304,7 @@ class BaseDatosLvl1:
         df['date']=df['TIMESTAMP'].str.slice(2,10)+df['TIMESTAMP'].str.slice(11,16)
         df['date']= df['date'].str.replace('-', '')
         df['date']= df['date'].str.replace(':', '')
+
         self.comprNuevaCol(df,"radio")
         self.comprTodasColumnas(df,"radio")
         #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
@@ -393,7 +394,7 @@ class BaseDatosLvl1:
                     self.conn.commit() 
     #################################################################################################################################################
 
-    #def
+    #Definimos una función que comparara las columnas de un csv con las de la base de datos y en caso de que falte alguna en el dataframe la añada y la rellena de 0
     #################################################################################################################################################
     def comprTodasColumnas(self,df,base):
         colum = "SELECT column_name FROM information_schema.columns WHERE table_name = %s"
