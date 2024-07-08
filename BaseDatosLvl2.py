@@ -1,7 +1,7 @@
 #Nombre:BasedatosLvl2
 #Autor:Álvaro Villar Val
 #Fecha:20/02/24
-#Versión:0.6.2
+#Versión:0.6.3
 #Descripción: Base de datos de segundo nivel de una central meteorologica de la Universidad de burgos
 #########################################################################################################################
 #Definimos los imports
@@ -131,7 +131,7 @@ class BaseDatosLvl2:
     #Definimos una función que procese los datos de la radio
     ##########################################################################################################################################################
     def procdatos(self,date,gHI,dHI,dNI,gHIL,dHIL,dNIL,gHP,dHP,dNP,gHUV,dHUV,dNUV):
-       
+       #Llamamos a la calculadora para que nos devuelva los datos procesados cada uno individualmente
         result="{}".format(self.calc.comprobarghi(gHI,dHI,dNI,date))
         result=result+"{}".format(self.calc.comprobardhi(gHI,dHI,dNI,date))
         result=result+"{}".format(self.calc.comprobardni(gHI,dHI,dNI,date))
@@ -155,27 +155,19 @@ class BaseDatosLvl2:
                          row['BuLxDH_Avg'], row['BuLxB_Avg'], row['BuPaGH_Avg'], row['BuPaDH_Avg'], row['BuPaB_Avg'], row['BuUvGH_Avg'], row['BuUvDH_Avg'], row['BuUvB_Avg']), axis=1)
         self.db1.comprNuevaCol(df,"radioproc")
         self.db1.comprTodasColumnas(df,"radioproc")
-        try:
-
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior)
             #,y el index a False que no recuerdo para que sirve pero ponlo
-            df.to_sql('radioproc', con=self.engine, if_exists='append',index=False)
-        except sqlalchemy.exc.IntegrityError:
-            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-            print("Esos datos ya estan introducidos en radioproc")
+        df.to_sql('radioproc', con=self.engine, if_exists='append',index=False)
+ 
     ##########################################################################################################################################################
 
     #Definimos una funcón que actualice los datos de de la skycamera que se han introducido en la base de datos
     ##########################################################################################################################################################
     def actualizarCammera(self,df):
         df.dropna(subset=['image'], inplace=True)
-        try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
             #y el index a False que no recuerdo para que sirve pero ponlo
-            df.to_sql('skycameraproc', con=self.engine, if_exists='append',index=False)
-        except sqlalchemy.exc.IntegrityError:
-            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-            print("Esos datos ya estan introducidos en la skycameraproc")
+        df.to_sql('skycameraproc', con=self.engine, if_exists='append',index=False)
     ##########################################################################################################################################################
     
     #Definimos una función que introduzca los datos limpiados del skyscanner
@@ -183,14 +175,9 @@ class BaseDatosLvl2:
     def actualizarScanner(self,df):
        
         df.dropna(subset=['side'], inplace=True)
-        
-        try:
             #Metemos en to_sql: nombre de la tabla, la conexion de sqlalchemy, append (para que no elimine lo anterior),
             #y el index a False que no recuerdo para que sirve pero ponlo
-            df.to_sql('skyscannerproc', con=self.engine, if_exists='append',index=False)
-        except sqlalchemy.exc.IntegrityError:
-            #TODO Hacer a futuro que se muestren atraves de la UI que son datos repetidos
-            print("Esos datos ya estan introducidos en la skyscannerproc")
+        df.to_sql('skyscannerproc', con=self.engine, if_exists='append',index=False)
     ##########################################################################################################################################################
 
     #Definimos una función para que de momento nos devuelva datos

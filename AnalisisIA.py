@@ -1,7 +1,7 @@
 #Nombre:AnalisisIA
 #Autor:Álvaro Villar Val
 #Fecha:9/06/24
-#Versión:0.7.1
+#Versión:0.7.2
 #Descripción: Apliación de inteligencia artificial para el análisis de datos resultantes de la central meteorológica
 #########################################################################################################################
 #Definimos los imports
@@ -17,12 +17,13 @@ from BaseDatosLvl2 import BaseDatosLvl2
 from pysolar.solar import *
 import math
 
-
+#########################################################################################################################
 class AnalisisIA:
 
     fechaini="00-00-00"
     fechafin="99-01-30"
-
+    #Definimos el constructor
+    #########################################################################################################################
     def __init__(self):
         self.base_datos =BaseDatosLvl2()
         self.calc=Calculadora()
@@ -31,25 +32,24 @@ class AnalisisIA:
               self.fechaUltimAct = float(file.read())
         self.longitude=-3.6879829504876676
         self.latitude=42.3515619402223
-              
+    #########################################################################################################################
 
+    # Definimos la función de análisis         
+    #########################################################################################################################
     def analisis(self, colum, numin, titulo, flags):
-        # Supongamos que tus datos están en un archivo CSV
-
+        # Definir las columnas de interés
         col = "TIMESTAMP," + colum[0] + "," + colum[1] + "," + colum[2] + ",fallo,date"
-        
+        #Obtener los datos de la base de datos de las columnas de interés 
         dataAll = self.base_datos.obtenerdat(col, "radioproc", self.fechaini, self.fechafin)
+        #Obtener la fecha máxima de los datos obtenidos para guardarla en el archivo setting.txt
         max_date = dataAll['date'].max()
-        with open('setting.txt', 'w') as file:
+        with open('setting.txt', 'w') as file:#Guardar la fecha máxima en el archivo setting.txt
               file.write(str(max_date))
         # Filtrar las filas de 'fallo' que contienen los flags
         dataAll['fallo'] = dataAll['fallo'].str.slice(numin, numin+3)
-        print(dataAll.shape)
         for flag in flags:
             dataAll = dataAll[~dataAll['fallo'].str.contains(flag)]
-        print(dataAll.shape)
-        dataAll = dataAll.dropna()
-        print(dataAll.shape)
+        dataAll = dataAll.dropna() #Eliminar los valores nulos
         # Calculamos la fecha de manera que se pueda introducir en la función de pysolar
         dataAll["TIMESTAMP"] = dataAll[["TIMESTAMP"]].apply(lambda row: self.calc.dates(row["TIMESTAMP"]), axis=1)
         # Calculamos la suma de la irradiancia difusa y directa multiplicada por el coseno del ángulo de incidencia
@@ -59,22 +59,21 @@ class AnalisisIA:
         data = dataAll[dataAll['date'] < self.fechaUltimAct]
         new_data = dataAll[dataAll['date'] > self.fechaUltimAct]
 
-        # Separar características y la variable objetivo
+        # Separar características ,la variable objetivo y dos columna que no queremos que pase por scaler
         X = data[[colum[1], colum[2]]]
         y = data[[colum[0],"Suma Difusa y directa","angle"]]
         # Normalizar los datos
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-
-
         # Dividir los datos en entrenamiento y prueba
         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
         y_train = y_train[colum[0]]
+        #Separamos la variable objetivo de las otras dos columnas
         ysuma=y_test[["Suma Difusa y directa","angle"]]
         y_test = y_test[colum[0]]
-        
-        # Definir el modelo
+
+        # Definimos el modelo
         model = MLPRegressor(hidden_layer_sizes=(64, 64), activation='relu', solver='adam', max_iter=1000,random_state=42)
 
         # Entrenar el modelo
@@ -140,21 +139,25 @@ class AnalisisIA:
 
 
 
-
+        #se obtienen los valores de la suma difusa y directa de los datos de test
         y_tests = ysuma[["Suma Difusa y directa","angle"]]
         y_tests[colum[0]] = y_test.values
+        #se obtienen los valores de la suma difusa y directa de los datos de los test predecidos
         preds_tests = ysuma[["Suma Difusa y directa","angle"]]
         preds_tests[colum[0]] = preds_test
+        #se obtienen los valores de la suma difusa y directa de los datos de los testcombinados predecidos
         preds_combined_tests = ysuma[["Suma Difusa y directa","angle"]]
         preds_combined_tests[colum[0]] = preds_combined_test
+        #Se separan los datos en dos grupos, uno con los datos con angulo mayor a 60 y otro con angulo menor a 60
         y_test_AmanAtar=y_tests[y_tests['angle']>60]
         y_test_gen=y_tests[y_tests['angle']<60]
         preds_test_AmanAtar=preds_tests[preds_tests['angle']>60]
         preds_test_gen=preds_tests[preds_tests['angle']<60]
         preds_combined_test_AmanAtar=preds_combined_tests[preds_combined_tests['angle']>60]
         preds_combined_test_gen=preds_combined_tests[preds_combined_tests['angle']<60]
+
         #Graficar resultados después del retrain
-        plt.figure(figsize=(13, 4))
+        plt.figure(figsize=(13, 4)) 
         plt.plot(y_test_AmanAtar[colum[0]],y_test_AmanAtar["Suma Difusa y directa"], 'o',color='#EB1515', label='Measured Azimuth>60')
         plt.plot(y_test_gen[colum[0]],y_test_gen["Suma Difusa y directa"], 'o',color='#A91C00', label='Measured Azimiuth<60')
         plt.plot(preds_test_AmanAtar[colum[0]],preds_test_AmanAtar["Suma Difusa y directa"], 'o',color='#5CEC0F', label='Historic prediction')
@@ -201,31 +204,41 @@ class AnalisisIA:
         plt.ylabel('GH (W/m^2)')
         plt.xlabel('Hour of the day')
         plt.show()
+    #########################################################################################################################
 
-    
-
+    # Definimos la función de análisis de la irradiancia
+    #########################################################################################################################
     def analisiIrra(self):
         self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia Todo",['0'])
         self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia Fisico",['0','2'])
         self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia ClearSky",['0','2''3','4'])
         self.analisis(["BuRaGH_Avg","BuRaDH_Avg","BuRaB_Avg"],0,"Analisís de la Irradiancia Coherencia",['0','2','3','4','5','6'])
+    #########################################################################################################################
 
+    # Definimos la función de análisis de la Iluminancia
+    #########################################################################################################################
     def analisiIlum(self):
         self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Todo",['0'])
         self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Fisico",['0','2'])
         self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia ClearSky",['0','2''3','4'])
         self.analisis(["BuLxGH_Avg","BuLxDH_Avg","BuLxB_Avg"],3,"Analisís de la iluminancia Coherencia",['0','2','3','4','5','6'])
-        
+    #########################################################################################################################
+    
+    # Definimos la función de análisis de la PAR
+    ########################################################################################################################## 
     def analsisPar(self):
         self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Todo",['0'])
         self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Fisico",['0','2'])
         self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par ClearSky",['0','2','3','4'])
         self.analisis(["BuPaGH_Avg","BuPaDH_Avg","BuPaB_Avg"],6,"Analisís de la Par Coherencia",['0','2','3','4','5','6'])
+    #########################################################################################################################
+    
+    # Definimos la función de análisis de la Uv
+    #########################################################################################################################
     def analisiUv(self):
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Todo",['0'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Fisico",['2'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv ClearSky",['0','2','3','4'])
         self.analisis(["BuUvGH_Avg","BuUvDH_Avg","BuUvB_Avg"],9,"Analisís de la Uv Coherencia",['0','2','3','4','5','6'])
-
-#anal=AnalisisIA()
-#anal.analisiIrra()
+    #########################################################################################################################
+#########################################################################################################################    

@@ -1,0 +1,1 @@
+C:/Users/alvar/AppData/Local/Microsoft/WindowsApps/python3.11.exe c:/Users/alvar/Documents/Codigo/Programaci-n-de-aplicaci-n-para-analisis-de-datos/UI.py
