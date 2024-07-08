@@ -1,7 +1,7 @@
 #Nombre:Calculadora
 #Autor:Álvaro Villar Val
 #Fecha:26/03/24
-#Versión:0.3.0
+#Versión:0.3.1
 #Descripción: Calculadora de los diferentes criterios de calidad de la central meteorologica
 #########################################################################################################################
 #Definimos los imports
@@ -39,7 +39,7 @@ class Calculadora:
     def calcular(self, angulo,dni):
         dni=float(dni)
         angle=math.radians(angulo)
-        h=865 #No definitico placeholder por que no sabemos cuanto es 1
+        h=865 
         pground=0.2
         psky=0.0685
         ma=(math.exp(-h/8446))/(math.cos(angle)+0.15*(93-angulo)**-1.253)
