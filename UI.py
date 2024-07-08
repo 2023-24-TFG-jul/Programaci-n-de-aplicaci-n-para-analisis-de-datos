@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.7.4
+#Versión:0.7.5
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -28,8 +28,8 @@ class Page(ctk.CTkFrame):
     def crearPopUp(self,mensaje):
         # Crea una ventana de diálogo
         dialog = ctk.CTkToplevel(self)
-        dialog.title("Error")
-        dialog.geometry("200x100")
+        dialog.title("Notificación")
+        dialog.geometry("300x150")
         dialog.attributes('-topmost', True)  # Esta línea hace que la ventana emergente permanezca en primer plano
 
         # Bloquea la interacción con la ventana de la que proviene
@@ -38,7 +38,7 @@ class Page(ctk.CTkFrame):
         # Mensaje de error
         label = ctk.CTkLabel(dialog, text=mensaje, wraplength=180)
         label.pack(pady=10)
-    
+
         # Botón para cerrar el diálogo
         close_button = ctk.CTkButton(dialog, text="Cerrar", command=dialog.destroy)
         close_button.pack()
@@ -177,8 +177,8 @@ class DescBase(Desc):
                             """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
             self.log.injeErr(error)
         except Exception as error:
-            print(error)
             self.crearPopUp("""Ha ocurrido un error inesperado\n {error} \n""")
+            self.log.injeErr(error)
     ###########################################################################################################################################
 class DescVar1(DescBase):
     columnas={}
@@ -313,15 +313,14 @@ class DescVar2(DescVar1):
             dataframe=self.bd2.obtenerdat("*",self.tabla,self.fechaini,self.fechafin)
         except ValueError as e:
             self.crearPopUp("""No has escogido ninguna tabla\n""")
-            raise e
+            self.log.injeErr(e)
         except DataError as e:
             self.crearPopUp("""Has introducido mal las fechas\n"""+
                                 """Recuerda introducir las fechas en formato 'YY-MM-DD'\n""")
-            raise e
+            self.log.injeErr(e)
         except Exception as e:
-            print(e)
             self.crearPopUp("""Ha ocurrido un error inesperado\n {e} \n""")
-            raise e
+            self.log.injeErr(e)
 
 
         plt.figure(figsize=(10, 6))
@@ -469,10 +468,15 @@ class DescImg(Desc):
         self.fechafin = self.fechafi.replace('\n','')
         try:
             self.bd2.descImg(self.fechaini,self.fechafin)
-        except psycopg2.errors.SyntaxError:
+        except psycopg2.errors.SyntaxError as error:
             self.crearPopUp("Has introducido mal las fechas\n Recuerda introducir las fechas en formato 'YY-MM-DD-HH'")
-        except psycopg2.errors.InvalidTextRepresentation:
+            self.log.injeErr(error)
+        except psycopg2.errors.InvalidTextRepresentation as error:
             self.crearPopUp("No has introducido ninguna fecha")
+            self.log.injeErr(error)
+        except Exception as error:
+            self.crearPopUp("Ha ocurrido un error inesperado\n {}".format(error))
+            self.log.injeErr(error)
     ########################################################################################################################################
 #########################################################################################################################
 
@@ -559,31 +563,55 @@ class Analisis(Page):
         ctk.CTkButton(self, text="Atras",font=('Arial', 18),width=200, command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
     
     def analisisIrra(self):
+        self.crearPopUp("Se esta realiando el analisis\n de irradiancia. Esto puede\n tardar unos minutos\n")
         try:
             self.analisis.analisiIrra()
+        except ValueError as e:
+            self.crearPopUp("No hay suficientes datos para\nrealizar el analisis de irradiancia")
+            self.log.injeErr(e)
         except Exception as e:
             self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
+            self.log.injeErr(e)
+        self.crearPopUp("Se ha finalizado el analisis de irradiancia\n")
     #########################################################################################################################
     def analisisIlum(self):
+        self.crearPopUp("Se esta realiando el analisis\n de iluminancia. Esto puede\n tardar unos minutos\n")
         try:
             self.analisis.analisiIlum()
+        except ValueError as e:
+            self.crearPopUp("No hay suficientes datos para\nrealizar el analisis de iluminancia")
+            self.log.injeErr(e)
         except Exception as e:
             self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
+            self.log.injeErr(e)
+        self.crearPopUp("Se ha finalizado el analisis de iluminancia\n")    
     #########################################################################################################################
     def analsisPar(self):
+        self.crearPopUp("Se esta realiando el analisis\n de la PAR. Esto puede\n tardar unos minutos\n")
         try:
             self.analisis.analsisPar()
+        except ValueError as e:
+            self.crearPopUp("No hay suficientes datos para\nrealizar el analisis de PAR")
+            self.log.injeErr(e)
         except Exception as e:
             self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
+            self.log.injeErr(e)
+        self.crearPopUp("Se ha finalizado el analisis de PAR\n")  
     #########################################################################################################################
     def analisiUv(self):
+        self.crearPopUp("Se esta realiando el analisis\n de la UV. Esto puede\n tardar unos minutos\n")
         try:
             self.analisis.analisiUv()
+        except ValueError as e:
+            self.crearPopUp("No hay suficientes datos para\nrealizar el analisis de UV")
+            self.log.injeErr(e)
         except Exception as e:
             self.crearPopUp("Ha ocurrido un error inesperado\n {} \n".format(e))
+            self.log.injeErr(e)
+        self.crearPopUp("Se ha finalizado el analisis de UV\n")
     #########################################################################################################################
 #Ejecutamos la interfaz de usuario
-#########################################################################################################################   
+#########################################################################################################################
 if __name__ == "__main__":
     app = UI()
     app.mainloop()
