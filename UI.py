@@ -1,7 +1,7 @@
 #Nombre:UI
 #Autor:Álvaro Villar Val
 #Fecha:27/02/24
-#Versión:0.7.6
+#Versión:0.7.7
 #Descripción: Interfaz de usuario para el programa
 #########################################################################################################################
 #Definimos los imports
@@ -528,7 +528,7 @@ class Actualizaciones(Page):
         Page.__init__(self, master,"Actualizaciones") #Inicializamos la pagina con el titulo de actualizaciones
         #Creamos los botones para actualizar los datos y las imagenes
         ctk.CTkButton(self, text="Actualizar datos", font=('Arial', 18),width=200, command=self.actualizardatos).pack(padx=10, pady=10)
-        ctk.CTkButton(self, text="Actualizar imáAcgenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
+        ctk.CTkButton(self, text="Actualizar imágenes", font=('Arial', 18),width=200, command=self.actualizarimagenes).pack(padx=10, pady=10)
         #Creamos un boton para volver a la pagina principal
         ctk.CTkButton(self, text="Atras", font=('Arial', 18),width=150,command=lambda: master.switch_frame(MainPage),fg_color="#1E3A8A", hover_color="#1E40AF").pack(padx=10, pady=10)
         self.bd2=BaseDatosLvl2()
